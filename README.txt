@@ -1,4 +1,4 @@
-SK Viral - Telegram Mini App Demo
+Desi Girl Vairal Link - Telegram Mini App Demo
 
 Files:
 - index.html
