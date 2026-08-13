@@ -1,0 +1,30 @@
+*{box-sizing:border-box}
+body{margin:0;background:#0b0f14;color:#fff;font-family:Arial,sans-serif}
+.app{max-width:900px;margin:auto;padding:18px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.brand{font-size:26px;font-weight:800}
+.sub{color:#8d98a8;margin-top:4px;font-size:13px}
+.tg-user{font-size:13px;color:#aeb8c5}
+.tabs{display:flex;gap:8px;overflow:auto;margin-bottom:18px}
+.tab{border:0;background:#1b222c;color:#b9c2ce;padding:10px 15px;border-radius:20px;white-space:nowrap}
+.tab.active{background:#229ed9;color:#fff}
+#videoGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{background:#151b23;border-radius:16px;overflow:hidden;border:1px solid #202a35}
+.thumb{height:190px;background:linear-gradient(135deg,#26384b,#111820);display:flex;align-items:center;justify-content:center;font-size:42px}
+.card-body{padding:13px}
+.card h3{font-size:16px;margin:0 0 7px}
+.meta{font-size:12px;color:#8f9aaa;margin-bottom:12px}
+.open-btn,.watch-btn,.video-btn{width:100%;border:0;border-radius:12px;padding:13px;font-weight:700}
+.open-btn{background:#229ed9;color:white}
+.watch-btn{background:#229ed9;color:white;margin-top:10px}
+.video-btn{background:#2b333e;color:#8e99a6;margin-top:10px}
+.video-btn.unlocked{background:#24a148;color:white}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;justify-content:center}
+.hidden{display:none}
+.modal-box{width:min(520px,100%);background:#151b23;border-radius:22px 22px 0 0;padding:20px;position:relative}
+.close{position:absolute;right:15px;top:10px;background:#252e39;color:white;border:0;border-radius:50%;font-size:25px;width:36px;height:36px}
+.preview{height:180px;border-radius:15px;background:linear-gradient(135deg,#26384b,#10151c);display:flex;align-items:center;justify-content:center;font-size:55px;margin-bottom:15px}
+.modal h2{margin:0 0 8px}.modal p{color:#9ca7b5;font-size:14px}
+.progress{height:8px;background:#252d37;border-radius:10px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#229ed9}
+@media(max-width:520px){#videoGrid{grid-template-columns:1fr 1fr}.thumb{height:145px}.app{padding:12px}}
