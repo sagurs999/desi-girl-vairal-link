@@ -68,12 +68,26 @@ function updateUnlock(){
   }
 }
 
-watchAdBtn.onclick=()=>{
-  if(adsWatched>=requiredAds) return;
-  // DEMO ONLY: this increments after the button click.
-  // A real ad network must confirm a completed ad before incrementing.
-  adsWatched++;
-  updateUnlock();
+watchAdBtn.onclick = async () => {
+    if (adsWatched >= requiredAds) return;
+
+    watchAdBtn.disabled = true;
+    watchAdBtn.textContent = "Loading Ad...";
+
+    try {
+        if (!window.adController) {
+            throw new Error("TADS is not ready");
+        }
+
+        await window.adController.showAd();
+
+    } catch (error) {
+        console.log("Ad error:", error);
+
+        watchAdBtn.disabled = false;
+        watchAdBtn.textContent =
+            `Watch Ads (${adsWatched}/${requiredAds})`;
+    }
 };
 
 videoBtn.onclick=()=>{
