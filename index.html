@@ -14,64 +14,64 @@
 
 <body>
 
-  <div class="app">
+<div class="app">
 
-    <header class="header">
-      <div>
-        <h1>Desi Girl Viral Link</h1>
-        <p>Trending videos</p>
-      </div>
-
-      <div id="tgUser">Guest</div>
-    </header>
-
-
-    <nav class="tabs">
-      <button class="tab active" data-category="All">All</button>
-      <button class="tab" data-category="Trending">Trending</button>
-      <button class="tab" data-category="Funny">Funny</button>
-      <button class="tab" data-category="Popular">Popular</button>
-    </nav>
-
-
-    <main id="videoGrid" class="grid"></main>
-
-  </div>
-
-
-  <!-- Video Modal -->
-  <div id="modal" class="modal hidden">
-
-    <div class="modal-box">
-
-      <button id="closeModal" class="close">×</button>
-
-      <div id="preview" class="preview">🎬</div>
-
-      <h2 id="modalTitle">Video</h2>
-
-      <p id="modalText">
-        Watch 3 ads to unlock this content.
-      </p>
-
-      <div class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
-      </div>
-
-      <p id="watchAdBtn" class="ad-button">
-        Watch Ads (0/3)
-      </p>
-
-      <button id="videoBtn" class="video-btn" disabled>
-        🔒 Video Locked
-      </button>
-
+  <header>
+    <div>
+      <h1>Desi Girl Viral Link</h1>
+      <p>Trending videos</p>
     </div>
 
+    <div id="tgUser">Guest</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-category="All">All</button>
+    <button class="tab" data-category="Trending">Trending</button>
+    <button class="tab" data-category="Funny">Funny</button>
+    <button class="tab" data-category="Popular">Popular</button>
   </div>
 
+  <main id="videoGrid"></main>
 
-  <script src="app.js"></script>
+</div>
+
+<!-- VIDEO MODAL -->
+
+<div class="modal hidden" id="modal">
+
+  <div class="modal-box">
+
+    <button class="close" id="closeModal">×</button>
+
+    <div class="preview" id="preview"></div>
+
+    <h2 id="modalTitle"></h2>
+
+    <p id="modalText">
+      Watch ads to unlock this content.
+    </p>
+
+    <div class="progress">
+      <span id="progressBar"></span>
+    </div>
+
+    <p id="watchAdBtn" class="watch-btn">
+      Watch Ads (0/3)
+    </p>
+
+    <button
+      class="video-btn"
+      id="videoBtn"
+      disabled>
+      🔒 Video Locked
+    </button>
+
+  </div>
+
+</div>
+
+<script src="app.js"></script>
 
 </body>
 </html>
