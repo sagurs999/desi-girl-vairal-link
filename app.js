@@ -1,290 +1,101 @@
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram?.WebApp;
 
 if (tg) {
-    tg.ready();
-    tg.expand();
+  tg.ready();
+  tg.expand();
 }
 
 
+/* =========================
+   VIDEO DATA
+========================= */
+
 const videos = [
-
-    {
-        id: 1,
-        title: "Trending Video 01",
-        category: "Trending",
-        emoji: "🔥"
-    },
-
-    {
-        id: 2,
-        title: "Funny Video 02",
-        category: "Funny",
-        emoji: "😂"
-    },
-
-    {
-        id: 3,
-        title: "Popular Video 03",
-        category: "Popular",
-        emoji: "⭐"
-    },
-
-    {
-        id: 4,
-        title: "Trending Video 04",
-        category: "Trending",
-        emoji: "🎬"
-    },
-
-    {
-        id: 5,
-        title: "Funny Video 05",
-        category: "Funny",
-        emoji: "🤣"
-    },
-
-    {
-        id: 6,
-        title: "Popular Video 06",
-        category: "Popular",
-        emoji: "💥"
-    }
-
+  {
+    id: 1,
+    title: "Trending Video 01",
+    category: "Trending",
+    emoji: "🔥"
+  },
+  {
+    id: 2,
+    title: "Funny Video 02",
+    category: "Funny",
+    emoji: "😂"
+  },
+  {
+    id: 3,
+    title: "Popular Video 03",
+    category: "Popular",
+    emoji: "⭐"
+  },
+  {
+    id: 4,
+    title: "Trending Video 04",
+    category: "Trending",
+    emoji: "🎬"
+  },
+  {
+    id: 5,
+    title: "Funny Video 05",
+    category: "Funny",
+    emoji: "🤣"
+  },
+  {
+    id: 6,
+    title: "Popular Video 06",
+    category: "Popular",
+    emoji: "🌟"
+  }
 ];
 
 
-let selected = null;
+/* =========================
+   SETTINGS
+========================= */
 
+const REQUIRED_ADS = 3;
+const MONETAG_ZONE_ID = "11571866";
+
+let selectedVideo = null;
 let adsWatched = 0;
-
-const requiredAds = 3;
+let adShowing = false;
 
 
 /* =========================
-   DOM ELEMENTS
+   ELEMENTS
 ========================= */
 
-const grid =
-    document.getElementById("videoGrid");
+const videoGrid = document.getElementById("videoGrid");
 
-const modal =
-    document.getElementById("modal");
+const modal = document.getElementById("modal");
+const closeModal = document.getElementById("closeModal");
 
-const modalTitle =
-    document.getElementById("modalTitle");
+const modalTitle = document.getElementById("modalTitle");
+const modalText = document.getElementById("modalText");
 
-const modalText =
-    document.getElementById("modalText");
+const preview = document.getElementById("preview");
 
-const preview =
-    document.getElementById("preview");
+const watchAdBtn = document.getElementById("watchAdBtn");
+const videoBtn = document.getElementById("videoBtn");
 
-const watchAdBtn =
-    document.getElementById("watchAdBtn");
+const progressBar = document.getElementById("progressBar");
 
-const videoBtn =
-    document.getElementById("videoBtn");
-
-const progressBar =
-    document.getElementById("progressBar");
-
-const closeModal =
-    document.getElementById("closeModal");
-
-const tgUser =
-    document.getElementById("tgUser");
+const tgUser = document.getElementById("tg-user");
 
 
 /* =========================
    TELEGRAM USER
 ========================= */
 
-try {
+if (tg?.initDataUnsafe?.user) {
 
-    const user =
-        tg &&
-        tg.initDataUnsafe &&
-        tg.initDataUnsafe.user;
+  const user = tg.initDataUnsafe.user;
 
-    if (user) {
-
-        tgUser.textContent =
-            user.first_name || "Telegram User";
-    }
-
-} catch (error) {
-
-    console.log("Telegram user error:", error);
-
-}
-
-
-/* =========================
-   TADS CONFIG
-========================= */
-
-const WIDGET_ID = "11498";
-
-let adController = null;
-
-let tadsReady = false;
-
-
-/* =========================
-   WAIT FOR TADS
-========================= */
-
-function waitForTads(timeout = 10000) {
-
-    return new Promise((resolve, reject) => {
-
-        if (
-            window.tads &&
-            typeof window.tads.init === "function"
-        ) {
-
-            resolve();
-
-            return;
-        }
-
-
-        const start =
-            Date.now();
-
-
-        const timer =
-            setInterval(() => {
-
-                if (
-                    window.tads &&
-                    typeof window.tads.init === "function"
-                ) {
-
-                    clearInterval(timer);
-
-                    resolve();
-
-                    return;
-                }
-
-
-                if (
-                    Date.now() - start > timeout
-                ) {
-
-                    clearInterval(timer);
-
-                    reject(
-                        new Error(
-                            "TADS widget script not loaded"
-                        )
-                    );
-                }
-
-            }, 100);
-
-    });
-
-}
-
-
-/* =========================
-   INITIALIZE TADS
-========================= */
-
-async function initTads() {
-
-    try {
-
-        await waitForTads();
-
-
-        adController =
-            window.tads.init({
-
-                widgetId: WIDGET_ID,
-
-                type: "fullscreen",
-
-                debug: false,
-
-
-                /*
-                 * This callback runs after
-                 * the ad has been shown.
-                 */
-
-                onShowReward: function(result) {
-
-                    console.log(
-                        "Ad shown:",
-                        result
-                    );
-
-
-                    /*
-                     * IMPORTANT:
-                     *
-                     * The counter is increased
-                     * ONLY here.
-                     */
-
-                    if (
-                        adsWatched < requiredAds
-                    ) {
-
-                        adsWatched++;
-                    }
-
-
-                    updateUnlock();
-
-                },
-
-
-                /*
-                 * No ad available.
-                 */
-
-                onAdsNotFound: function() {
-
-                    console.log(
-                        "No ads found"
-                    );
-
-
-                    watchAdBtn.disabled =
-                        false;
-
-
-                    watchAdBtn.textContent =
-                        `Watch Ads (${adsWatched}/${requiredAds})`;
-
-                }
-
-            });
-
-
-        tadsReady = true;
-
-
-        console.log(
-            "TADS initialized"
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "TADS initialization failed:",
-            error
-        );
-
-
-        tadsReady = false;
-
-    }
+  tgUser.textContent =
+    user.first_name ||
+    user.username ||
+    "Telegram User";
 
 }
 
@@ -295,69 +106,53 @@ async function initTads() {
 
 function render(category = "All") {
 
-    grid.innerHTML = "";
+  videoGrid.innerHTML = "";
+
+  const filteredVideos =
+    category === "All"
+      ? videos
+      : videos.filter(video => video.category === category);
 
 
-    videos
-        .filter(function(video) {
+  filteredVideos.forEach(video => {
 
-            return (
-                category === "All" ||
-                video.category === category
-            );
+    const card = document.createElement("article");
 
-        })
-        .forEach(function(video) {
+    card.className = "card";
 
-            const card =
-                document.createElement("article");
+    card.innerHTML = `
+      <div class="thumb">
+        ${video.emoji}
+      </div>
 
+      <div class="card-body">
 
-            card.className = "card";
+        <h3>${video.title}</h3>
 
+        <div class="meta">
+          ${video.category} · 3 ads to unlock
+        </div>
 
-            card.innerHTML = `
+        <button class="open-btn">
+          Open
+        </button>
 
-                <div class="thumb">
-                    ${video.emoji}
-                </div>
-
-                <div class="card-body">
-
-                    <h3>
-                        ${video.title}
-                    </h3>
-
-                    <div class="meta">
-                        ${video.category} · ${requiredAds} ads to unlock
-                    </div>
-
-                    <button class="open-btn">
-                        Open
-                    </button>
-
-                </div>
-
-            `;
+      </div>
+    `;
 
 
-            const openButton =
-                card.querySelector(
-                    ".open-btn"
-                );
+    card
+      .querySelector(".open-btn")
+      .addEventListener("click", () => {
+
+        openVideo(video);
+
+      });
 
 
-            openButton.onclick =
-                function() {
+    videoGrid.appendChild(card);
 
-                    openVideo(video);
-
-                };
-
-
-            grid.appendChild(card);
-
-        });
+  });
 
 }
 
@@ -368,271 +163,275 @@ function render(category = "All") {
 
 function openVideo(video) {
 
-    selected = video;
+  selectedVideo = video;
 
-    adsWatched = 0;
+  adsWatched = 0;
 
+  adShowing = false;
 
-    modalTitle.textContent =
-        video.title;
+  modalTitle.textContent = video.title;
 
+  modalText.textContent =
+    "Watch 3 ads to unlock this content.";
 
-    modalText.textContent =
-        `Watch ${requiredAds} ads to unlock this content.`;
+  preview.textContent = video.emoji;
 
+  videoBtn.disabled = true;
 
-    preview.textContent =
-        video.emoji;
+  videoBtn.textContent = "🔒 Video Locked";
 
+  watchAdBtn.disabled = false;
 
-    updateUnlock();
+  watchAdBtn.textContent =
+    `Watch Ad (0/${REQUIRED_ADS})`;
 
+  progressBar.style.width = "0%";
 
-    modal.classList.remove(
-        "hidden"
-    );
+  modal.classList.remove("hidden");
 
 }
 
 
 /* =========================
-   UPDATE UNLOCK STATUS
+   SHOW MONETAG AD
 ========================= */
 
-function updateUnlock() {
+async function showMonetagAd() {
 
-    watchAdBtn.textContent =
-        `Watch Ads (${adsWatched}/${requiredAds})`;
+  if (adShowing) {
+    return false;
+  }
 
+  adShowing = true;
 
-    const percentage =
-        Math.min(
-            (adsWatched / requiredAds) * 100,
-            100
-        );
+  watchAdBtn.disabled = true;
 
-
-    progressBar.style.width =
-        `${percentage}%`;
+  watchAdBtn.textContent = "Loading Ad...";
 
 
-    if (
-        adsWatched >= requiredAds
-    ) {
+  try {
 
-        videoBtn.disabled =
-            false;
+    const adFunction =
+      window[`show_${MONETAG_ZONE_ID}`];
 
 
-        videoBtn.classList.add(
-            "unlocked"
-        );
+    if (typeof adFunction !== "function") {
 
-
-        videoBtn.textContent =
-            "▶ Watch Video";
-
-
-        modalText.textContent =
-            "Unlocked. You can now open the content.";
-
-
-    } else {
-
-        videoBtn.disabled =
-            true;
-
-
-        videoBtn.classList.remove(
-            "unlocked"
-        );
-
-
-        videoBtn.textContent =
-            "🔒 Video Locked";
+      throw new Error(
+        "Monetag SDK is not ready."
+      );
 
     }
 
+
+    /*
+      IMPORTANT:
+
+      Count will NOT increase here.
+
+      It increases only after
+      the ad promise resolves.
+    */
+
+    await adFunction();
+
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "Monetag Ad Error:",
+      error
+    );
+
+    return false;
+
+  } finally {
+
+    adShowing = false;
+
+  }
+
 }
 
 
 /* =========================
-   WATCH AD
+   WATCH AD BUTTON
 ========================= */
 
-watchAdBtn.onclick =
-    async function() {
+watchAdBtn.addEventListener(
+  "click",
+  async () => {
 
-        if (
-            adsWatched >= requiredAds
-        ) {
-
-            return;
-        }
+    if (adShowing) {
+      return;
+    }
 
 
-        watchAdBtn.disabled =
-            true;
+    if (adsWatched >= REQUIRED_ADS) {
+      return;
+    }
 
 
-        watchAdBtn.textContent =
-            "Loading Ad...";
+    watchAdBtn.disabled = true;
+
+    watchAdBtn.textContent =
+      "Loading Ad...";
 
 
-        try {
-
-            /*
-             * Make sure TADS is ready.
-             */
-
-            if (
-                !tadsReady ||
-                !adController
-            ) {
-
-                await initTads();
-
-            }
+    const adCompleted =
+      await showMonetagAd();
 
 
-            if (
-                !adController
-            ) {
+    /*
+      ONLY successful ad completion
+      increases the counter.
+    */
 
-                throw new Error(
-                    "TADS controller is not ready"
-                );
+    if (!adCompleted) {
 
-            }
+      watchAdBtn.disabled = false;
 
+      watchAdBtn.textContent =
+        `Watch Ad (${adsWatched}/${REQUIRED_ADS})`;
 
-            /*
-             * Show the ad.
-             *
-             * DO NOT increment adsWatched here.
-             */
+      return;
 
-            await adController.showAd();
+    }
 
 
-            /*
-             * The count is handled
-             * by onShowReward().
-             */
+    adsWatched++;
 
 
-        } catch (error) {
+    const percentage =
+      (adsWatched / REQUIRED_ADS) * 100;
 
-            console.error(
-                "Ad show error:",
-                error
-            );
-
-
-            watchAdBtn.disabled =
-                false;
+    progressBar.style.width =
+      `${percentage}%`;
 
 
-            watchAdBtn.textContent =
-                `Watch Ads (${adsWatched}/${requiredAds})`;
+    if (adsWatched >= REQUIRED_ADS) {
 
-        }
+      modalText.textContent =
+        "All ads completed. Your video is unlocked.";
 
-    };
+      watchAdBtn.textContent =
+        "Ads Completed ✓";
+
+      watchAdBtn.disabled = true;
+
+      videoBtn.disabled = false;
+
+      videoBtn.textContent =
+        "▶ Watch Video";
+
+    } else {
+
+      modalText.textContent =
+        `Ad completed. Watch ${
+          REQUIRED_ADS - adsWatched
+        } more ad(s).`;
+
+      watchAdBtn.disabled = false;
+
+      watchAdBtn.textContent =
+        `Watch Ad (${adsWatched}/${REQUIRED_ADS})`;
+
+    }
+
+  }
+);
 
 
 /* =========================
    VIDEO BUTTON
 ========================= */
 
-videoBtn.onclick =
-    function() {
+videoBtn.addEventListener(
+  "click",
+  () => {
 
-        if (
-            adsWatched < requiredAds
-        ) {
-
-            return;
-        }
+    if (adsWatched < REQUIRED_ADS) {
+      return;
+    }
 
 
-        alert(
-            "Video unlocked. Replace this with your real video URL."
-        );
+    /*
+      Replace this with your real
+      video URL / backend later.
+    */
 
-    };
+    alert(
+      "Video unlocked. Add your real video URL here."
+    );
+
+  }
+);
 
 
 /* =========================
    CLOSE MODAL
 ========================= */
 
-closeModal.onclick =
-    function() {
+closeModal.addEventListener(
+  "click",
+  () => {
 
-        modal.classList.add(
-            "hidden"
-        );
+    modal.classList.add("hidden");
 
-    };
+  }
+);
 
 
-modal.onclick =
-    function(event) {
+modal.addEventListener(
+  "click",
+  event => {
 
-        if (
-            event.target === modal
-        ) {
+    if (event.target === modal) {
 
-            modal.classList.add(
-                "hidden"
-            );
+      modal.classList.add("hidden");
 
-        }
+    }
 
-    };
+  }
+);
 
 
 /* =========================
-   CATEGORY TABS
+   CATEGORY FILTER
 ========================= */
 
 document
-    .querySelectorAll(".tab")
-    .forEach(function(button) {
+  .querySelectorAll(".tab")
+  .forEach(button => {
 
-        button.onclick =
-            function() {
+    button.addEventListener(
+      "click",
+      () => {
 
-                document
-                    .querySelectorAll(".tab")
-                    .forEach(function(tab) {
-
-                        tab.classList.remove(
-                            "active"
-                        );
-
-                    });
+        document
+          .querySelectorAll(".tab")
+          .forEach(btn =>
+            btn.classList.remove("active")
+          );
 
 
-                button.classList.add(
-                    "active"
-                );
+        button.classList.add("active");
 
 
-                render(
-                    button.dataset.category
-                );
+        render(
+          button.dataset.category
+        );
 
-            };
+      }
+    );
 
-    });
+  });
 
 
 /* =========================
-   START
+   INITIAL RENDER
 ========================= */
 
 render();
-
-initTads();
