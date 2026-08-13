@@ -25,7 +25,26 @@ const progressBar = document.getElementById("progressBar");
 
 const user = tg?.initDataUnsafe?.user;
 if (user) document.getElementById("tgUser").textContent = user.first_name || "Telegram User";
+window.adController = window.tads.init({
+  widgetId: "11498",
+  type: "fullscreen",
+  debug: false,
 
+  onShowReward: function(result) {
+    console.log("Ad completed:", result);
+
+    adsWatched++;
+    updateUnlock();
+  },
+
+  onAdsNotFound: function() {
+    console.log("No ad found");
+
+    watchAdBtn.disabled = false;
+    watchAdBtn.textContent =
+      `Watch Ads (${adsWatched}/${requiredAds})`;
+  }
+});
 function render(category="All"){
   grid.innerHTML="";
   videos.filter(v=>category==="All"||v.category===category).forEach(v=>{
