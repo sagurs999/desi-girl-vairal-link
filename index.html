@@ -50,7 +50,14 @@ document.addEventListener("DOMContentLoaded", function () {
         debug: false,
 
         onShowReward: function (result) {
-    console.log("TADS AD COMPLETED:", result);
+    console.log("Show ads, reward user:", result);
+
+    adsWatched++;
+    updateUnlock();
+
+    watchAdBtn.disabled = false;
+    watchAdBtn.textContent =
+        `Watch Ads (${adsWatched}/${requiredAds})`;
 },
 
         onAdsNotFound: function () {
