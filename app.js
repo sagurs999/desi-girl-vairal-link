@@ -106,5 +106,5 @@ document.querySelectorAll(".tab").forEach(btn=>{
     render(btn.dataset.category);
   };
 });
-
+<script src="app.js"></script>
 render();
