@@ -94,28 +94,19 @@ watchAdBtn.onclick = async () => {
     watchAdBtn.textContent = "Loading Ad...";
 
     try {
-        if (!window.adController) {
-            throw new Error("TADS is not ready");
-        }
+  if (!window.adController) {
+    throw new Error("TADS is not ready");
+  }
 
-window.adController
-    .then(() => window.adController.showAd())
-    .catch((error) => {
-        console.log("TADS error:", error);
+  await window.adController.showAd();
 
-        watchAdBtn.disabled = false;
-        watchAdBtn.textContent =
-            `Watch Ads (${adsWatched}/${requiredAds})`;
-    });
+} catch (error) {
+  console.log("TADS error:", error);
 
-    } catch (error) {
-        console.log("Ad error:", error);
-
-        watchAdBtn.disabled = false;
-        watchAdBtn.textContent =
-            `Watch Ads (${adsWatched}/${requiredAds})`;
-    }
-};
+  watchAdBtn.disabled = false;
+  watchAdBtn.textContent =
+    `Watch Ads (${adsWatched}/${requiredAds})`;
+}
 
 videoBtn.onclick=()=>{
   if(adsWatched>=requiredAds){
