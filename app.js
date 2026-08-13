@@ -1,202 +1,168 @@
-document.addEventListener("DOMContentLoaded", function () {
-
-  console.log("APP STARTED");
-
-
-  // Telegram
-  const tg = window.Telegram?.WebApp;
-
-  if (tg) {
-    tg.ready();
-    tg.expand();
-
-    console.log("Telegram WebApp ready");
+const videos = [
+  {
+    id: 1,
+    title: "Trending Video 01",
+    category: "Trending",
+    emoji: "🔥"
+  },
+  {
+    id: 2,
+    title: "Funny Video 02",
+    category: "Funny",
+    emoji: "😂"
+  },
+  {
+    id: 3,
+    title: "Popular Video 03",
+    category: "Popular",
+    emoji: "⭐"
+  },
+  {
+    id: 4,
+    title: "Trending Video 04",
+    category: "Trending",
+    emoji: "🎬"
+  },
+  {
+    id: 5,
+    title: "Funny Video 05",
+    category: "Funny",
+    emoji: "🤣"
+  },
+  {
+    id: 6,
+    title: "Popular Video 06",
+    category: "Popular",
+    emoji: "🌟"
   }
+];
 
+let selected = null;
+let adsWatched = 0;
 
-  // User
-  const user = tg?.initDataUnsafe?.user;
+const REQUIRED_ADS = 3;
 
-  const userElement = document.getElementById("tgUser");
+/* =========================
+   TELEGRAM
+========================= */
 
-  if (userElement) {
-    userElement.textContent =
-      user?.first_name || "Guest";
+const tg = window.Telegram?.WebApp;
+
+if (tg) {
+  tg.ready();
+  tg.expand();
+
+  const user = tg.initDataUnsafe?.user;
+
+  if (user) {
+    document.getElementById("tgUser").textContent =
+      user.first_name || "Telegram User";
   }
+}
 
+/* =========================
+   ELEMENTS
+========================= */
 
-  // Videos
-  const videos = [
-    {
-      id: 1,
-      title: "Trending Video 01",
-      category: "Trending",
-      emoji: "🔥"
-    },
-    {
-      id: 2,
-      title: "Funny Video 02",
-      category: "Funny",
-      emoji: "😂"
-    },
-    {
-      id: 3,
-      title: "Popular Video 03",
-      category: "Popular",
-      emoji: "⭐"
-    },
-    {
-      id: 4,
-      title: "Trending Video 04",
-      category: "Trending",
-      emoji: "🎬"
-    },
-    {
-      id: 5,
-      title: "Funny Video 05",
-      category: "Funny",
-      emoji: "🤣"
-    },
-    {
-      id: 6,
-      title: "Popular Video 06",
-      category: "Popular",
-      emoji: "🔥"
-    }
-  ];
+const grid = document.getElementById("videoGrid");
 
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modalTitle");
+const modalText = document.getElementById("modalText");
 
-  // Elements
-  const grid = document.getElementById("videoGrid");
+const preview = document.getElementById("preview");
 
-  const modal = document.getElementById("modal");
+const watchAdBtn = document.getElementById("watchAdBtn");
+const videoBtn = document.getElementById("videoBtn");
 
-  const modalTitle =
-    document.getElementById("modalTitle");
+const progressBar = document.getElementById("progressBar");
 
-  const modalText =
-    document.getElementById("modalText");
+const closeModal = document.getElementById("closeModal");
 
-  const preview =
-    document.getElementById("preview");
+/* =========================
+   TADS
+========================= */
 
-  const watchAdBtn =
-    document.getElementById("watchAdBtn");
+/*
+ IMPORTANT:
+ নিচের ID-টা আপনার TADS dashboard
+ থেকে পাওয়া REAL widget ID দিয়ে বদলাবেন।
+*/
 
-  const videoBtn =
-    document.getElementById("videoBtn");
+const TADS_WIDGET_ID = 11498;
 
-  const progressBar =
-    document.getElementById("progressBar");
+let adController = null;
 
-  const closeModal =
-    document.getElementById("closeModal");
+function initAds() {
 
-
-  // Check elements
-  if (!grid) {
-    console.error("videoGrid not found!");
+  if (!window.tads) {
+    console.error("TADS SDK not loaded");
     return;
   }
 
+  try {
 
-  let selectedVideo = null;
+    adController = window.tads.init({
 
-  let adsWatched = 0;
+      widgetId: String(TADS_WIDGET_ID),
 
-  const requiredAds = 3;
+      type: "fullscreen",
 
+      debug: false,
 
-  // =========================
-  // TADS
-  // =========================
+      onShowReward: function(result) {
 
-  let adController = null;
+        console.log("TADS ad completed:", result);
 
+        adsWatched++;
 
-  function setupAds() {
+        updateUnlock();
 
-    if (
-      window.tads &&
-      typeof window.tads.init === "function"
-    ) {
+      },
 
-      try {
+      onAdsNotFound: function() {
 
-        adController = window.tads.init({
-          widgetId: "11498",
-          type: "fullscreen",
-          debug: false,
+        console.log("TADS: No ad available");
 
-          onShowReward: function (result) {
+        watchAdBtn.textContent =
+          `No ad available. Try again (${adsWatched}/${REQUIRED_ADS})`;
 
-            console.log("Ad completed", result);
+        watchAdBtn.disabled = false;
 
-            adsWatched++;
-
-            updateUnlock();
-
-          },
-
-          onAdsNotFound: function () {
-
-            console.log("No ad found");
-
-            watchAdBtn.disabled = false;
-
-            watchAdBtn.textContent =
-              `Watch Ads (${adsWatched}/${requiredAds})`;
-
-          }
-        });
-
-        console.log("TADS initialized");
-
-      } catch (error) {
-
-        console.error(
-          "TADS initialization error:",
-          error
-        );
-
-        adController = null;
       }
 
-    } else {
+    });
 
-      console.log("TADS not available");
+    console.log("TADS initialized:", adController);
 
-    }
+  } catch (error) {
+
+    console.error("TADS initialization error:", error);
 
   }
 
+}
 
-  setupAds();
+initAds();
 
+/* =========================
+   RENDER VIDEOS
+========================= */
 
-  // =========================
-  // RENDER VIDEOS
-  // =========================
+function render(category = "All") {
 
-  function render(category = "All") {
+  grid.innerHTML = "";
 
-    grid.innerHTML = "";
+  videos
+    .filter(video =>
+      category === "All" ||
+      video.category === category
+    )
+    .forEach(video => {
 
-    const filteredVideos =
-      category === "All"
-        ? videos
-        : videos.filter(
-            video => video.category === category
-          );
-
-
-    filteredVideos.forEach(video => {
-
-      const card =
-        document.createElement("article");
+      const card = document.createElement("article");
 
       card.className = "card";
-
 
       card.innerHTML = `
         <div class="thumb">
@@ -208,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <h3>${video.title}</h3>
 
           <div class="meta">
-            ${video.category}
+            ${video.category} · 3 ads to unlock
           </div>
 
           <button class="open-btn">
@@ -218,274 +184,191 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
       `;
 
-
-      const openButton =
-        card.querySelector(".open-btn");
-
-
-      openButton.addEventListener(
-        "click",
-        function () {
+      card
+        .querySelector(".open-btn")
+        .addEventListener("click", () => {
 
           openVideo(video);
 
-        }
-      );
-
+        });
 
       grid.appendChild(card);
 
     });
 
+}
 
-    console.log(
-      "Rendered:",
-      filteredVideos.length,
-      "videos"
+/* =========================
+   OPEN VIDEO
+========================= */
+
+function openVideo(video) {
+
+  selected = video;
+
+  adsWatched = 0;
+
+  modalTitle.textContent = video.title;
+
+  modalText.textContent =
+    "Watch 3 ads to unlock this content.";
+
+  preview.textContent = video.emoji;
+
+  modal.classList.remove("hidden");
+
+  updateUnlock();
+
+}
+
+/* =========================
+   UPDATE LOCK
+========================= */
+
+function updateUnlock() {
+
+  watchAdBtn.textContent =
+    `Watch Ads (${adsWatched}/${REQUIRED_ADS})`;
+
+  const percent =
+    Math.min(
+      100,
+      (adsWatched / REQUIRED_ADS) * 100
     );
 
-  }
+  progressBar.style.width = percent + "%";
 
+  if (adsWatched >= REQUIRED_ADS) {
 
-  // =========================
-  // OPEN VIDEO
-  // =========================
+    videoBtn.disabled = false;
 
-  function openVideo(video) {
+    videoBtn.classList.add("unlocked");
 
-    selectedVideo = video;
-
-    adsWatched = 0;
-
-
-    modalTitle.textContent =
-      video.title;
-
+    videoBtn.textContent = "▶ Watch Video";
 
     modalText.textContent =
-      `Watch ${requiredAds} ads to unlock this content.`;
+      "Unlocked! You can now open the content.";
 
+  } else {
 
-    preview.textContent =
-      video.emoji;
+    videoBtn.disabled = true;
 
+    videoBtn.classList.remove("unlocked");
 
-    updateUnlock();
-
-
-    modal.classList.remove("hidden");
+    videoBtn.textContent =
+      "🔒 Video Locked";
 
   }
 
+}
 
-  // =========================
-  // UPDATE UNLOCK
-  // =========================
+/* =========================
+   WATCH AD
+========================= */
 
-  function updateUnlock() {
+watchAdBtn.addEventListener("click", async () => {
+
+  if (adsWatched >= REQUIRED_ADS) {
+    return;
+  }
+
+  if (!adController) {
+
+    console.error("TADS controller is not ready");
+
+    alert(
+      "Advertisement is not ready. Please open the Mini App from Telegram and try again."
+    );
+
+    return;
+
+  }
+
+  watchAdBtn.disabled = true;
+
+  watchAdBtn.textContent = "Loading Ad...";
+
+  try {
+
+    await adController.showAd();
+
+  } catch (error) {
+
+    console.error("TADS showAd error:", error);
+
+    watchAdBtn.disabled = false;
 
     watchAdBtn.textContent =
-      `Watch Ads (${adsWatched}/${requiredAds})`;
-
-
-    const percentage =
-      Math.min(
-        (adsWatched / requiredAds) * 100,
-        100
-      );
-
-
-    progressBar.style.width =
-      percentage + "%";
-
-
-    if (adsWatched >= requiredAds) {
-
-      videoBtn.disabled = false;
-
-      videoBtn.classList.add("unlocked");
-
-      videoBtn.textContent =
-        "▶ Watch Video";
-
-
-      modalText.textContent =
-        "Unlocked. You can now open the content.";
-
-    } else {
-
-      videoBtn.disabled = true;
-
-      videoBtn.classList.remove("unlocked");
-
-      videoBtn.textContent =
-        "🔒 Video Locked";
-
-    }
+      `Watch Ads (${adsWatched}/${REQUIRED_ADS})`;
 
   }
 
+});
 
-  // =========================
-  // WATCH AD
-  // =========================
+/* =========================
+   VIDEO BUTTON
+========================= */
 
-  watchAdBtn.addEventListener(
-    "click",
-    async function () {
+videoBtn.addEventListener("click", () => {
 
-      if (adsWatched >= requiredAds) {
-        return;
-      }
+  if (adsWatched < REQUIRED_ADS) {
+    return;
+  }
 
+  /*
+    এখানে আপনার আসল ভিডিও URL বসাবেন।
+  */
 
-      if (!adController) {
-
-        alert(
-          "Advertisement is not available right now."
-        );
-
-        return;
-
-      }
-
-
-      watchAdBtn.disabled = true;
-
-      watchAdBtn.textContent =
-        "Loading Ad...";
-
-
-      try {
-
-        if (
-          typeof adController.showAd === "function"
-        ) {
-
-          await adController.showAd();
-
-        } else {
-
-          throw new Error(
-            "TADS showAd function not available"
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "TADS error:",
-          error
-        );
-
-
-        watchAdBtn.disabled = false;
-
-        watchAdBtn.textContent =
-          `Watch Ads (${adsWatched}/${requiredAds})`;
-
-      }
-
-    }
+  alert(
+    "Video unlocked! এখানে আপনার আসল video URL বসাতে হবে."
   );
-
-
-  // =========================
-  // VIDEO BUTTON
-  // =========================
-
-  videoBtn.addEventListener(
-    "click",
-    function () {
-
-      if (adsWatched < requiredAds) {
-        return;
-      }
-
-
-      /*
-        এখানে আপনার নিজের বৈধ ভিডিও URL
-        বা backend endpoint বসাবেন।
-      */
-
-      alert(
-        "Video unlocked. Add your video URL/backend here."
-      );
-
-    }
-  );
-
-
-  // =========================
-  // CLOSE MODAL
-  // =========================
-
-  closeModal.addEventListener(
-    "click",
-    function () {
-
-      modal.classList.add("hidden");
-
-    }
-  );
-
-
-  modal.addEventListener(
-    "click",
-    function (event) {
-
-      if (event.target === modal) {
-
-        modal.classList.add("hidden");
-
-      }
-
-    }
-  );
-
-
-  // =========================
-  // CATEGORY TABS
-  // =========================
-
-  document
-    .querySelectorAll(".tab")
-    .forEach(function (button) {
-
-      button.addEventListener(
-        "click",
-        function () {
-
-          document
-            .querySelectorAll(".tab")
-            .forEach(function (btn) {
-
-              btn.classList.remove("active");
-
-            });
-
-
-          button.classList.add("active");
-
-
-          render(
-            button.dataset.category
-          );
-
-        }
-      );
-
-    });
-
-
-  // =========================
-  // INITIAL RENDER
-  // =========================
-
-  render("All");
-
-
-  console.log("APP FINISHED");
 
 });
+
+/* =========================
+   CLOSE MODAL
+========================= */
+
+closeModal.addEventListener("click", () => {
+
+  modal.classList.add("hidden");
+
+});
+
+modal.addEventListener("click", (event) => {
+
+  if (event.target === modal) {
+
+    modal.classList.add("hidden");
+
+  }
+
+});
+
+/* =========================
+   CATEGORY TABS
+========================= */
+
+document.querySelectorAll(".tab").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    document
+      .querySelectorAll(".tab")
+      .forEach(btn =>
+        btn.classList.remove("active")
+      );
+
+    button.classList.add("active");
+
+    render(button.dataset.category);
+
+  });
+
+});
+
+/* =========================
+   START
+========================= */
+
+render();
