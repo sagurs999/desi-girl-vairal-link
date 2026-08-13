@@ -79,7 +79,8 @@ watchAdBtn.onclick = async () => {
             throw new Error("TADS is not ready");
         }
 
-        await window.adController.showAd();
+await window.adController.loadAd();
+await window.adController.showAd();
 
     } catch (error) {
         console.log("Ad error:", error);
