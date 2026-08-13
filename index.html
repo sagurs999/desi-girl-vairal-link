@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const WIDGET_ID = "11498";
 
-    const adController = window.tads.init({
+    window.adController = window.tads.init({
         widgetId: WIDGET_ID,
         type: "fullscreen",
         debug: false,
