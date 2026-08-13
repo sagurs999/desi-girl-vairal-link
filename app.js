@@ -1,9 +1,10 @@
-const tg = window.Telegram?.WebApp;
+const tg = window.Telegram && window.Telegram.WebApp;
 
 if (tg) {
   tg.ready();
   tg.expand();
 }
+
 
 const videos = [
   {
@@ -44,67 +45,162 @@ const videos = [
   }
 ];
 
+
 let selected = null;
 let adsWatched = 0;
 
 const requiredAds = 3;
+
+let adController = null;
+let adLoading = false;
+let rewardReceived = false;
+
 
 const grid = document.getElementById("videoGrid");
 const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
 const modalText = document.getElementById("modalText");
 const preview = document.getElementById("preview");
-
 const watchAdBtn = document.getElementById("watchAdBtn");
 const videoBtn = document.getElementById("videoBtn");
 const progressBar = document.getElementById("progressBar");
+const closeModal = document.getElementById("closeModal");
 
-const user = tg?.initDataUnsafe?.user;
+
+const user =
+  tg && tg.initDataUnsafe
+    ? tg.initDataUnsafe.user
+    : null;
+
 
 if (user) {
-  document.getElementById("tgUser").textContent =
-    user.first_name || "Telegram User";
+  const tgUser = document.getElementById("tgUser");
+
+  if (tgUser) {
+    tgUser.textContent = user.first_name || "Telegram User";
+  }
 }
+
+
+function initAds() {
+
+  if (!window.tads || typeof window.tads.init !== "function") {
+    console.error("TADS SDK is not loaded.");
+    return false;
+  }
+
+  try {
+
+    adController = window.tads.init({
+      widgetId: "11498",
+      type: "fullscreen",
+      debug: false,
+
+      onShowReward: function(result) {
+
+        console.log("Ad reward received:", result);
+
+        rewardReceived = true;
+
+        adsWatched++;
+
+        if (adsWatched > requiredAds) {
+          adsWatched = requiredAds;
+        }
+
+        updateUnlock();
+      },
+
+      onAdsNotFound: function() {
+
+        console.log("No ads found.");
+
+        adLoading = false;
+
+        watchAdBtn.disabled = false;
+
+        watchAdBtn.textContent =
+          `Watch Ads (${adsWatched}/${requiredAds})`;
+      }
+    });
+
+    return true;
+
+  } catch (error) {
+
+    console.error("TADS initialization error:", error);
+
+    adController = null;
+
+    return false;
+  }
+}
+
 
 function render(category = "All") {
+
   grid.innerHTML = "";
 
-  videos
-    .filter(v => category === "All" || v.category === category)
-    .forEach(v => {
+  const filteredVideos =
+    videos.filter(function(video) {
 
-      const card = document.createElement("article");
+      return category === "All" ||
+             video.category === category;
 
-      card.className = "card";
-
-      card.innerHTML = `
-        <div class="thumb">${v.emoji}</div>
-
-        <div class="card-body">
-          <h3>${v.title}</h3>
-
-          <div class="meta">
-            ${v.category} · 3 ads to unlock
-          </div>
-
-          <button class="open-btn">
-            Open
-          </button>
-        </div>
-      `;
-
-      card
-        .querySelector(".open-btn")
-        .onclick = () => openVideo(v);
-
-      grid.appendChild(card);
     });
+
+
+  filteredVideos.forEach(function(video) {
+
+    const card = document.createElement("article");
+
+    card.className = "card";
+
+
+    card.innerHTML = `
+      <div class="thumb">${video.emoji}</div>
+
+      <div class="card-body">
+
+        <h3>${video.title}</h3>
+
+        <div class="meta">
+          ${video.category} · 3 ads to unlock
+        </div>
+
+        <button class="open-btn">
+          Open
+        </button>
+
+      </div>
+    `;
+
+
+    const openButton =
+      card.querySelector(".open-btn");
+
+
+    openButton.addEventListener("click", function() {
+
+      openVideo(video);
+
+    });
+
+
+    grid.appendChild(card);
+
+  });
+
 }
 
+
 function openVideo(video) {
+
   selected = video;
 
   adsWatched = 0;
+
+  rewardReceived = false;
 
   modalTitle.textContent = video.title;
 
@@ -116,18 +212,26 @@ function openVideo(video) {
   updateUnlock();
 
   modal.classList.remove("hidden");
+
 }
+
 
 function updateUnlock() {
 
   watchAdBtn.textContent =
     `Watch Ads (${adsWatched}/${requiredAds})`;
 
-  const percentage =
-    Math.min((adsWatched / requiredAds) * 100, 100);
+
+  const progress =
+    Math.min(
+      (adsWatched / requiredAds) * 100,
+      100
+    );
+
 
   progressBar.style.width =
-    `${percentage}%`;
+    `${progress}%`;
+
 
   if (adsWatched >= requiredAds) {
 
@@ -149,47 +253,71 @@ function updateUnlock() {
 
     videoBtn.textContent =
       "🔒 Video Locked";
+
+    modalText.textContent =
+      "Watch 3 ads to unlock this content.";
+
   }
+
 }
 
-let adController = null;
 
-function initializeAds() {
+async function watchAd() {
 
-  if (
-    !window.tads ||
-    typeof window.tads.init !== "function"
-  ) {
-    console.error("TADS SDK is not available.");
+  if (adsWatched >= requiredAds) {
     return;
   }
 
-  adController = window.tads.init({
 
-    widgetId: "11498",
+  if (adLoading) {
+    return;
+  }
 
-    type: "fullscreen",
 
-    debug: false,
+  if (!adController) {
 
-    onShowReward: function(result) {
+    const initialized = initAds();
+
+    if (!initialized) {
+
+      watchAdBtn.disabled = false;
+
+      watchAdBtn.textContent =
+        `Watch Ads (${adsWatched}/${requiredAds})`;
+
+      return;
+    }
+  }
+
+
+  adLoading = true;
+
+  rewardReceived = false;
+
+  watchAdBtn.disabled = true;
+
+  watchAdBtn.textContent = "Loading Ad...";
+
+
+  try {
+
+    if (!adController) {
+      throw new Error("TADS controller is not ready.");
+    }
+
+
+    if (typeof adController.showAd !== "function") {
+      throw new Error("showAd is not available.");
+    }
+
+
+    await adController.showAd();
+
+
+    if (!rewardReceived) {
 
       console.log(
-        "Reward received:",
-        result
-      );
-
-      if (adsWatched < requiredAds) {
-        adsWatched++;
-      }
-
-      updateUnlock();
-    },
-
-    onAdsNotFound: function() {
-
-      console.log(
-        "No ads found."
+        "Ad finished without reward callback."
       );
 
       watchAdBtn.disabled = false;
@@ -197,100 +325,90 @@ function initializeAds() {
       watchAdBtn.textContent =
         `Watch Ads (${adsWatched}/${requiredAds})`;
     }
-  });
-}
-
-watchAdBtn.onclick = async function() {
-
-  if (adsWatched >= requiredAds) {
-    return;
-  }
-
-  if (!adController) {
-
-    console.error(
-      "TADS controller is not ready."
-    );
-
-    watchAdBtn.disabled = false;
-
-    watchAdBtn.textContent =
-      `Watch Ads (${adsWatched}/${requiredAds})`;
-
-    return;
-  }
-
-  watchAdBtn.disabled = true;
-
-  watchAdBtn.textContent =
-    "Loading Ad...";
-
-  try {
-
-    await adController.loadAd();
-
-    await adController.showAd();
 
   } catch (error) {
 
-    console.error(
-      "TADS error:",
-      error
-    );
+    console.error("TADS error:", error);
 
     watchAdBtn.disabled = false;
 
     watchAdBtn.textContent =
       `Watch Ads (${adsWatched}/${requiredAds})`;
+
+  } finally {
+
+    adLoading = false;
+
   }
-};
 
-videoBtn.onclick = function() {
+}
 
-  if (
-    adsWatched >= requiredAds &&
-    selected
-  ) {
 
-    alert(
-      "Video unlocked. Add your real video URL or backend here."
-    );
+watchAdBtn.addEventListener("click", function() {
+
+  watchAd();
+
+});
+
+
+videoBtn.addEventListener("click", function() {
+
+  if (adsWatched < requiredAds) {
+    return;
   }
-};
 
-document
-  .getElementById("closeModal")
-  .onclick = function() {
 
-    modal.classList.add("hidden");
-  };
+  if (!selected) {
+    return;
+  }
 
-modal.onclick = function(event) {
+
+  alert(
+    "Demo unlocked. Replace this with your real video URL/backend."
+  );
+
+});
+
+
+closeModal.addEventListener("click", function() {
+
+  modal.classList.add("hidden");
+
+});
+
+
+modal.addEventListener("click", function(event) {
 
   if (event.target === modal) {
     modal.classList.add("hidden");
   }
-};
 
-document
-  .querySelectorAll(".tab")
-  .forEach(button => {
+});
 
-    button.onclick = function() {
 
-      document
-        .querySelectorAll(".tab")
-        .forEach(tab => {
-          tab.classList.remove("active");
-        });
+document.querySelectorAll(".tab").forEach(function(button) {
 
-      button.classList.add("active");
+  button.addEventListener("click", function() {
 
-      render(
-        button.dataset.category
-      );
-    };
+    document
+      .querySelectorAll(".tab")
+      .forEach(function(tab) {
+
+        tab.classList.remove("active");
+
+      });
+
+
+    button.classList.add("active");
+
+
+    render(button.dataset.category);
+
   });
 
-initializeAds();
+});
+
+
 render();
+
+initAds();
