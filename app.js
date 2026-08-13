@@ -1,5 +1,10 @@
 const tg = window.Telegram?.WebApp;
 
+
+/* =========================
+   TELEGRAM
+========================= */
+
 if (tg) {
   tg.ready();
   tg.expand();
@@ -11,42 +16,49 @@ if (tg) {
 ========================= */
 
 const videos = [
+
   {
     id: 1,
     title: "Trending Video 01",
     category: "Trending",
     emoji: "🔥"
   },
+
   {
     id: 2,
     title: "Funny Video 02",
     category: "Funny",
     emoji: "😂"
   },
+
   {
     id: 3,
     title: "Popular Video 03",
     category: "Popular",
     emoji: "⭐"
   },
+
   {
     id: 4,
     title: "Trending Video 04",
     category: "Trending",
     emoji: "🎬"
   },
+
   {
     id: 5,
     title: "Funny Video 05",
     category: "Funny",
     emoji: "🤣"
   },
+
   {
     id: 6,
     title: "Popular Video 06",
     category: "Popular",
     emoji: "🌟"
   }
+
 ];
 
 
@@ -55,10 +67,13 @@ const videos = [
 ========================= */
 
 const REQUIRED_ADS = 3;
-const MONETAG_ZONE_ID = "11571866";
+
+const ZONE_ID = "3448210";
 
 let selectedVideo = null;
+
 let adsWatched = 0;
+
 let adShowing = false;
 
 
@@ -66,22 +81,35 @@ let adShowing = false;
    ELEMENTS
 ========================= */
 
-const videoGrid = document.getElementById("videoGrid");
+const videoGrid =
+  document.getElementById("videoGrid");
 
-const modal = document.getElementById("modal");
-const closeModal = document.getElementById("closeModal");
+const modal =
+  document.getElementById("modal");
 
-const modalTitle = document.getElementById("modalTitle");
-const modalText = document.getElementById("modalText");
+const closeModal =
+  document.getElementById("closeModal");
 
-const preview = document.getElementById("preview");
+const modalTitle =
+  document.getElementById("modalTitle");
 
-const watchAdBtn = document.getElementById("watchAdBtn");
-const videoBtn = document.getElementById("videoBtn");
+const modalText =
+  document.getElementById("modalText");
 
-const progressBar = document.getElementById("progressBar");
+const preview =
+  document.getElementById("preview");
 
-const tgUser = document.getElementById("tg-user");
+const watchAdBtn =
+  document.getElementById("watchAdBtn");
+
+const videoBtn =
+  document.getElementById("videoBtn");
+
+const progressBar =
+  document.getElementById("progressBar");
+
+const tgUser =
+  document.getElementById("tg-user");
 
 
 /* =========================
@@ -90,13 +118,13 @@ const tgUser = document.getElementById("tg-user");
 
 if (tg?.initDataUnsafe?.user) {
 
-  const user = tg.initDataUnsafe.user;
+  const user =
+    tg.initDataUnsafe.user;
 
   tgUser.textContent =
     user.first_name ||
     user.username ||
     "Telegram User";
-
 }
 
 
@@ -111,26 +139,34 @@ function render(category = "All") {
   const filteredVideos =
     category === "All"
       ? videos
-      : videos.filter(video => video.category === category);
+      : videos.filter(
+          video =>
+            video.category === category
+        );
 
 
   filteredVideos.forEach(video => {
 
-    const card = document.createElement("article");
+    const card =
+      document.createElement("article");
 
     card.className = "card";
 
+
     card.innerHTML = `
+
       <div class="thumb">
         ${video.emoji}
       </div>
 
       <div class="card-body">
 
-        <h3>${video.title}</h3>
+        <h3>
+          ${video.title}
+        </h3>
 
         <div class="meta">
-          ${video.category} · 3 ads to unlock
+          ${video.category}
         </div>
 
         <button class="open-btn">
@@ -138,16 +174,16 @@ function render(category = "All") {
         </button>
 
       </div>
+
     `;
 
 
     card
       .querySelector(".open-btn")
-      .addEventListener("click", () => {
-
-        openVideo(video);
-
-      });
+      .addEventListener(
+        "click",
+        () => openVideo(video)
+      );
 
 
     videoGrid.appendChild(card);
@@ -169,56 +205,81 @@ function openVideo(video) {
 
   adShowing = false;
 
-  modalTitle.textContent = video.title;
+
+  modalTitle.textContent =
+    video.title;
+
 
   modalText.textContent =
     "Watch 3 ads to unlock this content.";
 
-  preview.textContent = video.emoji;
 
-  videoBtn.disabled = true;
+  preview.textContent =
+    video.emoji;
 
-  videoBtn.textContent = "🔒 Video Locked";
 
-  watchAdBtn.disabled = false;
+  progressBar.style.width =
+    "0%";
+
+
+  watchAdBtn.disabled =
+    false;
+
 
   watchAdBtn.textContent =
-    `Watch Ad (0/${REQUIRED_ADS})`;
+    "Watch Ad (0/3)";
 
-  progressBar.style.width = "0%";
 
-  modal.classList.remove("hidden");
+  videoBtn.disabled =
+    true;
+
+
+  videoBtn.textContent =
+    "🔒 Video Locked";
+
+
+  modal.classList.remove(
+    "hidden"
+  );
 
 }
 
 
 /* =========================
-   SHOW MONETAG AD
+   MONETAG AD
 ========================= */
 
-async function showMonetagAd() {
+async function showAd() {
 
   if (adShowing) {
     return false;
   }
 
+
   adShowing = true;
 
-  watchAdBtn.disabled = true;
 
-  watchAdBtn.textContent = "Loading Ad...";
+  watchAdBtn.disabled =
+    true;
+
+
+  watchAdBtn.textContent =
+    "Loading Ad...";
 
 
   try {
 
     const adFunction =
-      window[`show_${MONETAG_ZONE_ID}`];
+      window["show_" + ZONE_ID];
 
 
-    if (typeof adFunction !== "function") {
+    if (
+      typeof adFunction !==
+      "function"
+    ) {
 
       throw new Error(
-        "Monetag SDK is not ready."
+        "Monetag SDK is not loaded."
       );
 
     }
@@ -227,23 +288,52 @@ async function showMonetagAd() {
     /*
       IMPORTANT:
 
-      Count will NOT increase here.
+      catchIfNoFeed = true
 
-      It increases only after
-      the ad promise resolves.
+      If no advertisement is
+      available, the Promise rejects.
+
+      Therefore the counter will
+      NOT increase.
     */
 
-    await adFunction();
+    const result =
+      await adFunction({
 
+        catchIfNoFeed: true,
+
+        requestVar:
+          "video_" +
+          selectedVideo.id
+
+      });
+
+
+    console.log(
+      "Monetag result:",
+      result
+    );
+
+
+    /*
+      Only after successful
+      Promise resolution do we
+      consider this ad completed.
+    */
 
     return true;
 
   } catch (error) {
 
     console.error(
-      "Monetag Ad Error:",
+      "Monetag ad error:",
       error
     );
+
+
+    modalText.textContent =
+      "Ad is not available right now. Please try again.";
+
 
     return false;
 
@@ -257,7 +347,7 @@ async function showMonetagAd() {
 
 
 /* =========================
-   WATCH AD BUTTON
+   WATCH AD
 ========================= */
 
 watchAdBtn.addEventListener(
@@ -269,71 +359,111 @@ watchAdBtn.addEventListener(
     }
 
 
-    if (adsWatched >= REQUIRED_ADS) {
+    if (
+      adsWatched >=
+      REQUIRED_ADS
+    ) {
       return;
     }
 
 
-    watchAdBtn.disabled = true;
+    watchAdBtn.disabled =
+      true;
+
 
     watchAdBtn.textContent =
       "Loading Ad...";
 
 
-    const adCompleted =
-      await showMonetagAd();
+    /*
+      The counter does NOT
+      increase here.
+    */
+
+    const success =
+      await showAd();
 
 
     /*
-      ONLY successful ad completion
-      increases the counter.
+      If ad failed or no ad
+      was available, counter
+      stays exactly the same.
     */
 
-    if (!adCompleted) {
+    if (!success) {
 
-      watchAdBtn.disabled = false;
+      watchAdBtn.disabled =
+        false;
+
 
       watchAdBtn.textContent =
         `Watch Ad (${adsWatched}/${REQUIRED_ADS})`;
+
 
       return;
 
     }
 
 
+    /*
+      IMPORTANT:
+
+      Counter increases ONLY
+      after successful ad result.
+    */
+
     adsWatched++;
 
 
     const percentage =
-      (adsWatched / REQUIRED_ADS) * 100;
+      (
+        adsWatched /
+        REQUIRED_ADS
+      ) * 100;
+
 
     progressBar.style.width =
-      `${percentage}%`;
+      percentage + "%";
 
 
-    if (adsWatched >= REQUIRED_ADS) {
+    if (
+      adsWatched >=
+      REQUIRED_ADS
+    ) {
 
       modalText.textContent =
-        "All ads completed. Your video is unlocked.";
+        "All ads completed. Video unlocked.";
+
 
       watchAdBtn.textContent =
         "Ads Completed ✓";
 
-      watchAdBtn.disabled = true;
 
-      videoBtn.disabled = false;
+      watchAdBtn.disabled =
+        true;
+
+
+      videoBtn.disabled =
+        false;
+
 
       videoBtn.textContent =
         "▶ Watch Video";
 
     } else {
 
-      modalText.textContent =
-        `Ad completed. Watch ${
-          REQUIRED_ADS - adsWatched
-        } more ad(s).`;
+      const remaining =
+        REQUIRED_ADS -
+        adsWatched;
 
-      watchAdBtn.disabled = false;
+
+      modalText.textContent =
+        `Ad completed. Watch ${remaining} more ad(s).`;
+
+
+      watchAdBtn.disabled =
+        false;
+
 
       watchAdBtn.textContent =
         `Watch Ad (${adsWatched}/${REQUIRED_ADS})`;
@@ -352,18 +482,22 @@ videoBtn.addEventListener(
   "click",
   () => {
 
-    if (adsWatched < REQUIRED_ADS) {
+    if (
+      adsWatched <
+      REQUIRED_ADS
+    ) {
       return;
     }
 
 
     /*
-      Replace this with your real
-      video URL / backend later.
+      Replace this alert
+      with your real video URL
+      or backend later.
     */
 
     alert(
-      "Video unlocked. Add your real video URL here."
+      "Video unlocked."
     );
 
   }
@@ -378,7 +512,9 @@ closeModal.addEventListener(
   "click",
   () => {
 
-    modal.classList.add("hidden");
+    modal.classList.add(
+      "hidden"
+    );
 
   }
 );
@@ -388,9 +524,13 @@ modal.addEventListener(
   "click",
   event => {
 
-    if (event.target === modal) {
+    if (
+      event.target === modal
+    ) {
 
-      modal.classList.add("hidden");
+      modal.classList.add(
+        "hidden"
+      );
 
     }
 
@@ -412,12 +552,18 @@ document
 
         document
           .querySelectorAll(".tab")
-          .forEach(btn =>
-            btn.classList.remove("active")
-          );
+          .forEach(btn => {
+
+            btn.classList.remove(
+              "active"
+            );
+
+          });
 
 
-        button.classList.add("active");
+        button.classList.add(
+          "active"
+        );
 
 
         render(
