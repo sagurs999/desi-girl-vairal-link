@@ -61,8 +61,12 @@ document.addEventListener("DOMContentLoaded", function () {
 },
 
         onAdsNotFound: function () {
-            console.log("No ad found");
-        }
+    console.log("No ad found");
+
+    watchAdBtn.disabled = false;
+    watchAdBtn.textContent =
+        `Watch Ads (${adsWatched}/${requiredAds})`;
+},
     });
 
     document.getElementById("watchAdBtn").addEventListener("click", function () {
