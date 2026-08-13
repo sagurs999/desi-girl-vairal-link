@@ -1,14 +1,10 @@
-const tg = window.Telegram?.WebApp;
+const tg = window.Telegram && window.Telegram.WebApp;
 
 if (tg) {
   tg.ready();
   tg.expand();
 }
 
-
-/* =========================
-   VIDEO DATA
-========================= */
 
 const videos = [
   {
@@ -45,26 +41,21 @@ const videos = [
     id: 6,
     title: "Popular Video 06",
     category: "Popular",
-    emoji: "🎥"
+    emoji: "🔥"
   }
 ];
 
 
-/* =========================
-   SETTINGS
-========================= */
+let selectedVideo = null;
 
-let selected = null;
 let adsWatched = 0;
 
 const requiredAds = 3;
 
+let adLoading = false;
 
-/* =========================
-   ELEMENTS
-========================= */
 
-const grid = document.getElementById("videoGrid");
+const videoGrid = document.getElementById("videoGrid");
 
 const modal = document.getElementById("modal");
 
@@ -85,34 +76,25 @@ const closeModal = document.getElementById("closeModal");
 const tgUser = document.getElementById("tgUser");
 
 
-/* =========================
-   TELEGRAM USER
-========================= */
-
-if (tg?.initDataUnsafe?.user) {
+if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 
   const user = tg.initDataUnsafe.user;
 
   tgUser.textContent =
-    user.first_name ||
-    "Telegram User";
+    user.first_name || "Telegram User";
 
 }
 
 
-/* =========================
-   RENDER VIDEOS
-========================= */
-
 function render(category = "All") {
 
-  grid.innerHTML = "";
+  videoGrid.innerHTML = "";
 
   const filteredVideos =
-    videos.filter(video =>
-      category === "All" ||
-      video.category === category
-    );
+    category === "All"
+      ? videos
+      : videos.filter(video => video.category === category);
+
 
   filteredVideos.forEach(video => {
 
@@ -140,57 +122,60 @@ function render(category = "All") {
       </div>
     `;
 
+
     const openButton =
       card.querySelector(".open-btn");
 
-    openButton.onclick = () => {
-      openVideo(video);
-    };
 
-    grid.appendChild(card);
+    openButton.addEventListener("click", () => {
+
+      openVideo(video);
+
+    });
+
+
+    videoGrid.appendChild(card);
 
   });
 
 }
 
 
-/* =========================
-   OPEN VIDEO
-========================= */
-
 function openVideo(video) {
 
-  selected = video;
+  selectedVideo = video;
 
   adsWatched = 0;
 
-  modalTitle.textContent =
-    video.title;
+  adLoading = false;
+
+  modalTitle.textContent = video.title;
 
   modalText.textContent =
     "Watch 3 ads to unlock this content.";
 
-  preview.textContent =
-    video.emoji;
+  preview.textContent = video.emoji;
 
   modal.classList.remove("hidden");
 
-  updateUnlock();
+  videoBtn.disabled = true;
+
+  videoBtn.textContent = "🔒 Video Locked";
+
+  updateUnlockUI();
 
 }
 
 
-/* =========================
-   UPDATE PROGRESS
-========================= */
-
-function updateUnlock() {
+function updateUnlockUI() {
 
   watchAdBtn.textContent =
-    `Watch Ads (${adsWatched}/${requiredAds})`;
+    `Watch Ad (${adsWatched}/${requiredAds})`;
+
 
   const percent =
     (adsWatched / requiredAds) * 100;
+
 
   progressBar.style.width =
     `${percent}%`;
@@ -200,271 +185,201 @@ function updateUnlock() {
 
     videoBtn.disabled = false;
 
-    videoBtn.classList.add("unlocked");
-
-    videoBtn.textContent =
-      "▶ Watch Video";
+    videoBtn.textContent = "▶ Watch Video";
 
     modalText.textContent =
-      "Unlocked! You can now open the content.";
+      "Unlocked. You can now open the content.";
+
+    watchAdBtn.disabled = true;
+
+    watchAdBtn.textContent =
+      "Ads Completed";
 
   } else {
 
     videoBtn.disabled = true;
 
-    videoBtn.classList.remove("unlocked");
-
     videoBtn.textContent =
       "🔒 Video Locked";
 
+    watchAdBtn.disabled = false;
+
   }
 
 }
 
 
-/* =========================
-   WAIT FOR MONETAG SDK
-========================= */
+/*
+  Monetag Rewarded Interstitial
 
-function waitForAdSDK(timeout = 10000) {
+  The counter is increased ONLY after
+  the Monetag promise resolves successfully.
+*/
 
-  return new Promise((resolve, reject) => {
+async function showRewardedAd() {
 
-    const start =
-      Date.now();
-
-    const timer =
-      setInterval(() => {
-
-        if (
-          typeof window.show_11571866 ===
-          "function"
-        ) {
-
-          clearInterval(timer);
-
-          resolve(
-            window.show_11571866
-          );
-
-          return;
-        }
-
-
-        if (
-          Date.now() - start >
-          timeout
-        ) {
-
-          clearInterval(timer);
-
-          reject(
-            new Error(
-              "Monetag SDK did not load."
-            )
-          );
-
-        }
-
-      }, 100);
-
-  });
-
-}
-
-
-/* =========================
-   SHOW AD
-========================= */
-
-watchAdBtn.onclick = async () => {
-
-  /*
-    IMPORTANT:
-
-    এখানে adsWatched আগে বাড়ানো হচ্ছে না।
-
-    বিজ্ঞাপন সফলভাবে দেখানো/শেষ হওয়ার
-    পরে Promise resolve হলে তবেই ১ যোগ হবে।
-  */
-
-  if (
-    adsWatched >= requiredAds
-  ) {
+  if (adLoading) {
     return;
   }
 
 
-  if (watchAdBtn.disabled) {
+  if (adsWatched >= requiredAds) {
     return;
   }
 
+
+  adLoading = true;
 
   watchAdBtn.disabled = true;
 
-  watchAdBtn.textContent =
-    "Loading Ad...";
+  watchAdBtn.textContent = "Loading Ad...";
 
 
   try {
 
-    const showAd =
-      await waitForAdSDK();
+    if (typeof window.show_11571866 !== "function") {
+
+      throw new Error(
+        "Monetag SDK is not loaded."
+      );
+
+    }
 
 
-    /*
-      Monetag Rewarded Interstitial
-    */
+    const result =
+      await window.show_11571866();
 
-    await showAd({
-
-      ymid:
-        `video_${selected?.id || "unknown"}_${Date.now()}`,
-
-      requestVar:
-        "video_unlock"
-
-    });
-
-
-    /*
-      ONLY AFTER THE AD PROMISE
-      RESOLVES:
-
-      count +1
-    */
-
-    adsWatched++;
-
-    updateUnlock();
-
-
-  } catch (error) {
-
-    console.log(
-      "Ad failed:",
-      error
-    );
 
     /*
       IMPORTANT:
 
-      Ad না দেখালে এখানে
-      adsWatched বাড়বে না।
+      Do NOT increment the counter
+      before this point.
+
+      The counter changes only after
+      the ad promise resolves.
     */
+
+    adsWatched++;
+
+    updateUnlockUI();
+
+
+    console.log(
+      "Monetag ad completed:",
+      result
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Monetag ad failed:",
+      error
+    );
+
 
     modalText.textContent =
       "Ad is not available right now. Please try again.";
 
-    updateUnlock();
+
+    watchAdBtn.textContent =
+      `Watch Ad (${adsWatched}/${requiredAds})`;
+
+
+    watchAdBtn.disabled = false;
 
   } finally {
 
-    if (
-      adsWatched <
-      requiredAds
-    ) {
+    adLoading = false;
 
-      watchAdBtn.disabled =
-        false;
+  }
 
-      updateUnlock();
+}
+
+
+watchAdBtn.addEventListener(
+  "click",
+  showRewardedAd
+);
+
+
+videoBtn.addEventListener(
+  "click",
+  () => {
+
+    if (adsWatched < requiredAds) {
+
+      return;
 
     }
 
+
+    /*
+      Replace this section with your
+      real video URL/backend later.
+    */
+
+    alert(
+      `Unlocked: ${selectedVideo.title}`
+    );
+
   }
-
-};
-
-
-/* =========================
-   VIDEO BUTTON
-========================= */
-
-videoBtn.onclick = () => {
-
-  if (
-    adsWatched <
-    requiredAds
-  ) {
-
-    return;
-  }
+);
 
 
-  /*
-    এখানে আপনার আসল ভিডিও URL
-    বসাতে হবে।
-  */
-
-  alert(
-    "Demo unlocked. Replace this with your real video URL/backend."
-  );
-
-};
-
-
-/* =========================
-   CLOSE MODAL
-========================= */
-
-closeModal.onclick = () => {
-
-  modal.classList.add("hidden");
-
-};
-
-
-modal.onclick = (event) => {
-
-  if (
-    event.target === modal
-  ) {
+closeModal.addEventListener(
+  "click",
+  () => {
 
     modal.classList.add("hidden");
 
   }
+);
 
-};
 
+modal.addEventListener(
+  "click",
+  event => {
 
-/* =========================
-   CATEGORY TABS
-========================= */
+    if (event.target === modal) {
+
+      modal.classList.add("hidden");
+
+    }
+
+  }
+);
+
 
 document
   .querySelectorAll(".tab")
   .forEach(button => {
 
-    button.onclick = () => {
+    button.addEventListener(
+      "click",
+      () => {
 
-      document
-        .querySelectorAll(".tab")
-        .forEach(btn => {
+        document
+          .querySelectorAll(".tab")
+          .forEach(tab => {
 
-          btn.classList.remove(
-            "active"
-          );
+            tab.classList.remove("active");
 
-        });
-
-
-      button.classList.add(
-        "active"
-      );
+          });
 
 
-      render(
-        button.dataset.category
-      );
+        button.classList.add("active");
 
-    };
+
+        render(
+          button.dataset.category
+        );
+
+      }
+    );
 
   });
 
-
-/* =========================
-   INITIAL RENDER
-========================= */
 
 render();
