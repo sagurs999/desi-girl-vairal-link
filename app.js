@@ -25,26 +25,32 @@ const progressBar = document.getElementById("progressBar");
 
 const user = tg?.initDataUnsafe?.user;
 if (user) document.getElementById("tgUser").textContent = user.first_name || "Telegram User";
-window.adController = window.tads.init({
-  widgetId: "11498",
-  type: "fullscreen",
-  debug: false,
+if (window.tads && typeof window.tads.init === "function") {
 
-  onShowReward: function(result) {
-    console.log("Ad completed:", result);
+    window.adController = window.tads.init({
+        widgetId: "11498",
+        type: "fullscreen",
+        debug: false,
 
-    adsWatched++;
-    updateUnlock();
-  },
+        onShowReward: function(result) {
+            console.log("Ad completed:", result);
 
-  onAdsNotFound: function() {
-    console.log("No ad found");
+            adsWatched++;
+            updateUnlock();
+        },
 
-    watchAdBtn.disabled = false;
-    watchAdBtn.textContent =
-      `Watch Ads (${adsWatched}/${requiredAds})`;
-  }
-});
+        onAdsNotFound: function() {
+            console.log("No ads found");
+
+            watchAdBtn.disabled = false;
+            watchAdBtn.textContent =
+                `Watch Ads (${adsWatched}/${requiredAds})`;
+        }
+    });
+
+} else {
+    console.error("TADS is not loaded");
+}
 function render(category="All"){
   grid.innerHTML="";
   videos.filter(v=>category==="All"||v.category===category).forEach(v=>{
