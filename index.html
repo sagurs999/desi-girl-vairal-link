@@ -1,151 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta charset="UTF-8">
+  <title>Desi Girl Viral Link</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <!-- Telegram Mini App -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <title>Desi Girl Viral Link</title>
+  <!-- Monetag -->
+  <script
+    src="//libtl.com/sdk.js"
+    data-zone="11571866"
+    data-sdk="show_11571866">
+  </script>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <script src="https://w.tads.me/widget.js"></script>
-
-    <link rel="stylesheet" href="style.css">
-
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="app">
+  <div class="app">
 
-        <header>
+    <header>
+      <div>
+        <div class="brand">Desi Girl Viral Link</div>
+        <div class="sub">Trending Videos</div>
+      </div>
 
-            <div>
-                <div class="brand">
-                    Desi Girl Viral Link
-                </div>
+      <div id="tg-user">Guest</div>
+    </header>
 
-                <div class="sub">
-                    Trending videos
-                </div>
-            </div>
+    <div class="tabs">
+      <button class="tab active" data-category="All">All</button>
+      <button class="tab" data-category="Trending">Trending</button>
+      <button class="tab" data-category="Funny">Funny</button>
+      <button class="tab" data-category="Popular">Popular</button>
+    </div>
 
-            <div
-                class="tg-user"
-                id="tgUser"
-            >
-                Guest
-            </div>
+    <main id="videoGrid"></main>
 
-        </header>
+  </div>
 
+  <!-- Video Modal -->
+  <div class="modal hidden" id="modal">
 
-        <div class="tabs">
+    <div class="modal-box">
 
-            <button
-                class="tab active"
-                data-category="All"
-            >
-                All
-            </button>
+      <button class="close-modal" id="closeModal">×</button>
 
-            <button
-                class="tab"
-                data-category="Trending"
-            >
-                Trending
-            </button>
+      <div class="preview" id="preview"></div>
 
-            <button
-                class="tab"
-                data-category="Funny"
-            >
-                Funny
-            </button>
+      <h2 id="modalTitle"></h2>
 
-            <button
-                class="tab"
-                data-category="Popular"
-            >
-                Popular
-            </button>
+      <p id="modalText">
+        Watch 3 ads to unlock this content.
+      </p>
 
-        </div>
+      <div class="progress">
+        <span id="progressBar"></span>
+      </div>
 
+      <button class="watch-btn" id="watchAdBtn">
+        Watch Ad (0/3)
+      </button>
 
-        <main id="videoGrid"></main>
-
-
-        <div
-            class="modal hidden"
-            id="modal"
-        >
-
-            <div class="modal-box">
-
-                <button
-                    class="close"
-                    id="closeModal"
-                >
-                    ×
-                </button>
-
-
-                <div
-                    class="preview"
-                    id="preview"
-                >
-                </div>
-
-
-                <h2 id="modalTitle">
-                    Video
-                </h2>
-
-
-                <p id="modalText">
-                    Watch 3 ads to unlock this content.
-                </p>
-
-
-                <div class="progress">
-
-                    <span id="progressBar"></span>
-
-                </div>
-
-
-                <button
-                    class="watch-btn"
-                    id="watchAdBtn"
-                >
-                    Watch Ads (0/3)
-                </button>
-
-
-                <button
-                    class="video-btn"
-                    id="videoBtn"
-                    disabled
-                >
-                    🔒 Video Locked
-                </button>
-
-            </div>
-
-        </div>
+      <button class="video-btn" id="videoBtn" disabled>
+        🔒 Video Locked
+      </button>
 
     </div>
 
+  </div>
 
-    <script src="app.js"></script>
+  <script src="app.js"></script>
 
 </body>
-
 </html>
