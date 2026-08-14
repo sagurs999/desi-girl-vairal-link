@@ -11,7 +11,10 @@ body {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
 
   background:
     linear-gradient(
@@ -26,10 +29,9 @@ body {
   padding-bottom: 100px;
 }
 
-
-/* =========================
-   APP
-========================= */
+button {
+  font-family: inherit;
+}
 
 .app {
   width: 100%;
@@ -39,9 +41,7 @@ body {
 }
 
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 .top-header {
   padding: 18px;
@@ -99,7 +99,7 @@ body {
 
   color: #cbd2ff;
 
-  max-width: 100px;
+  max-width: 110px;
 
   overflow: hidden;
 
@@ -109,9 +109,7 @@ body {
 }
 
 
-/* =========================
-   HERO
-========================= */
+/* HERO */
 
 .hero {
   margin: 18px;
@@ -172,9 +170,7 @@ body {
 }
 
 
-/* =========================
-   CATEGORY
-========================= */
+/* CATEGORY */
 
 .category-bar {
   display: flex;
@@ -228,9 +224,7 @@ body {
 }
 
 
-/* =========================
-   SECTION
-========================= */
+/* SECTION */
 
 .section-title {
   display: flex;
@@ -265,9 +259,7 @@ body {
 }
 
 
-/* =========================
-   VIDEO GRID
-========================= */
+/* VIDEO GRID */
 
 .video-grid {
   display: grid;
@@ -282,9 +274,7 @@ body {
 }
 
 
-/* =========================
-   VIDEO CARD
-========================= */
+/* CARD */
 
 .video-card {
   overflow: hidden;
@@ -312,9 +302,7 @@ body {
 }
 
 
-/* =========================
-   THUMBNAIL
-========================= */
+/* THUMBNAIL */
 
 .thumbnail {
   width: 100%;
@@ -363,9 +351,7 @@ body {
 }
 
 
-/* =========================
-   CARD CONTENT
-========================= */
+/* CARD CONTENT */
 
 .card-content {
   padding: 12px;
@@ -398,9 +384,7 @@ body {
 }
 
 
-/* =========================
-   WATCH BUTTON
-========================= */
+/* WATCH BUTTON */
 
 .watch-btn {
   width: 100%;
@@ -430,75 +414,28 @@ body {
   margin-top: 10px;
 }
 
-.watch-btn:disabled {
-  opacity: .65;
 
-  cursor:
-    not-allowed;
-}
-
-
-/* =========================
-   VIDEO BUTTON
-========================= */
-
-.video-btn {
-  width: 100%;
-
-  border: 0;
-
-  padding: 12px;
-
-  border-radius: 13px;
-
-  margin-top: 10px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #00b894,
-      #00cec9
-    );
-
-  color: white;
-
-  font-size: 13px;
-
-  font-weight: 900;
-
-  cursor: pointer;
-}
-
-.video-btn:disabled {
-  background: #34394d;
-
-  color: #969db5;
-
-  cursor: not-allowed;
-}
-
-
-/* =========================
-   LOADING
-========================= */
+/* LOADING */
 
 .loading {
-  grid-column: 1 / -1;
+  grid-column:
+    1 / -1;
 
   padding: 60px 20px;
 
   text-align: center;
 
   color: #8f99b8;
+
+  font-size: 14px;
 }
 
 
-/* =========================
-   ERROR
-========================= */
+/* ERROR */
 
 .error-box {
-  grid-column: 1 / -1;
+  grid-column:
+    1 / -1;
 
   padding: 25px;
 
@@ -516,176 +453,7 @@ body {
 }
 
 
-/* =========================
-   MODAL
-========================= */
-
-.modal {
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 500;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  padding: 18px;
-
-  background:
-    rgba(0,0,0,.75);
-
-  backdrop-filter:
-    blur(8px);
-}
-
-.modal.hidden {
-  display: none;
-}
-
-.modal-box {
-  width: 100%;
-
-  max-width: 430px;
-
-  max-height: 90vh;
-
-  overflow-y: auto;
-
-  padding: 18px;
-
-  border-radius: 25px;
-
-  background:
-    linear-gradient(
-      180deg,
-      #1b2034,
-      #101526
-    );
-
-  border:
-    1px solid
-    rgba(255,255,255,.1);
-
-  position: relative;
-}
-
-.modal-close {
-  position: absolute;
-
-  top: 10px;
-
-  right: 10px;
-
-  width: 36px;
-
-  height: 36px;
-
-  border: 0;
-
-  border-radius: 50%;
-
-  background:
-    rgba(0,0,0,.5);
-
-  color: white;
-
-  font-size: 18px;
-
-  z-index: 5;
-}
-
-.preview {
-  width: 100%;
-
-  aspect-ratio: 16 / 10;
-
-  border-radius: 16px;
-
-  overflow: hidden;
-
-  background: #080808;
-
-  margin-bottom: 15px;
-}
-
-.preview img {
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-}
-
-.modal-box h2 {
-  font-size: 20px;
-
-  margin-bottom: 8px;
-}
-
-.modal-box p {
-  color: #aeb6cf;
-
-  font-size: 14px;
-
-  line-height: 1.5;
-}
-
-
-/* =========================
-   PROGRESS
-========================= */
-
-.progress {
-  width: 100%;
-
-  height: 7px;
-
-  margin-top: 16px;
-
-  border-radius: 10px;
-
-  overflow: hidden;
-
-  background: #30364c;
-}
-
-.progress span {
-  display: block;
-
-  width: 0%;
-
-  height: 100%;
-
-  border-radius: 10px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #3d61ff,
-      #8a40ff
-    );
-
-  transition:
-    width .3s ease;
-}
-
-.progress-text {
-  text-align: center;
-
-  margin-top: 8px;
-
-  color: #9da6c3;
-
-  font-size: 12px;
-}
-
-
-/* =========================
-   BOTTOM NAV
-========================= */
+/* BOTTOM NAV */
 
 .bottom-nav {
   position: fixed;
@@ -702,12 +470,10 @@ body {
 
   max-width: 600px;
 
-  padding: 8px;
+  padding:
+    8px;
 
   display: flex;
-
-  justify-content:
-    space-around;
 
   background:
     rgba(24,29,48,.94);
@@ -722,10 +488,6 @@ body {
   border-radius: 25px;
 
   z-index: 100;
-
-  box-shadow:
-    0 15px 40px
-    rgba(0,0,0,.35);
 }
 
 .bottom-nav button {
@@ -748,7 +510,6 @@ body {
 
 .bottom-nav button span {
   display: block;
-
   margin-top: 3px;
 }
 
@@ -764,9 +525,235 @@ body {
 }
 
 
-/* =========================
-   MOBILE
-========================= */
+/* MODAL */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 200;
+
+  background:
+    rgba(0,0,0,.75);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 18px;
+
+  backdrop-filter: blur(8px);
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-box {
+  width: 100%;
+
+  max-width: 450px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #1c2235,
+      #101525
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  border-radius: 25px;
+
+  padding: 20px;
+
+  position: relative;
+
+  box-shadow:
+    0 25px 80px
+    rgba(0,0,0,.5);
+}
+
+.close-modal {
+  position: absolute;
+
+  right: 14px;
+
+  top: 12px;
+
+  width: 35px;
+
+  height: 35px;
+
+  border: 0;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255,255,255,.1);
+
+  color: white;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  z-index: 2;
+}
+
+.preview {
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  border-radius: 17px;
+
+  overflow: hidden;
+
+  background: #050505;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 45px;
+
+  margin-bottom: 15px;
+}
+
+.preview img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.modal-box h2 {
+  font-size: 21px;
+
+  margin-bottom: 8px;
+}
+
+.modal-text {
+  color: #b4bdd5;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  margin-bottom: 15px;
+}
+
+
+/* PROGRESS */
+
+.progress-container {
+  width: 100%;
+
+  height: 7px;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  background: #30374e;
+
+  margin-bottom: 9px;
+}
+
+.progress-bar {
+  width: 0%;
+
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #3d61ff,
+      #8a40ff
+    );
+
+  transition:
+    width .3s ease;
+}
+
+.ad-counter {
+  text-align: center;
+
+  color: #9ca6c4;
+
+  font-size: 12px;
+
+  margin-bottom: 15px;
+}
+
+
+/* AD BUTTON */
+
+.watch-ad-btn,
+.video-btn {
+  width: 100%;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  padding: 13px;
+
+  color: white;
+
+  font-size: 14px;
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.watch-ad-btn {
+  background:
+    linear-gradient(
+      135deg,
+      #405cff,
+      #743dff
+    );
+}
+
+.watch-ad-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+
+/* VIDEO BUTTON */
+
+.video-btn {
+  margin-top: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #00b894,
+      #00cec9
+    );
+}
+
+.video-btn:disabled {
+  background: #343a50;
+
+  color: #8992ad;
+
+  cursor: not-allowed;
+}
+
+
+/* MOBILE */
 
 @media (max-width: 370px) {
 
@@ -787,4 +774,5 @@ body {
     font-size: 11px;
     padding: 10px 5px;
   }
+
 }
