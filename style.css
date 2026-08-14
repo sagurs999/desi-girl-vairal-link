@@ -11,10 +11,7 @@ body {
 }
 
 body {
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 
   background:
     linear-gradient(
@@ -26,7 +23,7 @@ body {
 
   color: #ffffff;
 
-  padding-bottom: 90px;
+  padding-bottom: 100px;
 }
 
 
@@ -47,8 +44,7 @@ body {
 ========================= */
 
 .top-header {
-
-  padding: 18px 18px 16px;
+  padding: 18px;
 
   display: flex;
 
@@ -65,7 +61,7 @@ body {
 
   border-bottom:
     1px solid
-    rgba(255,255,255,0.08);
+    rgba(255,255,255,.08);
 
   position: sticky;
 
@@ -75,16 +71,11 @@ body {
 }
 
 .brand {
-
   font-size: 20px;
-
   font-weight: 900;
-
-  letter-spacing: .2px;
 }
 
 .subtitle {
-
   margin-top: 5px;
 
   color: #9fa8c7;
@@ -93,7 +84,6 @@ body {
 }
 
 .tg-user {
-
   background:
     rgba(71,92,255,.18);
 
@@ -124,7 +114,6 @@ body {
 ========================= */
 
 .hero {
-
   margin: 18px;
 
   padding: 22px;
@@ -151,9 +140,7 @@ body {
 }
 
 .hero-icon {
-
   width: 58px;
-
   height: 58px;
 
   border-radius: 20px;
@@ -175,16 +162,12 @@ body {
 }
 
 .hero h1 {
-
   font-size: 21px;
-
   margin-bottom: 5px;
 }
 
 .hero p {
-
   font-size: 14px;
-
   color: #e9edff;
 }
 
@@ -194,7 +177,6 @@ body {
 ========================= */
 
 .category-bar {
-
   display: flex;
 
   gap: 9px;
@@ -212,7 +194,6 @@ body {
 }
 
 .category-btn {
-
   flex-shrink: 0;
 
   border: 0;
@@ -236,7 +217,6 @@ body {
 }
 
 .category-btn.active {
-
   background:
     linear-gradient(
       135deg,
@@ -245,10 +225,6 @@ body {
     );
 
   color: #fff;
-
-  box-shadow:
-    0 7px 20px
-    rgba(74,75,255,.3);
 }
 
 
@@ -257,7 +233,6 @@ body {
 ========================= */
 
 .section-title {
-
   display: flex;
 
   align-items: center;
@@ -273,7 +248,6 @@ body {
 }
 
 .section-badge {
-
   font-size: 10px;
 
   letter-spacing: 1px;
@@ -293,11 +267,9 @@ body {
 
 /* =========================
    VIDEO GRID
-   2 CARDS PER ROW
 ========================= */
 
 .video-grid {
-
   display: grid;
 
   grid-template-columns:
@@ -311,11 +283,10 @@ body {
 
 
 /* =========================
-   CARD
+   VIDEO CARD
 ========================= */
 
 .video-card {
-
   overflow: hidden;
 
   border-radius: 19px;
@@ -334,17 +305,10 @@ body {
   box-shadow:
     0 10px 25px
     rgba(0,0,0,.22);
-
-  position: relative;
-
-  transition:
-    transform .2s ease;
 }
 
 .video-card:active {
-
-  transform:
-    scale(.98);
+  transform: scale(.98);
 }
 
 
@@ -353,7 +317,6 @@ body {
 ========================= */
 
 .thumbnail {
-
   width: 100%;
 
   aspect-ratio: 16 / 10;
@@ -371,9 +334,7 @@ body {
 }
 
 .thumbnail img {
-
   width: 100%;
-
   height: 100%;
 
   object-fit: cover;
@@ -382,9 +343,7 @@ body {
 }
 
 .thumbnail-placeholder {
-
   width: 100%;
-
   height: 100%;
 
   display: flex;
@@ -403,39 +362,16 @@ body {
     );
 }
 
-.rank {
-
-  position: absolute;
-
-  left: 8px;
-
-  top: 8px;
-
-  padding:
-    5px 8px;
-
-  border-radius: 10px;
-
-  background:
-    rgba(8,12,28,.85);
-
-  font-size: 11px;
-
-  font-weight: 900;
-}
-
 
 /* =========================
    CARD CONTENT
 ========================= */
 
 .card-content {
-
   padding: 12px;
 }
 
 .card-title {
-
   font-size: 15px;
 
   line-height: 1.25;
@@ -454,55 +390,11 @@ body {
 }
 
 .card-category {
-
   margin-top: 7px;
 
   color: #8f99b8;
 
   font-size: 11px;
-
-  white-space: nowrap;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-}
-
-
-/* =========================
-   PROGRESS
-========================= */
-
-.progress {
-
-  display: flex;
-
-  gap: 4px;
-
-  margin:
-    10px 0 10px;
-}
-
-.progress span {
-
-  height: 4px;
-
-  flex: 1;
-
-  border-radius: 5px;
-
-  background:
-    #343b54;
-}
-
-.progress span.done {
-
-  background:
-    linear-gradient(
-      90deg,
-      #3d61ff,
-      #8a40ff
-    );
 }
 
 
@@ -511,7 +403,6 @@ body {
 ========================= */
 
 .watch-btn {
-
   width: 100%;
 
   border: 0;
@@ -536,13 +427,10 @@ body {
 
   cursor: pointer;
 
-  box-shadow:
-    0 8px 20px
-    rgba(67,72,255,.24);
+  margin-top: 10px;
 }
 
 .watch-btn:disabled {
-
   opacity: .65;
 
   cursor:
@@ -551,10 +439,19 @@ body {
 
 
 /* =========================
-   UNLOCKED BUTTON
+   VIDEO BUTTON
 ========================= */
 
-.watch-btn.unlocked {
+.video-btn {
+  width: 100%;
+
+  border: 0;
+
+  padding: 12px;
+
+  border-radius: 13px;
+
+  margin-top: 10px;
 
   background:
     linear-gradient(
@@ -562,6 +459,22 @@ body {
       #00b894,
       #00cec9
     );
+
+  color: white;
+
+  font-size: 13px;
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.video-btn:disabled {
+  background: #34394d;
+
+  color: #969db5;
+
+  cursor: not-allowed;
 }
 
 
@@ -570,17 +483,13 @@ body {
 ========================= */
 
 .loading {
-
-  grid-column:
-    1 / -1;
+  grid-column: 1 / -1;
 
   padding: 60px 20px;
 
   text-align: center;
 
   color: #8f99b8;
-
-  font-size: 14px;
 }
 
 
@@ -589,9 +498,7 @@ body {
 ========================= */
 
 .error-box {
-
-  grid-column:
-    1 / -1;
+  grid-column: 1 / -1;
 
   padding: 25px;
 
@@ -599,10 +506,6 @@ body {
 
   background:
     #281724;
-
-  border:
-    1px solid
-    rgba(255,80,120,.15);
 
   color:
     #ffb4c5;
@@ -614,11 +517,177 @@ body {
 
 
 /* =========================
+   MODAL
+========================= */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 500;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 18px;
+
+  background:
+    rgba(0,0,0,.75);
+
+  backdrop-filter:
+    blur(8px);
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-box {
+  width: 100%;
+
+  max-width: 430px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 18px;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #1b2034,
+      #101526
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.1);
+
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+
+  top: 10px;
+
+  right: 10px;
+
+  width: 36px;
+
+  height: 36px;
+
+  border: 0;
+
+  border-radius: 50%;
+
+  background:
+    rgba(0,0,0,.5);
+
+  color: white;
+
+  font-size: 18px;
+
+  z-index: 5;
+}
+
+.preview {
+  width: 100%;
+
+  aspect-ratio: 16 / 10;
+
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  background: #080808;
+
+  margin-bottom: 15px;
+}
+
+.preview img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.modal-box h2 {
+  font-size: 20px;
+
+  margin-bottom: 8px;
+}
+
+.modal-box p {
+  color: #aeb6cf;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================
+   PROGRESS
+========================= */
+
+.progress {
+  width: 100%;
+
+  height: 7px;
+
+  margin-top: 16px;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  background: #30364c;
+}
+
+.progress span {
+  display: block;
+
+  width: 0%;
+
+  height: 100%;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #3d61ff,
+      #8a40ff
+    );
+
+  transition:
+    width .3s ease;
+}
+
+.progress-text {
+  text-align: center;
+
+  margin-top: 8px;
+
+  color: #9da6c3;
+
+  font-size: 12px;
+}
+
+
+/* =========================
    BOTTOM NAV
 ========================= */
 
 .bottom-nav {
-
   position: fixed;
 
   bottom: 10px;
@@ -633,8 +702,7 @@ body {
 
   max-width: 600px;
 
-  padding:
-    8px;
+  padding: 8px;
 
   display: flex;
 
@@ -661,7 +729,6 @@ body {
 }
 
 .bottom-nav button {
-
   flex: 1;
 
   border: 0;
@@ -680,14 +747,12 @@ body {
 }
 
 .bottom-nav button span {
-
   display: block;
 
   margin-top: 3px;
 }
 
 .bottom-nav .bottom-active {
-
   background:
     linear-gradient(
       135deg,
@@ -700,53 +765,26 @@ body {
 
 
 /* =========================
-   DESKTOP
-========================= */
-
-@media (min-width: 700px) {
-
-  .video-grid {
-
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-
-    padding-left: 20px;
-
-    padding-right: 20px;
-  }
-
-}
-
-
-/* =========================
-   SMALL MOBILE
+   MOBILE
 ========================= */
 
 @media (max-width: 370px) {
 
   .video-grid {
-
     gap: 9px;
-
-    padding:
-      0 9px 25px;
+    padding: 0 9px 25px;
   }
 
   .card-content {
-
     padding: 9px;
   }
 
   .card-title {
-
     font-size: 13px;
   }
 
   .watch-btn {
-
     font-size: 11px;
-
     padding: 10px 5px;
   }
-
 }
