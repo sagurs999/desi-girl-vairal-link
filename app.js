@@ -30,26 +30,6 @@ const SUPABASE_ANON_KEY =
 const REQUIRED_ADS = 3;
 
 
-/*
-   Each post will have its own ad counter.
-
-   Example:
-
-   post 1 = 0/3
-   post 2 = 0/3
-
-   One post's ads will NOT affect another post.
-*/
-
-const adCounts = {};
-
-const adLoading = {};
-
-let allPosts = [];
-
-let currentCategory = "All";
-
-
 /* =========================================
    ELEMENTS
 ========================================= */
@@ -60,21 +40,9 @@ const videoGrid =
 const tgUser =
   document.getElementById("tgUser");
 
-const videoModal =
-  document.getElementById("videoModal");
-
-const videoModalTitle =
-  document.getElementById("videoModalTitle");
-
-const mainVideo =
-  document.getElementById("mainVideo");
-
-const closeVideoModal =
-  document.getElementById("closeVideoModal");
-
 
 /* =========================================
-   TELEGRAM USER
+   USER
 ========================================= */
 
 if (
@@ -93,37 +61,135 @@ if (
 
 
 /* =========================================
-   LOAD POSTS FROM SUPABASE
+   STATE
 ========================================= */
 
-async function loadPosts() {
+let allVideos = [];
 
-  videoGrid.innerHTML = `
-    <div class="loading">
-      Loading videos...
-    </div>
-  `;
+let currentCategory = "All";
+
+
+/* =========================================
+   STORAGE KEY
+========================================= */
+
+function unlockKey(id) {
+
+  return `video_unlocked_${id}`;
+
+}
+
+
+function adCountKey(id) {
+
+  return `video_ads_${id}`;
+
+}
+
+
+/* =========================================
+   GET AD COUNT
+========================================= */
+
+function getAdCount(id) {
+
+  const value =
+    localStorage.getItem(
+      adCountKey(id)
+    );
+
+  return value
+    ? parseInt(value, 10)
+    : 0;
+
+}
+
+
+/* =========================================
+   SAVE AD COUNT
+========================================= */
+
+function saveAdCount(id, count) {
+
+  localStorage.setItem(
+    adCountKey(id),
+    String(count)
+  );
+
+}
+
+
+/* =========================================
+   CHECK UNLOCK
+========================================= */
+
+function isUnlocked(id) {
+
+  return (
+    localStorage.getItem(
+      unlockKey(id)
+    ) === "true"
+  );
+
+}
+
+
+/* =========================================
+   SET UNLOCKED
+========================================= */
+
+function setUnlocked(id) {
+
+  localStorage.setItem(
+    unlockKey(id),
+    "true"
+  );
+
+}
+
+
+/* =========================================
+   SUPABASE FETCH
+========================================= */
+
+async function loadVideos() {
 
   try {
 
+    videoGrid.innerHTML = `
+      <div class="loading">
+        <div class="loader"></div>
+        <p>Loading videos...</p>
+      </div>
+    `;
+
+
+    /*
+      প্রথমে video_url নিচ্ছি না।
+
+      এতে Home page-এ
+      video URL unnecessaryভাবে
+      render হবে না।
+    */
+
     const url =
       `${SUPABASE_URL}/rest/v1/posts` +
-      `?select=id,title,thumbnail_url,video_url,category,published,created_at` +
+      `?select=id,title,thumbnail_url,category,created_at` +
       `&published=eq.true` +
-      `&order=created_at.desc`;
+      `&order=id.desc`;
 
 
     const response =
       await fetch(url, {
 
-        method: "GET",
-
         headers: {
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization":
-            `Bearer ${SUPABASE_ANON_KEY}`,
-          "Content-Type":
-            "application/json"
+
+          apikey:
+            SUPABASE_ANON_KEY,
+
+          Authorization:
+            `Bearer ${SUPABASE_ANON_KEY}`
+
         }
 
       });
@@ -131,369 +197,279 @@ async function loadPosts() {
 
     if (!response.ok) {
 
-      const errorText =
-        await response.text();
-
       throw new Error(
-        `Supabase Error ${response.status}: ${errorText}`
+        `Supabase error: ${response.status}`
       );
+
     }
 
 
-    const posts =
+    allVideos =
       await response.json();
 
 
-    allPosts = posts || [];
-
-
-    /*
-      Make sure every post starts at 0/3.
-    */
-
-    allPosts.forEach(post => {
-
-      if (adCounts[post.id] === undefined) {
-
-        adCounts[post.id] = 0;
-
-      }
-
-      if (adLoading[post.id] === undefined) {
-
-        adLoading[post.id] = false;
-
-      }
-
-    });
-
-
-    renderPosts();
+    renderVideos();
 
   } catch (error) {
 
-    console.error(
-      "Failed to load posts:",
-      error
-    );
-
+    console.error(error);
 
     videoGrid.innerHTML = `
-      <div class="error">
-        ভিডিও লোড করা যাচ্ছে না।<br><br>
-        আবার চেষ্টা করুন।
+      <div class="empty">
+        <h3>⚠️ Videos Load হয়নি</h3>
+        <p>
+          Supabase connection check করুন।
+        </p>
       </div>
     `;
+
   }
+
 }
 
 
 /* =========================================
-   RENDER POSTS
+   RENDER
 ========================================= */
 
-function renderPosts() {
+function renderVideos() {
 
-  videoGrid.innerHTML = "";
-
-
-  let posts = allPosts;
+  let videos =
+    allVideos;
 
 
   if (currentCategory !== "All") {
 
-    posts =
-      allPosts.filter(
-        post =>
-          post.category === currentCategory
+    videos =
+      videos.filter(
+        video =>
+          String(video.category || "")
+            .toLowerCase() ===
+          currentCategory.toLowerCase()
       );
 
   }
 
 
-  if (!posts.length) {
+  if (!videos.length) {
 
     videoGrid.innerHTML = `
-      <div class="loading">
-        এই category-তে কোনো ভিডিও নেই।
+      <div class="empty">
+        <h3>😔 No Videos Found</h3>
+        <p>
+          এই category-তে কোনো video নেই।
+        </p>
       </div>
     `;
 
     return;
+
   }
 
 
-  posts.forEach(post => {
+  videoGrid.innerHTML = "";
 
-    const card =
-      createPostCard(post);
 
-    videoGrid.appendChild(card);
+  videos.forEach(
+    (video, index) => {
 
-  });
+      const card =
+        createVideoCard(
+          video,
+          index
+        );
+
+      videoGrid.appendChild(card);
+
+    }
+  );
 
 }
 
 
 /* =========================================
-   CREATE POST CARD
+   CREATE CARD
 ========================================= */
 
-function createPostCard(post) {
+function createVideoCard(
+  video,
+  index
+) {
 
   const card =
     document.createElement("article");
 
-  card.className = "card";
+  card.className =
+    "video-card";
 
 
   const count =
-    adCounts[post.id] || 0;
+    Math.min(
+      getAdCount(video.id),
+      REQUIRED_ADS
+    );
+
+
+  const unlocked =
+    isUnlocked(video.id) ||
+    count >= REQUIRED_ADS;
+
+
+  if (
+    count >= REQUIRED_ADS &&
+    !isUnlocked(video.id)
+  ) {
+
+    setUnlocked(video.id);
+
+  }
 
 
   const thumbnail =
-    post.thumbnail_url ||
-    "https://via.placeholder.com/700x400?text=Video";
+    video.thumbnail_url ||
+    "https://via.placeholder.com/600x400?text=Video";
 
 
-  const description =
-    post.description ||
-    "Watch ads to unlock this video";
+  const category =
+    video.category ||
+    "Popular";
+
+
+  let progressHTML = "";
+
+
+  for (
+    let i = 1;
+    i <= REQUIRED_ADS;
+    i++
+  ) {
+
+    progressHTML += `
+      <span
+        class="progress-segment ${
+          i <= count ? "done" : ""
+        }"
+      ></span>
+    `;
+
+  }
 
 
   card.innerHTML = `
 
-    <div class="thumb-wrapper">
+    <div class="thumbnail-box">
 
       <img
-        class="thumb"
-        src="${escapeHTML(thumbnail)}"
-        alt="${escapeHTML(post.title || "Video")}"
+        class="thumbnail"
+        src="${escapeHtml(thumbnail)}"
+        alt="${escapeHtml(video.title || "Video")}"
         loading="lazy"
-        onerror="this.src='https://via.placeholder.com/700x400?text=Video';"
+        onerror="
+          this.src='https://via.placeholder.com/600x400?text=Video'
+        "
       >
 
+      <div class="play-overlay">
+        ▶
+      </div>
+
+      <div class="number-badge">
+        #${index + 1}
+      </div>
+
     </div>
 
 
-    <div class="card-body">
+    <div class="card-content">
 
-      <h2 class="card-title">
-        ${escapeHTML(post.title || "Untitled Video")}
-      </h2>
-
-
-      <div class="card-category">
-        ${escapeHTML(post.category || "Popular")}
-      </div>
+      <h3 class="card-title">
+        ${escapeHtml(
+          video.title || "Untitled Video"
+        )}
+      </h3>
 
 
-      <p class="card-description">
-        ${escapeHTML(description)}
-      </p>
+      <span class="card-category">
+        ${escapeHtml(category)}
+      </span>
 
 
-      <div
-        class="progress"
-        id="progress-${post.id}">
+      <div class="progress">
+        ${progressHTML}
       </div>
 
 
       <button
-        class="watch-ad-btn"
-        id="ad-btn-${post.id}">
-      </button>
+        class="watch-btn ${
+          unlocked ? "unlocked" : ""
+        }"
+        data-id="${video.id}"
+      >
 
+        ${
+          unlocked
+            ? "▶ Watch Video"
+            : `Watch Ads (${count}/3)`
+        }
 
-      <button
-        class="watch-video-btn"
-        id="video-btn-${post.id}"
-        style="display:none;">
-        ▶ Watch Video
       </button>
 
     </div>
+
   `;
 
 
-  updatePostUI(post);
+  const button =
+    card.querySelector(".watch-btn");
 
 
-  const adButton =
-    card.querySelector(
-      `#ad-btn-${post.id}`
-    );
-
-
-  const videoButton =
-    card.querySelector(
-      `#video-btn-${post.id}`
-    );
-
-
-  adButton.addEventListener(
+  button.addEventListener(
     "click",
-    () => {
+    async () => {
 
-      showRewardedAd(post);
+      if (isUnlocked(video.id)) {
 
-    }
-  );
+        openVideoPage(video.id);
+
+        return;
+
+      }
 
 
-  videoButton.addEventListener(
-    "click",
-    () => {
-
-      openVideo(post);
+      await watchAd(
+        video,
+        button,
+        card
+      );
 
     }
   );
 
 
   return card;
+
 }
 
 
 /* =========================================
-   UPDATE ONE POST UI
+   WATCH MONETAG AD
 ========================================= */
 
-function updatePostUI(post) {
+async function watchAd(
+  video,
+  button,
+  card
+) {
 
-  const count =
-    adCounts[post.id] || 0;
+  let count =
+    getAdCount(video.id);
 
-
-  const progress =
-    document.getElementById(
-      `progress-${post.id}`
-    );
-
-
-  const adButton =
-    document.getElementById(
-      `ad-btn-${post.id}`
-    );
-
-
-  const videoButton =
-    document.getElementById(
-      `video-btn-${post.id}`
-    );
-
-
-  if (!progress || !adButton) {
-    return;
-  }
-
-
-  /*
-    3 progress bars
-  */
-
-  progress.innerHTML = "";
-
-
-  for (
-    let i = 0;
-    i < REQUIRED_ADS;
-    i++
-  ) {
-
-    const segment =
-      document.createElement("span");
-
-    segment.className =
-      "progress-segment";
-
-
-    if (i < count) {
-
-      segment.classList.add(
-        "completed"
-      );
-
-    }
-
-
-    progress.appendChild(
-      segment
-    );
-  }
-
-
-  /*
-    After 3 completed ads
-  */
 
   if (count >= REQUIRED_ADS) {
 
-    adButton.style.display =
-      "none";
+    setUnlocked(video.id);
 
-
-    videoButton.style.display =
-      "block";
-
-
-    return;
-  }
-
-
-  /*
-    Still needs ads
-  */
-
-  adButton.style.display =
-    "block";
-
-
-  videoButton.style.display =
-    "none";
-
-
-  if (adLoading[post.id]) {
-
-    adButton.disabled =
-      true;
-
-    adButton.textContent =
-      "Loading Ad...";
-
-  } else {
-
-    adButton.disabled =
-      false;
-
-    adButton.textContent =
-      `Watch Ads (${count}/${REQUIRED_ADS})`;
-
-  }
-
-}
-
-
-/* =========================================
-   MONETAG REWARDED AD
-========================================= */
-
-async function showRewardedAd(post) {
-
-  if (!post) {
-    return;
-  }
-
-
-  const postId =
-    post.id;
-
-
-  /*
-    Prevent double click
-  */
-
-  if (adLoading[postId]) {
+    openVideoPage(video.id);
 
     return;
 
@@ -501,12 +477,11 @@ async function showRewardedAd(post) {
 
 
   /*
-    Already completed
+    Double click protection
   */
 
   if (
-    (adCounts[postId] || 0)
-    >= REQUIRED_ADS
+    button.dataset.loading === "true"
   ) {
 
     return;
@@ -514,21 +489,25 @@ async function showRewardedAd(post) {
   }
 
 
-  adLoading[postId] = true;
+  button.dataset.loading =
+    "true";
 
+  button.disabled =
+    true;
 
-  updatePostUI(post);
+  button.textContent =
+    `Loading Ad...`;
 
 
   try {
 
     /*
-      Make sure Monetag SDK exists
+      Monetag function
     */
 
     if (
-      typeof window.show_11571866
-      !== "function"
+      typeof window.show_11571866 !==
+      "function"
     ) {
 
       throw new Error(
@@ -538,170 +517,261 @@ async function showRewardedAd(post) {
     }
 
 
-    console.log(
-      "Starting Monetag ad for post:",
-      postId
-    );
-
-
     /*
       IMPORTANT:
 
-      DO NOT increase the counter here.
+      Counter এখানে বাড়ছে না।
 
-      We wait for Monetag's Promise
-      to resolve successfully.
+      আগে Monetag ad complete হবে।
+      Promise successfulভাবে resolve
+      হওয়ার পরেই count + 1 হবে।
     */
 
     const result =
       await window.show_11571866();
 
 
-    /*
-      Monetag completed successfully.
-
-      NOW and ONLY NOW increase count.
-    */
-
-    adCounts[postId] =
-      (adCounts[postId] || 0) + 1;
-
-
     console.log(
-      "Monetag ad completed:",
+      "Monetag completed:",
       result
     );
 
 
     /*
-      Update the exact post
+      AD SUCCESS
     */
 
-    updatePostUI(post);
+    count =
+      Math.min(
+        count + 1,
+        REQUIRED_ADS
+      );
+
+
+    saveAdCount(
+      video.id,
+      count
+    );
+
+
+    if (
+      count >= REQUIRED_ADS
+    ) {
+
+      setUnlocked(
+        video.id
+      );
+
+    }
+
+
+    /*
+      Card update
+    */
+
+    updateCard(
+      video,
+      card
+    );
 
 
   } catch (error) {
 
     console.error(
-      "Monetag ad failed:",
+      "Monetag error:",
       error
     );
 
 
-    alert(
-      "Ad is not available right now. Please try again."
-    );
-
-
-  } finally {
-
-    adLoading[postId] =
+    button.disabled =
       false;
 
+    button.dataset.loading =
+      "false";
 
-    updatePostUI(post);
-
-  }
-
-}
-
-
-/* =========================================
-   OPEN VIDEO
-========================================= */
-
-function openVideo(post) {
-
-  const count =
-    adCounts[post.id] || 0;
+    button.textContent =
+      `Watch Ads (${count}/3)`;
 
 
-  /*
-    Safety check:
-    video cannot open before 3 ads.
-  */
-
-  if (count < REQUIRED_ADS) {
-
-    return;
-
-  }
-
-
-  if (!post.video_url) {
-
-    alert(
-      "এই ভিডিওর URL পাওয়া যায়নি।"
-    );
-
-    return;
-
-  }
-
-
-  videoModalTitle.textContent =
-    post.title || "Video";
-
-
-  mainVideo.src =
-    post.video_url;
-
-
-  videoModal.classList.remove(
-    "hidden"
-  );
-
-
-  /*
-    Try autoplay after user click
-  */
-
-  mainVideo.play().catch(
-    () => {}
-  );
-
-}
-
-
-/* =========================================
-   CLOSE VIDEO
-========================================= */
-
-closeVideoModal.addEventListener(
-  "click",
-  closeVideo
-);
-
-
-videoModal.addEventListener(
-  "click",
-  event => {
+    /*
+      Telegram popup থাকলে message
+    */
 
     if (
-      event.target === videoModal
+      tg &&
+      typeof tg.showPopup ===
+      "function"
     ) {
 
-      closeVideo();
+      tg.showPopup({
+
+        title: "Ad unavailable",
+
+        message:
+          "Ad এখন available নেই। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+
+        buttons: [
+          {
+            type: "ok"
+          }
+        ]
+
+      });
+
+    } else {
+
+      alert(
+        "Ad এখন available নেই। আবার চেষ্টা করুন।"
+      );
 
     }
 
+    return;
+
   }
-);
 
 
-function closeVideo() {
+  button.dataset.loading =
+    "false";
 
-  mainVideo.pause();
 
-  mainVideo.removeAttribute(
-    "src"
+  /*
+    যদি ৩টি complete হয়ে যায়,
+    সঙ্গে সঙ্গে Watch Video দেখাবে।
+  */
+
+  if (
+    getAdCount(video.id) >=
+    REQUIRED_ADS
+  ) {
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "▶ Watch Video";
+
+    button.classList.add(
+      "unlocked"
+    );
+
+  } else {
+
+    button.disabled =
+      false;
+
+  }
+
+}
+
+
+/* =========================================
+   UPDATE CARD
+========================================= */
+
+function updateCard(
+  video,
+  card
+) {
+
+  const count =
+    Math.min(
+      getAdCount(video.id),
+      REQUIRED_ADS
+    );
+
+
+  const button =
+    card.querySelector(
+      ".watch-btn"
+    );
+
+
+  const segments =
+    card.querySelectorAll(
+      ".progress-segment"
+    );
+
+
+  segments.forEach(
+    (segment, index) => {
+
+      if (
+        index < count
+      ) {
+
+        segment.classList.add(
+          "done"
+        );
+
+      } else {
+
+        segment.classList.remove(
+          "done"
+        );
+
+      }
+
+    }
   );
 
-  mainVideo.load();
 
-  videoModal.classList.add(
-    "hidden"
-  );
+  if (
+    count >= REQUIRED_ADS
+  ) {
+
+    button.classList.add(
+      "unlocked"
+    );
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "▶ Watch Video";
+
+
+    button.onclick =
+      () => {
+
+        openVideoPage(
+          video.id
+        );
+
+      };
+
+  } else {
+
+    button.classList.remove(
+      "unlocked"
+    );
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      `Watch Ads (${count}/3)`;
+
+  }
+
+}
+
+
+/* =========================================
+   OPEN VIDEO PAGE
+========================================= */
+
+function openVideoPage(id) {
+
+  if (!isUnlocked(id)) {
+
+    return;
+
+  }
+
+
+  window.location.href =
+    `video.html?id=${encodeURIComponent(id)}`;
 
 }
 
@@ -711,7 +781,7 @@ function closeVideo() {
 ========================================= */
 
 document
-  .querySelectorAll(".tab")
+  .querySelectorAll(".category-btn")
   .forEach(button => {
 
     button.addEventListener(
@@ -719,14 +789,15 @@ document
       () => {
 
         document
-          .querySelectorAll(".tab")
-          .forEach(tab => {
-
-            tab.classList.remove(
-              "active"
-            );
-
-          });
+          .querySelectorAll(
+            ".category-btn"
+          )
+          .forEach(
+            btn =>
+              btn.classList.remove(
+                "active"
+              )
+          );
 
 
         button.classList.add(
@@ -738,7 +809,7 @@ document
           button.dataset.category;
 
 
-        renderPosts();
+        renderVideos();
 
       }
     );
@@ -750,28 +821,35 @@ document
    HTML ESCAPE
 ========================================= */
 
-function escapeHTML(value) {
-
-  if (value === null ||
-      value === undefined) {
-
-    return "";
-
-  }
-
+function escapeHtml(value) {
 
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
 
 /* =========================================
-   START APP
+   START
 ========================================= */
 
-loadPosts();
+loadVideos();
