@@ -1,145 +1,81 @@
-/* =========================================================
-   DESI GIRL VIRAL LINK
-   SUPABASE + TELEGRAM + MONETAG
-   ========================================================= */
-
-
-/* =========================================================
+/* =========================================
    TELEGRAM
-   ========================================================= */
+========================================= */
 
 const tg =
   window.Telegram &&
   window.Telegram.WebApp;
 
-
 if (tg) {
-
   tg.ready();
-
   tg.expand();
-
 }
 
 
-/* =========================================================
+/* =========================================
    SUPABASE
-   ========================================================= */
+========================================= */
 
 const SUPABASE_URL =
   "https://mshoftgubfbkvynndtnu.supabase.co";
-
 
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
-
-
-/* =========================================================
+/* =========================================
    SETTINGS
-   ========================================================= */
+========================================= */
 
 const REQUIRED_ADS = 3;
 
 
-/* =========================================================
-   VARIABLES
-   ========================================================= */
-
-let videos = [];
-
-let selectedCategory = "All";
-
-let selectedVideo = null;
-
-let adLoading = false;
-
-
 /*
-  Each video keeps its own ad counter.
+   Each post will have its own ad counter.
 
-  Example:
+   Example:
 
-  video 1 = 2/3
-  video 2 = 0/3
+   post 1 = 0/3
+   post 2 = 0/3
+
+   One post's ads will NOT affect another post.
 */
 
-const videoProgress = {};
+const adCounts = {};
+
+const adLoading = {};
+
+let allPosts = [];
+
+let currentCategory = "All";
 
 
-/* =========================================================
-   DOM
-   ========================================================= */
+/* =========================================
+   ELEMENTS
+========================================= */
 
 const videoGrid =
-  document.getElementById(
-    "videoGrid"
-  );
-
-
-const loading =
-  document.getElementById(
-    "loading"
-  );
-
-
-const emptyState =
-  document.getElementById(
-    "emptyState"
-  );
-
+  document.getElementById("videoGrid");
 
 const tgUser =
-  document.getElementById(
-    "tgUser"
-  );
-
-
-const categoryTabs =
-  document.getElementById(
-    "categoryTabs"
-  );
-
+  document.getElementById("tgUser");
 
 const videoModal =
-  document.getElementById(
-    "videoModal"
-  );
+  document.getElementById("videoModal");
+
+const videoModalTitle =
+  document.getElementById("videoModalTitle");
+
+const mainVideo =
+  document.getElementById("mainVideo");
+
+const closeVideoModal =
+  document.getElementById("closeVideoModal");
 
 
-const modalVideoArea =
-  document.getElementById(
-    "modalVideoArea"
-  );
-
-
-const modalTitle =
-  document.getElementById(
-    "modalTitle"
-  );
-
-
-const modalDescription =
-  document.getElementById(
-    "modalDescription"
-  );
-
-
-const closeModal =
-  document.getElementById(
-    "closeModal"
-  );
-
-
-/* =========================================================
+/* =========================================
    TELEGRAM USER
-   ========================================================= */
+========================================= */
 
 if (
   tg &&
@@ -150,576 +86,449 @@ if (
   const user =
     tg.initDataUnsafe.user;
 
-
   tgUser.textContent =
     user.first_name ||
     "Telegram User";
-
 }
 
 
-/* =========================================================
-   LOAD POSTS
-   ========================================================= */
+/* =========================================
+   LOAD POSTS FROM SUPABASE
+========================================= */
 
 async function loadPosts() {
 
-  loading.classList.remove(
-    "hidden"
-  );
-
-
-  emptyState.classList.add(
-    "hidden"
-  );
-
-
-  videoGrid.innerHTML = "";
-
+  videoGrid.innerHTML = `
+    <div class="loading">
+      Loading videos...
+    </div>
+  `;
 
   try {
 
-    const {
-      data,
-      error
-    } = await supabaseClient
+    const url =
+      `${SUPABASE_URL}/rest/v1/posts` +
+      `?select=id,title,thumbnail_url,video_url,category,published,created_at` +
+      `&published=eq.true` +
+      `&order=created_at.desc`;
 
-      .from("posts")
 
-      .select(
-        "id,title,thumbnail_url,video_url,category,published,created_at"
-      )
+    const response =
+      await fetch(url, {
 
-      .eq(
-        "published",
-        true
-      )
+        method: "GET",
 
-      .order(
-        "created_at",
-        {
-          ascending: false
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization":
+            `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type":
+            "application/json"
         }
+
+      });
+
+
+    if (!response.ok) {
+
+      const errorText =
+        await response.text();
+
+      throw new Error(
+        `Supabase Error ${response.status}: ${errorText}`
       );
-
-
-    if (error) {
-
-      console.error(
-        "Supabase error:",
-        error
-      );
-
-
-      loading.classList.add(
-        "hidden"
-      );
-
-
-      emptyState.classList.remove(
-        "hidden"
-      );
-
-
-      emptyState.querySelector(
-        "h3"
-      ).textContent =
-        "Database Error";
-
-
-      emptyState.querySelector(
-        "p"
-      ).textContent =
-        error.message;
-
-
-      return;
-
     }
 
 
-    videos =
-      data || [];
+    const posts =
+      await response.json();
 
 
-    console.log(
-      "Supabase posts:",
-      videos
-    );
-
-
-    loading.classList.add(
-      "hidden"
-    );
-
-
-    if (
-      videos.length === 0
-    ) {
-
-      emptyState.classList.remove(
-        "hidden"
-      );
-
-      return;
-
-    }
+    allPosts = posts || [];
 
 
     /*
-      Create progress state
-      for each video.
+      Make sure every post starts at 0/3.
     */
 
-    videos.forEach(
-      video => {
+    allPosts.forEach(post => {
 
-        if (
-          videoProgress[video.id] ===
-          undefined
-        ) {
+      if (adCounts[post.id] === undefined) {
 
-          videoProgress[video.id] = 0;
-
-        }
+        adCounts[post.id] = 0;
 
       }
-    );
+
+      if (adLoading[post.id] === undefined) {
+
+        adLoading[post.id] = false;
+
+      }
+
+    });
 
 
-    renderVideos();
-
+    renderPosts();
 
   } catch (error) {
 
     console.error(
-      "Loading error:",
+      "Failed to load posts:",
       error
     );
 
 
-    loading.classList.add(
-      "hidden"
-    );
-
-
-    emptyState.classList.remove(
-      "hidden"
-    );
-
-
-    emptyState.querySelector(
-      "h3"
-    ).textContent =
-      "Connection Error";
-
-
-    emptyState.querySelector(
-      "p"
-    ).textContent =
-      "Please try again.";
-
+    videoGrid.innerHTML = `
+      <div class="error">
+        ভিডিও লোড করা যাচ্ছে না।<br><br>
+        আবার চেষ্টা করুন।
+      </div>
+    `;
   }
-
 }
 
 
-/* =========================================================
-   RENDER VIDEOS
-   ========================================================= */
+/* =========================================
+   RENDER POSTS
+========================================= */
 
-function renderVideos() {
+function renderPosts() {
 
   videoGrid.innerHTML = "";
 
 
-  const filteredVideos =
-    selectedCategory === "All"
-
-      ? videos
-
-      : videos.filter(
-          video =>
-            normalizeCategory(
-              video.category
-            ) ===
-            normalizeCategory(
-              selectedCategory
-            )
-        );
+  let posts = allPosts;
 
 
-  if (
-    filteredVideos.length === 0
-  ) {
+  if (currentCategory !== "All") {
 
-    emptyState.classList.remove(
-      "hidden"
-    );
-
-    return;
+    posts =
+      allPosts.filter(
+        post =>
+          post.category === currentCategory
+      );
 
   }
 
 
-  emptyState.classList.add(
-    "hidden"
-  );
+  if (!posts.length) {
+
+    videoGrid.innerHTML = `
+      <div class="loading">
+        এই category-তে কোনো ভিডিও নেই।
+      </div>
+    `;
+
+    return;
+  }
 
 
-  filteredVideos.forEach(
-    video => {
+  posts.forEach(post => {
 
-      const card =
-        createVideoCard(
-          video
-        );
+    const card =
+      createPostCard(post);
 
+    videoGrid.appendChild(card);
 
-      videoGrid.appendChild(
-        card
-      );
-
-    }
-  );
+  });
 
 }
 
 
-/* =========================================================
-   CREATE VIDEO CARD
-   ========================================================= */
+/* =========================================
+   CREATE POST CARD
+========================================= */
 
-function createVideoCard(
-  video
-) {
+function createPostCard(post) {
 
   const card =
-    document.createElement(
-      "article"
-    );
+    document.createElement("article");
+
+  card.className = "card";
 
 
-  card.className =
-    "video-card";
-
-
-  const watched =
-    videoProgress[video.id] || 0;
-
-
-  const percent =
-    Math.min(
-      (watched / REQUIRED_ADS) * 100,
-      100
-    );
-
-
-  const unlocked =
-    watched >= REQUIRED_ADS;
-
-
-  const title =
-    escapeHTML(
-      video.title ||
-      "Untitled Video"
-    );
-
-
-  const category =
-    escapeHTML(
-      video.category ||
-      "Popular"
-    );
+  const count =
+    adCounts[post.id] || 0;
 
 
   const thumbnail =
-    video.thumbnail_url
-      ? escapeHTML(
-          video.thumbnail_url
-        )
-      : "";
+    post.thumbnail_url ||
+    "https://via.placeholder.com/700x400?text=Video";
 
 
-  let thumbnailHTML = "";
-
-
-  if (thumbnail) {
-
-    thumbnailHTML = `
-
-      <img
-        class="video-thumbnail"
-        src="${thumbnail}"
-        alt="${title}"
-        loading="lazy"
-        onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
-      >
-
-      <div
-        class="thumbnail-fallback hidden"
-      >
-        🎬
-      </div>
-
-    `;
-
-  } else {
-
-    thumbnailHTML = `
-
-      <div
-        class="thumbnail-fallback"
-      >
-        🎬
-      </div>
-
-    `;
-
-  }
+  const description =
+    post.description ||
+    "Watch ads to unlock this video";
 
 
   card.innerHTML = `
 
-    <div class="thumbnail-container">
+    <div class="thumb-wrapper">
 
-      ${thumbnailHTML}
-
-      <div class="thumbnail-overlay">
-
-        <div class="play-circle">
-          ▶
-        </div>
-
-      </div>
+      <img
+        class="thumb"
+        src="${escapeHTML(thumbnail)}"
+        alt="${escapeHTML(post.title || "Video")}"
+        loading="lazy"
+        onerror="this.src='https://via.placeholder.com/700x400?text=Video';"
+      >
 
     </div>
 
 
-    <div class="card-content">
+    <div class="card-body">
 
-      <h2 class="video-title">
-        ${title}
+      <h2 class="card-title">
+        ${escapeHTML(post.title || "Untitled Video")}
       </h2>
 
 
-      <p class="video-description">
-        ${category}
+      <div class="card-category">
+        ${escapeHTML(post.category || "Popular")}
+      </div>
+
+
+      <p class="card-description">
+        ${escapeHTML(description)}
       </p>
 
 
-      <div class="progress-container">
-
-        <span
-          class="progress-segment
-          ${watched >= 1 ? "filled" : ""}"
-        ></span>
-
-        <span
-          class="progress-segment
-          ${watched >= 2 ? "filled" : ""}"
-        ></span>
-
-        <span
-          class="progress-segment
-          ${watched >= 3 ? "filled" : ""}"
-        ></span>
-
+      <div
+        class="progress"
+        id="progress-${post.id}">
       </div>
 
 
       <button
-        class="watch-button
-        ${unlocked ? "unlocked" : ""}"
-        data-id="${video.id}"
-      >
+        class="watch-ad-btn"
+        id="ad-btn-${post.id}">
+      </button>
 
-        ${
-          unlocked
-            ? "▶ Watch Video"
-            : `Watch Ads (${watched}/${REQUIRED_ADS})`
-        }
 
+      <button
+        class="watch-video-btn"
+        id="video-btn-${post.id}"
+        style="display:none;">
+        ▶ Watch Video
       </button>
 
     </div>
-
   `;
 
 
-  const button =
+  updatePostUI(post);
+
+
+  const adButton =
     card.querySelector(
-      ".watch-button"
+      `#ad-btn-${post.id}`
     );
 
 
-  button.addEventListener(
+  const videoButton =
+    card.querySelector(
+      `#video-btn-${post.id}`
+    );
+
+
+  adButton.addEventListener(
     "click",
     () => {
 
-      handleVideoButton(
-        video
-      );
+      showRewardedAd(post);
 
     }
   );
 
 
-  /*
-    Clicking thumbnail also
-    opens the ad/video flow.
-  */
-
-  const thumbnailContainer =
-    card.querySelector(
-      ".thumbnail-container"
-    );
-
-
-  thumbnailContainer.addEventListener(
+  videoButton.addEventListener(
     "click",
     () => {
 
-      handleVideoButton(
-        video
-      );
+      openVideo(post);
 
     }
   );
 
 
   return card;
-
 }
 
 
-/* =========================================================
-   VIDEO BUTTON
-   ========================================================= */
+/* =========================================
+   UPDATE ONE POST UI
+========================================= */
 
-async function handleVideoButton(
-  video
-) {
+function updatePostUI(post) {
 
-  const watched =
-    videoProgress[video.id] || 0;
+  const count =
+    adCounts[post.id] || 0;
+
+
+  const progress =
+    document.getElementById(
+      `progress-${post.id}`
+    );
+
+
+  const adButton =
+    document.getElementById(
+      `ad-btn-${post.id}`
+    );
+
+
+  const videoButton =
+    document.getElementById(
+      `video-btn-${post.id}`
+    );
+
+
+  if (!progress || !adButton) {
+    return;
+  }
 
 
   /*
-    Already unlocked
+    3 progress bars
   */
 
-  if (
-    watched >= REQUIRED_ADS
+  progress.innerHTML = "";
+
+
+  for (
+    let i = 0;
+    i < REQUIRED_ADS;
+    i++
   ) {
 
-    openVideo(
-      video
+    const segment =
+      document.createElement("span");
+
+    segment.className =
+      "progress-segment";
+
+
+    if (i < count) {
+
+      segment.classList.add(
+        "completed"
+      );
+
+    }
+
+
+    progress.appendChild(
+      segment
     );
-
-    return;
-
   }
 
 
   /*
-    Select current video
+    After 3 completed ads
   */
 
-  selectedVideo =
-    video;
+  if (count >= REQUIRED_ADS) {
+
+    adButton.style.display =
+      "none";
 
 
-  /*
-    Show rewarded ad
-  */
+    videoButton.style.display =
+      "block";
 
-  await showRewardedAd(
-    video
-  );
-
-}
-
-
-/* =========================================================
-   MONETAG REWARDED AD
-   ========================================================= */
-
-/*
-  IMPORTANT
-
-  Your Monetag code is kept:
-
-  data-zone="11571866"
-  data-sdk="show_11571866"
-
-  Counter is increased ONLY after:
-
-  await window.show_11571866()
-
-  successfully resolves.
-*/
-
-async function showRewardedAd(
-  video
-) {
-
-  if (adLoading) {
 
     return;
-
   }
 
 
-  const currentCount =
-    videoProgress[video.id] || 0;
-
-
-  if (
-    currentCount >= REQUIRED_ADS
-  ) {
-
-    openVideo(
-      video
-    );
-
-    return;
-
-  }
-
-
-  adLoading = true;
-
-
   /*
-    Find clicked button
+    Still needs ads
   */
 
-  const button =
-    document.querySelector(
-      `.watch-button[data-id="${video.id}"]`
-    );
+  adButton.style.display =
+    "block";
 
 
-  if (button) {
+  videoButton.style.display =
+    "none";
 
-    button.disabled = true;
 
-    button.textContent =
+  if (adLoading[post.id]) {
+
+    adButton.disabled =
+      true;
+
+    adButton.textContent =
       "Loading Ad...";
 
+  } else {
+
+    adButton.disabled =
+      false;
+
+    adButton.textContent =
+      `Watch Ads (${count}/${REQUIRED_ADS})`;
+
   }
+
+}
+
+
+/* =========================================
+   MONETAG REWARDED AD
+========================================= */
+
+async function showRewardedAd(post) {
+
+  if (!post) {
+    return;
+  }
+
+
+  const postId =
+    post.id;
+
+
+  /*
+    Prevent double click
+  */
+
+  if (adLoading[postId]) {
+
+    return;
+
+  }
+
+
+  /*
+    Already completed
+  */
+
+  if (
+    (adCounts[postId] || 0)
+    >= REQUIRED_ADS
+  ) {
+
+    return;
+
+  }
+
+
+  adLoading[postId] = true;
+
+
+  updatePostUI(post);
 
 
   try {
 
     /*
-      Check Monetag
+      Make sure Monetag SDK exists
     */
 
     if (
-      typeof window.show_11571866 !==
-      "function"
+      typeof window.show_11571866
+      !== "function"
     ) {
 
       throw new Error(
@@ -730,191 +539,112 @@ async function showRewardedAd(
 
 
     console.log(
-      "Opening Monetag ad..."
-    );
-
-
-    /*
-      KEEP MONETAG CODE
-    */
-
-    const result =
-      await window.show_11571866();
-
-
-    console.log(
-      "Monetag result:",
-      result
+      "Starting Monetag ad for post:",
+      postId
     );
 
 
     /*
       IMPORTANT:
 
-      Increase counter ONLY
-      after Monetag promise resolves.
+      DO NOT increase the counter here.
+
+      We wait for Monetag's Promise
+      to resolve successfully.
     */
 
-    videoProgress[video.id] =
-      Math.min(
-        currentCount + 1,
-        REQUIRED_ADS
-      );
+    const result =
+      await window.show_11571866();
 
 
-    const newCount =
-      videoProgress[video.id];
+    /*
+      Monetag completed successfully.
+
+      NOW and ONLY NOW increase count.
+    */
+
+    adCounts[postId] =
+      (adCounts[postId] || 0) + 1;
 
 
     console.log(
-      `Ad completed: ${newCount}/${REQUIRED_ADS}`
+      "Monetag ad completed:",
+      result
     );
 
 
     /*
-      Re-render cards
+      Update the exact post
     */
 
-    renderVideos();
-
-
-    /*
-      If 3 ads completed
-    */
-
-    if (
-      newCount >= REQUIRED_ADS
-    ) {
-
-      showTelegramAlert(
-        "🔓 Video unlocked!"
-      );
-
-    }
+    updatePostUI(post);
 
 
   } catch (error) {
 
     console.error(
-      "Monetag ad error:",
+      "Monetag ad failed:",
       error
     );
 
 
-    if (button) {
-
-      button.disabled =
-        false;
-
-
-      button.textContent =
-        `Watch Ads (${currentCount}/${REQUIRED_ADS})`;
-
-    }
-
-
-    showTelegramAlert(
+    alert(
       "Ad is not available right now. Please try again."
     );
 
 
   } finally {
 
-    adLoading =
+    adLoading[postId] =
       false;
+
+
+    updatePostUI(post);
 
   }
 
 }
 
 
-/* =========================================================
+/* =========================================
    OPEN VIDEO
-   ========================================================= */
+========================================= */
 
-function openVideo(
-  video
-) {
+function openVideo(post) {
 
-  selectedVideo =
-    video;
-
-
-  const watched =
-    videoProgress[video.id] || 0;
-
-
-  if (
-    watched < REQUIRED_ADS
-  ) {
-
-    showTelegramAlert(
-      `Complete ${REQUIRED_ADS - watched} more ad(s) first.`
-    );
-
-    return;
-
-  }
-
-
-  if (
-    !video.video_url
-  ) {
-
-    showTelegramAlert(
-      "Video URL is missing."
-    );
-
-    console.error(
-      "Missing video_url:",
-      video
-    );
-
-    return;
-
-  }
-
-
-  modalTitle.textContent =
-    video.title ||
-    "Video";
-
-
-  modalDescription.textContent =
-    "🔓 Video unlocked";
+  const count =
+    adCounts[post.id] || 0;
 
 
   /*
-    HTML video
+    Safety check:
+    video cannot open before 3 ads.
   */
 
-  const videoURL =
-    escapeHTML(
-      video.video_url
+  if (count < REQUIRED_ADS) {
+
+    return;
+
+  }
+
+
+  if (!post.video_url) {
+
+    alert(
+      "এই ভিডিওর URL পাওয়া যায়নি।"
     );
 
+    return;
 
-  modalVideoArea.innerHTML = `
+  }
 
-    <video
-      class="modal-video"
-      controls
-      autoplay
-      playsinline
-      preload="metadata"
-    >
 
-      <source
-        src="${videoURL}"
-        type="video/mp4"
-      >
+  videoModalTitle.textContent =
+    post.title || "Video";
 
-      Your browser does not support
-      video playback.
 
-    </video>
-
-  `;
+  mainVideo.src =
+    post.video_url;
 
 
   videoModal.classList.remove(
@@ -923,163 +653,107 @@ function openVideo(
 
 
   /*
-    Telegram fullscreen
+    Try autoplay after user click
   */
 
-  if (
-    tg &&
-    typeof tg.expand ===
-    "function"
-  ) {
-
-    tg.expand();
-
-  }
+  mainVideo.play().catch(
+    () => {}
+  );
 
 }
 
 
-/* =========================================================
+/* =========================================
    CLOSE VIDEO
-   ========================================================= */
+========================================= */
+
+closeVideoModal.addEventListener(
+  "click",
+  closeVideo
+);
+
+
+videoModal.addEventListener(
+  "click",
+  event => {
+
+    if (
+      event.target === videoModal
+    ) {
+
+      closeVideo();
+
+    }
+
+  }
+);
+
 
 function closeVideo() {
 
-  const video =
-    modalVideoArea.querySelector(
-      "video"
-    );
+  mainVideo.pause();
 
+  mainVideo.removeAttribute(
+    "src"
+  );
 
-  if (video) {
-
-    video.pause();
-
-    video.removeAttribute(
-      "src"
-    );
-
-    video.load();
-
-  }
-
-
-  modalVideoArea.innerHTML =
-    "";
-
+  mainVideo.load();
 
   videoModal.classList.add(
     "hidden"
   );
 
-
-  selectedVideo =
-    null;
-
 }
 
 
-/* =========================================================
-   CLOSE BUTTON
-   ========================================================= */
+/* =========================================
+   CATEGORY BUTTONS
+========================================= */
 
-closeModal.addEventListener(
-  "click",
-  closeVideo
-);
-
-
-/* =========================================================
-   MODAL OVERLAY
-   ========================================================= */
-
-const modalOverlay =
-  document.querySelector(
-    ".modal-overlay"
-  );
-
-
-modalOverlay.addEventListener(
-  "click",
-  closeVideo
-);
-
-
-/* =========================================================
-   CATEGORY TABS
-   ========================================================= */
-
-categoryTabs
+document
   .querySelectorAll(".tab")
-  .forEach(
-    tab => {
+  .forEach(button => {
 
-      tab.addEventListener(
-        "click",
-        () => {
+    button.addEventListener(
+      "click",
+      () => {
 
-          categoryTabs
-            .querySelectorAll(
-              ".tab"
-            )
-            .forEach(
-              item => {
+        document
+          .querySelectorAll(".tab")
+          .forEach(tab => {
 
-                item.classList.remove(
-                  "active"
-                );
-
-              }
+            tab.classList.remove(
+              "active"
             );
 
-
-          tab.classList.add(
-            "active"
-          );
+          });
 
 
-          selectedCategory =
-            tab.dataset.category;
+        button.classList.add(
+          "active"
+        );
 
 
-          renderVideos();
-
-        }
-      );
-
-    }
-  );
+        currentCategory =
+          button.dataset.category;
 
 
-/* =========================================================
-   NORMALIZE CATEGORY
-   ========================================================= */
+        renderPosts();
 
-function normalizeCategory(
-  value
-) {
+      }
+    );
 
-  return String(
-    value || ""
-  )
-    .trim()
-    .toLowerCase();
-
-}
+  });
 
 
-/* =========================================================
-   ESCAPE HTML
-   ========================================================= */
+/* =========================================
+   HTML ESCAPE
+========================================= */
 
-function escapeHTML(
-  value
-) {
+function escapeHTML(value) {
 
-  if (
-    value === null ||
-    value === undefined
-  ) {
+  if (value === null ||
+      value === undefined) {
 
     return "";
 
@@ -1087,66 +761,17 @@ function escapeHTML(
 
 
   return String(value)
-
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-
-    .replace(
-      /</g,
-      "&lt;"
-    )
-
-    .replace(
-      />/g,
-      "&gt;"
-    )
-
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-
-    .replace(
-      /'/g,
-      "&#039;"
-    );
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
 }
 
 
-/* =========================================================
-   TELEGRAM ALERT
-   ========================================================= */
-
-function showTelegramAlert(
-  message
-) {
-
-  if (
-    tg &&
-    typeof tg.showAlert ===
-    "function"
-  ) {
-
-    tg.showAlert(
-      message
-    );
-
-  } else {
-
-    alert(
-      message
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   START
-   ========================================================= */
+/* =========================================
+   START APP
+========================================= */
 
 loadPosts();
