@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 
 <head>
 
@@ -7,14 +7,12 @@
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    content="width=device-width, initial-scale=1.0"
   >
 
   <title>Watch Video</title>
 
-  <script
-    src="https://telegram.org/js/telegram-web-app.js">
-  </script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
 
@@ -22,74 +20,67 @@
       box-sizing: border-box;
     }
 
-    html,
     body {
       margin: 0;
-      min-height: 100%;
-    }
 
-    body {
+      min-height: 100vh;
 
       background:
         linear-gradient(
           135deg,
           #080d1d,
-          #11162b,
-          #001b2e
+          #10162c,
+          #06182a
         );
 
       color: white;
 
       font-family:
         Arial,
+        Helvetica,
         sans-serif;
-
-      min-height: 100vh;
     }
 
 
     .page {
-
       width: 100%;
 
       max-width: 800px;
 
       margin: auto;
 
-      padding: 18px;
+      padding: 22px;
     }
 
 
     .back {
-
       border: 0;
 
       background:
         linear-gradient(
           135deg,
-          #3f5cff,
-          #713dff
+          #405cff,
+          #743dff
         );
 
       color: white;
 
       padding:
-        11px 18px;
+        12px 20px;
 
-      border-radius: 12px;
+      border-radius: 14px;
+
+      font-size: 16px;
+
+      font-weight: bold;
 
       cursor: pointer;
 
-      margin-bottom: 18px;
-
-      font-size: 14px;
-
-      font-weight: 800;
+      margin-bottom: 28px;
     }
 
 
     .card {
-
       background:
         rgba(255,255,255,.08);
 
@@ -97,25 +88,26 @@
         1px solid
         rgba(255,255,255,.12);
 
-      border-radius: 22px;
+      border-radius: 25px;
 
-      padding: 15px;
+      padding: 20px;
 
       backdrop-filter:
         blur(15px);
+
+      box-shadow:
+        0 20px 60px
+        rgba(0,0,0,.25);
     }
 
 
     .badge {
-
-      display:
-        inline-block;
+      display: inline-block;
 
       padding:
-        7px 12px;
+        9px 15px;
 
-      border-radius:
-        20px;
+      border-radius: 25px;
 
       background:
         linear-gradient(
@@ -125,96 +117,57 @@
         );
 
       color:
-        #001b12;
+        #00251e;
 
-      font-weight:
-        bold;
+      font-weight: 900;
 
-      font-size:
-        13px;
+      font-size: 14px;
 
-      margin-bottom:
-        12px;
+      margin-bottom: 18px;
     }
 
 
     h1 {
-
-      font-size:
-        24px;
+      font-size: 28px;
 
       margin:
-        8px 0 16px;
+        0 0 18px;
     }
 
 
     video {
+      width: 100%;
 
-      width:
-        100%;
+      display: block;
 
-      display:
-        block;
+      border-radius: 18px;
 
-      border-radius:
-        17px;
+      background: #000;
 
-      background:
-        #000;
-
-      max-height:
-        75vh;
+      max-height: 75vh;
     }
 
 
     .status {
-
-      text-align:
-        center;
+      text-align: center;
 
       padding:
-        35px 15px;
+        40px 15px;
 
-      color:
-        #bbb;
+      color: #b7bfd5;
 
-      line-height:
-        1.6;
+      line-height: 1.6;
     }
 
 
     .error {
-
       color:
-        #ff7777;
+        #ff8a9b;
 
       background:
-        rgba(255,50,80,.08);
+        rgba(255,50,80,.10);
 
-      border-radius:
-        15px;
-    }
-
-
-    .info {
-
-      margin-top:
-        15px;
-
-      padding:
-        18px;
-
-      border-radius:
-        18px;
-
-      background:
-        rgba(255,255,255,.06);
-
-      color:
-        #c5cbe0;
-
-      line-height:
-        1.7;
+      border-radius: 18px;
     }
 
   </style>
@@ -224,452 +177,361 @@
 
 <body>
 
-  <div class="page">
+<div class="page">
 
-    <button
-      class="back"
-      onclick="history.back()">
+  <button
+    class="back"
+    onclick="history.back()">
 
-      ← Back
+    ← Back
 
-    </button>
-
-
-    <div class="card">
-
-      <div class="badge">
-
-        🔓 VIDEO UNLOCKED
-
-      </div>
+  </button>
 
 
-      <h1 id="title">
+  <div class="card">
 
-        Loading...
-
-      </h1>
-
-
-      <div id="playerArea">
-
-        <div class="status">
-
-          Loading video...
-
-        </div>
-
-      </div>
+    <div class="badge">
+      🔓 VIDEO UNLOCKED
+    </div>
 
 
-      <div class="info">
+    <h1 id="title">
+      Loading...
+    </h1>
 
-        আপনি সফলভাবে ভিডিওটি আনলক করেছেন।
-        নিচের player থেকে ভিডিওটি দেখতে পারবেন।
 
+    <div id="playerArea">
+
+      <div class="status">
+        Loading video...
       </div>
 
     </div>
 
   </div>
 
+</div>
 
-  <script>
 
-    /* =====================================================
-       TELEGRAM
-    ===================================================== */
+<script>
 
-    const tg =
-      window.Telegram &&
-      window.Telegram.WebApp;
+/* =========================================================
+   TELEGRAM
+========================================================= */
 
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp;
 
-    if (tg) {
+if (tg) {
 
-      tg.ready();
+  tg.ready();
 
-      tg.expand();
+  tg.expand();
 
-    }
+}
 
 
-    /* =====================================================
-       SUPABASE
-    ===================================================== */
+/* =========================================================
+   SUPABASE
+========================================================= */
 
-    const SUPABASE_URL =
-      "https://mshoftgubfbkvynndtnu.supabase.co";
+const SUPABASE_URL =
+  "https://mshoftgubfbkvynndtnu.supabase.co";
 
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
-    const SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
+/* =========================================================
+   GET ID
+========================================================= */
 
-    /* =====================================================
-       URL PARAMETER
-    ===================================================== */
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
 
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
 
+const postId =
+  params.get("id");
 
-    const postId =
-      params.get("id");
 
+/* =========================================================
+   DOM
+========================================================= */
 
-    /* =====================================================
-       DOM
-    ===================================================== */
+const title =
+  document.getElementById(
+    "title"
+  );
 
-    const title =
-      document.getElementById(
-        "title"
-      );
+const playerArea =
+  document.getElementById(
+    "playerArea"
+  );
 
 
-    const playerArea =
-      document.getElementById(
-        "playerArea"
-      );
+/* =========================================================
+   LOAD VIDEO
+========================================================= */
 
+async function loadVideo() {
 
-    /* =====================================================
-       STORAGE URL
-    ===================================================== */
+  if (!postId) {
 
-    function getStorageUrl(value) {
+    showError(
+      "Video ID is missing."
+    );
 
-      if (!value) {
-        return "";
-      }
+    return;
 
+  }
 
-      value =
-        String(value).trim();
 
+  try {
 
-      /*
-        Already complete URL
-      */
+    /*
+      IMPORTANT:
+      We query the post by ID.
+    */
 
-      if (
-        value.startsWith("http://") ||
-        value.startsWith("https://")
-      ) {
+    const url =
+      `${SUPABASE_URL}/rest/v1/posts` +
+      `?id=eq.${encodeURIComponent(postId)}` +
+      `&select=*`;
 
-        return value;
 
-      }
+    const response =
+      await fetch(
+        url,
+        {
+          method: "GET",
 
+          headers: {
 
-      /*
-        media/filename.mp4
-      */
-
-      if (
-        value.startsWith("media/")
-      ) {
-
-        return (
-          `${SUPABASE_URL}/storage/v1/object/public/${value}`
-        );
-
-      }
-
-
-      /*
-        filename.mp4
-      */
-
-      return (
-        `${SUPABASE_URL}/storage/v1/object/public/media/${value}`
-      );
-
-    }
-
-
-    /* =====================================================
-       LOAD VIDEO
-    ===================================================== */
-
-    async function loadVideo() {
-
-      if (!postId) {
-
-        showError(
-          "Video ID is missing."
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        const url =
-          `${SUPABASE_URL}/rest/v1/posts` +
-          `?id=eq.${encodeURIComponent(postId)}` +
-          `&select=id,title,video_url,video`;
-
-
-        const response =
-          await fetch(
-            url,
-            {
-
-              method:
-                "GET",
-
-              headers:
-                {
-
-                  apikey:
-                    SUPABASE_ANON_KEY,
-
-                  Authorization:
-                    `Bearer ${SUPABASE_ANON_KEY}`,
-
-                  Accept:
-                    "application/json"
-
-                }
-
-            }
-          );
-
-
-        if (!response.ok) {
-
-          const errorText =
-            await response.text();
-
-          throw new Error(
-            `Supabase ${response.status}: ${errorText}`
-          );
-
-        }
-
-
-        const posts =
-          await response.json();
-
-
-        if (
-          !Array.isArray(posts) ||
-          !posts.length
-        ) {
-
-          showError(
-            "Video post not found."
-          );
-
-          return;
-
-        }
-
-
-        const post =
-          posts[0];
-
-
-        title.textContent =
-          post.title ||
-          "Video";
-
-
-        /*
-          video_url priority
-          তারপর video
-        */
-
-        const rawVideoUrl =
-          post.video_url ||
-          post.video ||
-          "";
-
-
-        const videoUrl =
-          getStorageUrl(
-            rawVideoUrl
-          );
-
-
-        if (!videoUrl) {
-
-          showError(
-            "Video URL not found."
-          );
-
-          return;
-
-        }
-
-
-        /* =================================================
-           VIDEO PLAYER
-        ================================================= */
-
-        const video =
-          document.createElement(
-            "video"
-          );
-
-
-        video.controls =
-          true;
-
-        video.playsInline =
-          true;
-
-        video.preload =
-          "metadata";
-
-
-        video.setAttribute(
-          "controlsList",
-          "nodownload"
-        );
-
-
-        video.setAttribute(
-          "oncontextmenu",
-          "return false;"
-        );
-
-
-        const source =
-          document.createElement(
-            "source"
-          );
-
-
-        source.src =
-          videoUrl;
-
-
-        source.type =
-          "video/mp4";
-
-
-        video.appendChild(
-          source
-        );
-
-
-        playerArea.innerHTML =
-          "";
-
-
-        playerArea.appendChild(
-          video
-        );
-
-
-        /*
-          Video loading error
-        */
-
-        video.addEventListener(
-          "error",
-          () => {
-
-            showError(
-              "ভিডিওটি চালু করা যাচ্ছে না। Video URL বা Storage permission চেক করুন।"
-            );
+            apikey:
+              SUPABASE_ANON_KEY,
+
+            Authorization:
+              `Bearer ${SUPABASE_ANON_KEY}`
 
           }
-        );
+
+        }
+      );
 
 
-      } catch (error) {
+    if (!response.ok) {
 
-        console.error(
-          "VIDEO ERROR:",
-          error
-        );
+      const errorText =
+        await response.text();
 
+      throw new Error(
+        `Supabase ${response.status}: ${errorText}`
+      );
+
+    }
+
+
+    const posts =
+      await response.json();
+
+
+    if (!posts.length) {
+
+      showError(
+        "Video post not found."
+      );
+
+      return;
+
+    }
+
+
+    const post =
+      posts[0];
+
+
+    title.textContent =
+      post.title ||
+      "Video";
+
+
+    /*
+      IMPORTANT:
+      ONLY video_url
+
+      No post.video
+    */
+
+    const videoUrl =
+      post.video_url ||
+      "";
+
+
+    if (!videoUrl) {
+
+      showError(
+        "Video URL not found in video_url column."
+      );
+
+      return;
+
+    }
+
+
+    /*
+      Check URL
+    */
+
+    console.log(
+      "Video URL:",
+      videoUrl
+    );
+
+
+    /* =====================================================
+       VIDEO PLAYER
+    ===================================================== */
+
+    const video =
+      document.createElement(
+        "video"
+      );
+
+
+    video.controls =
+      true;
+
+    video.playsInline =
+      true;
+
+    video.preload =
+      "metadata";
+
+    video.setAttribute(
+      "controlsList",
+      "nodownload"
+    );
+
+
+    const source =
+      document.createElement(
+        "source"
+      );
+
+
+    source.src =
+      videoUrl;
+
+    source.type =
+      "video/mp4";
+
+
+    video.appendChild(
+      source
+    );
+
+
+    playerArea.innerHTML =
+      "";
+
+    playerArea.appendChild(
+      video
+    );
+
+
+    /*
+      Video loading error
+    */
+
+    video.addEventListener(
+      "error",
+      () => {
 
         showError(
-          "Unable to load video: " +
-          error.message
+          "Video file could not be played. Please check the Supabase video URL."
         );
 
       }
-
-    }
-
-
-    /* =====================================================
-       ERROR
-    ===================================================== */
-
-    function showError(
-      message
-    ) {
-
-      playerArea.innerHTML = `
-
-        <div class="status error">
-
-          ${escapeHTML(message)}
-
-        </div>
-
-      `;
-
-    }
+    );
 
 
-    /* =====================================================
-       ESCAPE HTML
-    ===================================================== */
+  } catch (error) {
 
-    function escapeHTML(
-      value
-    ) {
-
-      return String(value)
-
-        .replace(
-          /&/g,
-          "&amp;"
-        )
-
-        .replace(
-          /</g,
-          "&lt;"
-        )
-
-        .replace(
-          />/g,
-          "&gt;"
-        )
-
-        .replace(
-          /"/g,
-          "&quot;"
-        )
-
-        .replace(
-          /'/g,
-          "&#039;"
-        );
-
-    }
+    console.error(
+      "VIDEO ERROR:",
+      error
+    );
 
 
-    /* =====================================================
-       START
-    ===================================================== */
+    showError(
+      `Unable to load video: ${error.message}`
+    );
 
-    loadVideo();
+  }
 
-  </script>
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function showError(message) {
+
+  playerArea.innerHTML = `
+
+    <div class="status error">
+
+      ${escapeHTML(message)}
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHTML(value) {
+
+  return String(value)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+loadVideo();
+
+</script>
 
 </body>
-
 </html>
