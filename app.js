@@ -1,9 +1,20 @@
-const tg = window.Telegram && window.Telegram.WebApp;
+/* =========================================================
+   TELEGRAM
+========================================================= */
+
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp;
 
 if (tg) {
   tg.ready();
   tg.expand();
 }
+
+
+/* =========================================================
+   SUPABASE
+========================================================= */
 
 const SUPABASE_URL =
   "https://mshoftgubfbkvynndtnu.supabase.co";
@@ -14,112 +25,246 @@ const SUPABASE_ANON_KEY =
 const POSTS_API =
   `${SUPABASE_URL}/rest/v1/posts`;
 
-const videos = [];
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+const requiredAds = 3;
+
+let adsWatched = 0;
 
 let selectedVideo = null;
-let adsWatched = 0;
-const requiredAds = 3;
+
 let adLoading = false;
 
-const videoGrid = document.getElementById("videoGrid");
-const modal = document.getElementById("modal");
-const modalTitle = document.getElementById("modalTitle");
-const modalText = document.getElementById("modalText");
-const preview = document.getElementById("preview");
-const watchAdBtn = document.getElementById("watchAdBtn");
-const videoBtn = document.getElementById("videoBtn");
-const progressBar = document.getElementById("progressBar");
-const closeModal = document.getElementById("closeModal");
-const tgUser = document.getElementById("tgUser");
+const videos = [];
 
 
-/* Telegram user */
+/* =========================================================
+   DOM
+========================================================= */
 
-if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-  const user = tg.initDataUnsafe.user;
-  tgUser.textContent = user.first_name || "Telegram User";
+const videoGrid =
+  document.getElementById("videoGrid");
+
+const modal =
+  document.getElementById("modal");
+
+const modalTitle =
+  document.getElementById("modalTitle");
+
+const modalText =
+  document.getElementById("modalText");
+
+const preview =
+  document.getElementById("preview");
+
+const watchAdBtn =
+  document.getElementById("watchAdBtn");
+
+const videoBtn =
+  document.getElementById("videoBtn");
+
+const progressBar =
+  document.getElementById("progressBar");
+
+const progressText =
+  document.getElementById("progressText");
+
+const closeModal =
+  document.getElementById("closeModal");
+
+const tgUser =
+  document.getElementById("tgUser");
+
+
+/* =========================================================
+   TELEGRAM USER
+========================================================= */
+
+if (
+  tg &&
+  tg.initDataUnsafe &&
+  tg.initDataUnsafe.user
+) {
+
+  const user =
+    tg.initDataUnsafe.user;
+
+  tgUser.textContent =
+    user.first_name ||
+    "Telegram User";
 }
 
 
 /* =========================================================
-   LOAD POSTS FROM SUPABASE
-   ========================================================= */
+   SUPABASE STORAGE URL HELPER
+========================================================= */
+
+function getStorageUrl(value) {
+
+  if (!value) {
+    return "";
+  }
+
+  value = String(value).trim();
+
+  /*
+    Already a full URL
+  */
+
+  if (
+    value.startsWith("http://") ||
+    value.startsWith("https://")
+  ) {
+    return value;
+  }
+
+  /*
+    Supabase storage path
+  */
+
+  if (
+    value.startsWith("media/")
+  ) {
+
+    return (
+      `${SUPABASE_URL}/storage/v1/object/public/${value}`
+    );
+
+  }
+
+  /*
+    Only filename
+  */
+
+  return (
+    `${SUPABASE_URL}/storage/v1/object/public/media/${value}`
+  );
+}
+
+
+/* =========================================================
+   LOAD POSTS
+========================================================= */
 
 async function loadPosts() {
 
   videoGrid.innerHTML = `
-    <div style="
-      width:100%;
-      text-align:center;
-      padding:40px 10px;
-      color:#aaa;
-    ">
+    <div class="loading">
       Loading videos...
     </div>
   `;
 
   try {
 
-    const response = await fetch(
-      `${POSTS_API}?select=*`,
-      {
-        method: "GET",
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    const response =
+      await fetch(
+        `${POSTS_API}?select=*&order=created_at.desc`,
+        {
+          method: "GET",
+
+          headers: {
+            apikey:
+              SUPABASE_ANON_KEY,
+
+            Authorization:
+              `Bearer ${SUPABASE_ANON_KEY}`,
+
+            Accept:
+              "application/json"
+          }
         }
-      }
-    );
+      );
+
 
     if (!response.ok) {
+
+      const errorText =
+        await response.text();
+
       throw new Error(
-        `Supabase error: ${response.status}`
+        `Supabase ${response.status}: ${errorText}`
       );
     }
 
-    const data = await response.json();
+
+    const data =
+      await response.json();
+
+
+    if (!Array.isArray(data)) {
+
+      throw new Error(
+        "Invalid posts response."
+      );
+    }
+
 
     videos.length = 0;
+
 
     data.forEach(post => {
 
       videos.push({
-        id: post.id,
-        title: post.title || "Untitled Video",
+
+        id:
+          post.id,
+
+        title:
+          post.title ||
+          "Untitled Video",
 
         category:
-          post.category || "Trending",
+          post.category ||
+          "Trending",
 
         thumbnail:
-          post.thumbnail_url ||
-          post.thumbnail ||
-          "",
+          getStorageUrl(
+            post.thumbnail_url ||
+            post.thumbnail ||
+            ""
+          ),
 
         videoUrl:
-          post.video_url ||
-          post.video ||
-          ""
+          getStorageUrl(
+            post.video_url ||
+            post.video ||
+            ""
+          )
+
       });
 
     });
 
+
     render("All");
+
 
   } catch (error) {
 
     console.error(
-      "Failed to load posts:",
+      "LOAD POSTS ERROR:",
       error
     );
 
+
     videoGrid.innerHTML = `
-      <div style="
-        text-align:center;
-        padding:40px 15px;
-        color:#ff6b6b;
-      ">
-        <h3>Unable to load videos</h3>
-        <p>Please try again later.</p>
+      <div class="error-box">
+
+        <h3>
+          Unable to load videos
+        </h3>
+
+        <p>
+          Supabase থেকে ভিডিও লোড করা যাচ্ছে না।
+        </p>
+
+        <p style="margin-top:10px;font-size:12px;">
+          ${escapeHTML(error.message)}
+        </p>
+
       </div>
     `;
 
@@ -129,28 +274,27 @@ async function loadPosts() {
 
 
 /* =========================================================
-   RENDER VIDEO CARDS
-   ========================================================= */
+   RENDER
+========================================================= */
 
 function render(category = "All") {
 
   videoGrid.innerHTML = "";
 
+
   const filteredVideos =
     category === "All"
       ? videos
       : videos.filter(
-          video => video.category === category
+          video =>
+            video.category === category
         );
+
 
   if (!filteredVideos.length) {
 
     videoGrid.innerHTML = `
-      <div style="
-        text-align:center;
-        padding:40px;
-        color:#aaa;
-      ">
+      <div class="loading">
         No videos found.
       </div>
     `;
@@ -159,109 +303,147 @@ function render(category = "All") {
   }
 
 
-  filteredVideos.forEach(video => {
+  filteredVideos.forEach(
+    (video, index) => {
 
-    const card =
-      document.createElement("article");
+      const card =
+        document.createElement("article");
 
-    card.className = "card";
+      card.className =
+        "video-card";
 
 
-    const thumbnailHTML =
-      video.thumbnail
-        ? `
+      let thumbnailHTML = "";
+
+
+      if (video.thumbnail) {
+
+        thumbnailHTML = `
           <img
             src="${escapeHTML(video.thumbnail)}"
             alt="${escapeHTML(video.title)}"
             loading="lazy"
+            onerror="this.parentElement.innerHTML='<div class=&quot;thumbnail-placeholder&quot;>🎬</div>'"
           >
-        `
-        : `
-          <div class="thumb-placeholder">
+        `;
+
+      } else {
+
+        thumbnailHTML = `
+          <div class="thumbnail-placeholder">
             🎬
           </div>
         `;
 
+      }
 
-    card.innerHTML = `
-      <div class="thumb">
-        ${thumbnailHTML}
-      </div>
 
-      <div class="card-body">
+      card.innerHTML = `
 
-        <h3>
-          ${escapeHTML(video.title)}
-        </h3>
+        <div class="thumbnail">
 
-        <div class="meta">
-          ${escapeHTML(video.category)}
+          ${thumbnailHTML}
+
         </div>
 
-        <button class="open-btn">
-          Watch Ad
-        </button>
 
-      </div>
-    `;
+        <div class="card-content">
+
+          <div class="card-title">
+            ${escapeHTML(video.title)}
+          </div>
+
+          <div class="card-category">
+            ${escapeHTML(video.category)}
+          </div>
+
+          <button
+            class="watch-btn">
+
+            🔓 Watch Ad
+
+          </button>
+
+        </div>
+
+      `;
 
 
-    card
-      .querySelector(".open-btn")
-      .addEventListener(
+      const button =
+        card.querySelector(
+          ".watch-btn"
+        );
+
+
+      button.addEventListener(
         "click",
-        () => openVideo(video)
+        () => {
+
+          openVideo(video);
+
+        }
       );
 
 
-    videoGrid.appendChild(card);
+      videoGrid.appendChild(card);
 
-  });
+    }
+  );
 
 }
 
 
 /* =========================================================
-   OPEN VIDEO MODAL
-   ========================================================= */
+   OPEN VIDEO
+========================================================= */
 
 function openVideo(video) {
 
-  selectedVideo = video;
+  selectedVideo =
+    video;
 
-  adsWatched = 0;
+  adsWatched =
+    0;
 
-  adLoading = false;
+  adLoading =
+    false;
+
 
   modalTitle.textContent =
     video.title;
 
+
   modalText.textContent =
     "Watch 3 ads to unlock this video.";
 
-  preview.innerHTML =
-    video.thumbnail
-      ? `
-        <img
-          src="${escapeHTML(video.thumbnail)}"
-          alt=""
-          style="
-            width:100%;
-            height:100%;
-            object-fit:cover;
-            border-radius:15px;
-          "
-        >
-      `
-      : "🎬";
+
+  if (video.thumbnail) {
+
+    preview.innerHTML = `
+      <img
+        src="${escapeHTML(video.thumbnail)}"
+        alt=""
+      >
+    `;
+
+  } else {
+
+    preview.innerHTML = `
+      <div
+        class="thumbnail-placeholder"
+        style="height:100%;"
+      >
+        🎬
+      </div>
+    `;
+
+  }
 
 
-  modal.classList.remove("hidden");
+  modal.classList.remove(
+    "hidden"
+  );
 
-  videoBtn.disabled = true;
-
-  videoBtn.textContent =
-    "🔒 Video Locked";
 
   updateUnlockUI();
 
@@ -269,46 +451,59 @@ function openVideo(video) {
 
 
 /* =========================================================
-   UPDATE AD / UNLOCK UI
-   ========================================================= */
+   UPDATE UNLOCK UI
+========================================================= */
 
 function updateUnlockUI() {
 
-  watchAdBtn.textContent =
-    `Watch Ad (${adsWatched}/${requiredAds})`;
-
-
   const percent =
-    (adsWatched / requiredAds) * 100;
+    Math.min(
+      100,
+      (adsWatched / requiredAds) * 100
+    );
 
 
   progressBar.style.width =
     `${percent}%`;
 
 
-  if (adsWatched >= requiredAds) {
+  progressText.textContent =
+    `${adsWatched} / ${requiredAds}`;
 
-    videoBtn.disabled = false;
+
+  watchAdBtn.textContent =
+    `Watch Ad (${adsWatched}/${requiredAds})`;
+
+
+  if (
+    adsWatched >= requiredAds
+  ) {
+
+    videoBtn.disabled =
+      false;
 
     videoBtn.textContent =
       "▶ Watch Video";
 
-    modalText.textContent =
-      "🎉 All ads completed! Your video is unlocked.";
-
-    watchAdBtn.disabled = true;
+    watchAdBtn.disabled =
+      true;
 
     watchAdBtn.textContent =
       "✓ Ads Completed";
 
+    modalText.textContent =
+      "🎉 All ads completed! Your video is unlocked.";
+
   } else {
 
-    videoBtn.disabled = true;
+    videoBtn.disabled =
+      true;
 
     videoBtn.textContent =
       "🔒 Video Locked";
 
-    watchAdBtn.disabled = false;
+    watchAdBtn.disabled =
+      false;
 
   }
 
@@ -317,7 +512,7 @@ function updateUnlockUI() {
 
 /* =========================================================
    MONETAG REWARDED AD
-   ========================================================= */
+========================================================= */
 
 async function showRewardedAd() {
 
@@ -325,14 +520,19 @@ async function showRewardedAd() {
     return;
   }
 
-  if (adsWatched >= requiredAds) {
+
+  if (
+    adsWatched >= requiredAds
+  ) {
     return;
   }
 
 
-  adLoading = true;
+  adLoading =
+    true;
 
-  watchAdBtn.disabled = true;
+  watchAdBtn.disabled =
+    true;
 
   watchAdBtn.textContent =
     "Loading Ad...";
@@ -355,22 +555,27 @@ async function showRewardedAd() {
     /*
       IMPORTANT:
 
-      Counter is NOT increased here.
+      এখানে counter আগে বাড়বে না।
 
-      It increases ONLY after the
-      Monetag promise resolves.
+      SDK promise সফলভাবে resolve
+      করার পরেই 1/3, 2/3, 3/3 হবে।
     */
 
     const result =
       await window.show_11571866();
 
 
-    adsWatched++;
-
     console.log(
-      "Monetag ad completed:",
+      "Rewarded ad completed:",
       result
     );
+
+
+    /*
+      AD COMPLETION SUCCESS
+    */
+
+    adsWatched++;
 
 
     updateUnlockUI();
@@ -379,7 +584,7 @@ async function showRewardedAd() {
   } catch (error) {
 
     console.error(
-      "Monetag ad failed:",
+      "MONETAG ERROR:",
       error
     );
 
@@ -387,19 +592,27 @@ async function showRewardedAd() {
     modalText.textContent =
       "Ad is not available right now. Please try again.";
 
+
+    watchAdBtn.disabled =
+      false;
+
+
     watchAdBtn.textContent =
       `Watch Ad (${adsWatched}/${requiredAds})`;
 
-    watchAdBtn.disabled = false;
-
   } finally {
 
-    adLoading = false;
+    adLoading =
+      false;
 
   }
 
 }
 
+
+/* =========================================================
+   WATCH AD BUTTON
+========================================================= */
 
 watchAdBtn.addEventListener(
   "click",
@@ -408,8 +621,8 @@ watchAdBtn.addEventListener(
 
 
 /* =========================================================
-   WATCH VIDEO
-   ========================================================= */
+   WATCH VIDEO BUTTON
+========================================================= */
 
 videoBtn.addEventListener(
   "click",
@@ -419,26 +632,39 @@ videoBtn.addEventListener(
       return;
     }
 
-    if (adsWatched < requiredAds) {
+
+    if (
+      adsWatched < requiredAds
+    ) {
+      return;
+    }
+
+
+    if (!selectedVideo.id) {
+
+      alert(
+        "Video ID পাওয়া যায়নি।"
+      );
+
       return;
     }
 
 
     /*
-      Send only the post ID.
+      শুধু post ID পাঠানো হচ্ছে।
 
-      video.html will load the
-      correct video from Supabase.
+      video.html আবার Supabase থেকে
+      সেই post-এর video_url নেবে।
     */
 
-    const videoId =
+    const id =
       encodeURIComponent(
         selectedVideo.id
       );
 
 
     window.location.href =
-      `video.html?id=${videoId}`;
+      `video.html?id=${id}`;
 
   }
 );
@@ -446,13 +672,15 @@ videoBtn.addEventListener(
 
 /* =========================================================
    CLOSE MODAL
-   ========================================================= */
+========================================================= */
 
 closeModal.addEventListener(
   "click",
   () => {
 
-    modal.classList.add("hidden");
+    modal.classList.add(
+      "hidden"
+    );
 
   }
 );
@@ -462,8 +690,14 @@ modal.addEventListener(
   "click",
   event => {
 
-    if (event.target === modal) {
-      modal.classList.add("hidden");
+    if (
+      event.target === modal
+    ) {
+
+      modal.classList.add(
+        "hidden"
+      );
+
     }
 
   }
@@ -471,11 +705,13 @@ modal.addEventListener(
 
 
 /* =========================================================
-   CATEGORY TABS
-   ========================================================= */
+   CATEGORY BUTTONS
+========================================================= */
 
 document
-  .querySelectorAll(".tab")
+  .querySelectorAll(
+    ".category-btn"
+  )
   .forEach(button => {
 
     button.addEventListener(
@@ -483,13 +719,21 @@ document
       () => {
 
         document
-          .querySelectorAll(".tab")
-          .forEach(tab => {
-            tab.classList.remove("active");
+          .querySelectorAll(
+            ".category-btn"
+          )
+          .forEach(btn => {
+
+            btn.classList.remove(
+              "active"
+            );
+
           });
 
 
-        button.classList.add("active");
+        button.classList.add(
+          "active"
+        );
 
 
         render(
@@ -503,21 +747,103 @@ document
 
 
 /* =========================================================
-   HTML ESCAPE
-   ========================================================= */
+   BOTTOM NAV
+========================================================= */
+
+document
+  .querySelectorAll(
+    ".bottom-nav button"
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        document
+          .querySelectorAll(
+            ".bottom-nav button"
+          )
+          .forEach(btn => {
+
+            btn.classList.remove(
+              "bottom-active"
+            );
+
+          });
+
+
+        button.classList.add(
+          "bottom-active"
+        );
+
+
+        const category =
+          button.dataset.category ||
+          "All";
+
+
+        document
+          .querySelectorAll(
+            ".category-btn"
+          )
+          .forEach(btn => {
+
+            btn.classList.toggle(
+              "active",
+              btn.dataset.category ===
+              category
+            );
+
+          });
+
+
+        render(category);
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
 
 function escapeHTML(value) {
 
   return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
 
-/* START */
+/* =========================================================
+   START APP
+========================================================= */
 
 loadPosts();
