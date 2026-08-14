@@ -1,1 +1,585 @@
-<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090d18"><title>Video</title><script src="https://telegram.org/js/telegram-web-app.js"></script><style>*{box-sizing:border-box}body{margin:0;background:#090d18;color:#fff;font-family:Arial,sans-serif}.top{padding:16px;background:#090d18;position:sticky;top:0}.back{border:0;color:#fff;background:linear-gradient(135deg,#4263ff,#7147ff);border-radius:14px;padding:11px 15px;font-weight:700}.wrap{max-width:760px;margin:auto;padding:12px 16px 35px}.hero{border-radius:24px;padding:22px 18px;background:linear-gradient(135deg,#4169ff,#7147ff 55%,#00bfa6);margin-bottom:18px}.badge{display:inline-block;padding:7px 11px;border-radius:99px;background:#ffffff2b;font-size:12px;font-weight:800}.hero h1{margin:12px 0 6px;font-size:25px}.sub{opacity:.85}.player{border-radius:22px;overflow:hidden;background:#000}.player video{display:block;width:100%;max-height:72vh;background:#000}.info{margin-top:16px;padding:18px;border-radius:20px;background:#ffffff0d}.info h2{margin:0 0 8px}.info p{margin:0;color:#b9c0d4;line-height:1.5}.error{display:none;margin-top:15px;padding:14px;border-radius:14px;background:#4a1624;color:#ffd0d0;line-height:1.5}</style></head><body><div class="top"><button class="back" id="back">← Back</button></div><main class="wrap"><section class="hero"><span class="badge">🔓 VIDEO UNLOCKED</span><h1 id="title">Video</h1><div class="sub">Desi Girl Viral Link</div></section><section class="player"><video id="player" controls playsinline preload="metadata"></video></section><section class="info"><h2 id="infoTitle">Watch Video</h2><p>আপনি সফলভাবে ভিডিওটি আনলক করেছেন। নিচের প্লেয়ার থেকে ভিডিওটি দেখতে পারবেন।</p></section><div id="error" class="error"></div></main><script>const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}const p=new URLSearchParams(location.search),t=p.get("title")||"Video",v=p.get("video")||"",thumb=p.get("thumb")||"";document.title=t;document.getElementById("title").textContent=t;document.getElementById("infoTitle").textContent=t;const player=document.getElementById("player"),err=document.getElementById("error");if(thumb)player.poster=thumb;if(v){player.src=v;player.load()}else{err.style.display="block";err.textContent="ভিডিও URL পাওয়া যায়নি। আগের পেজ থেকে video_url পাঠানো হয়নি।"}player.onerror=()=>{err.style.display="block";err.textContent="ভিডিও চালানো যাচ্ছে না। Supabase video_url এবং Storage access চেক করুন।"};document.getElementById("back").onclick=()=>{if(history.length>1)history.back();else location.href="index.html"}</script></body></html>
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Watch Video</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+
+      margin: 0;
+
+      min-height: 100vh;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background:
+        linear-gradient(
+          180deg,
+          #080d1c,
+          #11162a
+        );
+
+      color: white;
+
+      padding-bottom: 40px;
+
+    }
+
+
+    .page {
+
+      width: 100%;
+
+      max-width: 900px;
+
+      margin: auto;
+
+      padding: 20px;
+
+    }
+
+
+    .back-btn {
+
+      border: 0;
+
+      background:
+        linear-gradient(
+          135deg,
+          #405cff,
+          #743cff
+        );
+
+      color: white;
+
+      padding:
+        13px 20px;
+
+      border-radius: 16px;
+
+      font-size: 16px;
+
+      font-weight: 900;
+
+      cursor: pointer;
+
+      margin-bottom: 25px;
+
+    }
+
+
+    .hero {
+
+      padding: 25px;
+
+      border-radius: 28px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #405cff,
+          #753dff 45%,
+          #08bfb0
+        );
+
+      box-shadow:
+        0 15px 40px
+        rgba(56,70,255,.25);
+
+      margin-bottom: 25px;
+
+    }
+
+
+    .badge {
+
+      display: inline-block;
+
+      padding:
+        8px 13px;
+
+      border-radius: 20px;
+
+      background:
+        rgba(255,255,255,.18);
+
+      font-size: 12px;
+
+      font-weight: 900;
+
+      margin-bottom: 15px;
+
+    }
+
+
+    h1 {
+
+      margin: 0 0 8px;
+
+      font-size: 30px;
+
+    }
+
+
+    .subtitle {
+
+      color: #e1e6ff;
+
+      font-size: 15px;
+
+    }
+
+
+    .video-box {
+
+      width: 100%;
+
+      border-radius: 25px;
+
+      overflow: hidden;
+
+      background: #000;
+
+      box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.35);
+
+      margin-bottom: 25px;
+
+    }
+
+
+    video {
+
+      display: block;
+
+      width: 100%;
+
+      max-height: 75vh;
+
+      background: #000;
+
+    }
+
+
+    .info {
+
+      padding: 23px;
+
+      border-radius: 25px;
+
+      background:
+        #1a1f31;
+
+      border:
+        1px solid
+        rgba(255,255,255,.06);
+
+      margin-bottom: 18px;
+
+    }
+
+
+    .info h2 {
+
+      margin:
+        0 0 12px;
+
+      font-size: 23px;
+
+    }
+
+
+    .info p {
+
+      margin: 0;
+
+      color: #b8c0d7;
+
+      font-size: 15px;
+
+      line-height: 1.7;
+
+    }
+
+
+    .error {
+
+      padding: 20px;
+
+      border-radius: 20px;
+
+      background:
+        #2b1722;
+
+      color:
+        #ffb9c8;
+
+      line-height: 1.7;
+
+    }
+
+
+    .loading {
+
+      text-align: center;
+
+      padding: 60px 20px;
+
+      color: #9aa4c3;
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <div class="page">
+
+    <button
+      class="back-btn"
+      onclick="goBack()">
+      ← Back
+    </button>
+
+
+    <div id="content">
+
+      <div class="loading">
+        Loading video...
+      </div>
+
+    </div>
+
+  </div>
+
+
+<script>
+
+/* =====================================================
+   TELEGRAM
+===================================================== */
+
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp;
+
+if (tg) {
+
+  tg.ready();
+
+  tg.expand();
+
+}
+
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+  "https://mshoftgubfbkvynndtnu.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
+
+const POSTS_API =
+  `${SUPABASE_URL}/rest/v1/posts`;
+
+
+/* =====================================================
+   GET VIDEO ID
+===================================================== */
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+const videoId =
+  params.get("id");
+
+
+/* =====================================================
+   CHECK UNLOCK
+===================================================== */
+
+if (!videoId) {
+
+  showError(
+    "ভিডিও ID পাওয়া যায়নি।"
+  );
+
+} else {
+
+  const unlocked =
+    sessionStorage.getItem(
+      `video_unlocked_${videoId}`
+    ) === "yes";
+
+
+  if (!unlocked) {
+
+    showError(
+      "এই ভিডিও এখনো unlock করা হয়নি। প্রথমে ৩টি rewarded ad সম্পূর্ণ করুন।"
+    );
+
+  } else {
+
+    loadVideo();
+
+  }
+
+}
+
+
+/* =====================================================
+   LOAD VIDEO
+===================================================== */
+
+async function loadVideo() {
+
+  try {
+
+    const response =
+      await fetch(
+        `${POSTS_API}?select=*&id=eq.${encodeURIComponent(videoId)}`,
+        {
+          headers: {
+
+            "apikey":
+              SUPABASE_ANON_KEY,
+
+            "Authorization":
+              `Bearer ${SUPABASE_ANON_KEY}`
+
+          }
+
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Supabase request failed"
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (
+      !Array.isArray(data) ||
+      !data.length
+    ) {
+
+      showError(
+        "ভিডিওটি পাওয়া যায়নি।"
+      );
+
+      return;
+
+    }
+
+
+    const post =
+      data[0];
+
+
+    const title =
+      post.title ||
+      "Video";
+
+
+    const videoUrl =
+      post.video_url ||
+      post.video ||
+      "";
+
+
+    const description =
+      post.description ||
+      "আপনি সফলভাবে ভিডিওটি আনলক করেছেন।";
+
+
+    if (!videoUrl) {
+
+      showError(
+        "এই পোস্টের video_url দেওয়া হয়নি। Supabase posts table-এ সঠিক video URL দিন।"
+      );
+
+      return;
+
+    }
+
+
+    document.title =
+      title;
+
+
+    document.getElementById(
+      "content"
+    ).innerHTML = `
+
+      <section class="hero">
+
+        <div class="badge">
+          🔓 VIDEO UNLOCKED
+        </div>
+
+        <h1>
+          ${escapeHtml(title)}
+        </h1>
+
+        <div class="subtitle">
+          Desi Girl Vairal Link
+        </div>
+
+      </section>
+
+
+      <div class="video-box">
+
+        <video
+          controls
+          playsinline
+          preload="metadata"
+          src="${escapeHtml(videoUrl)}">
+        </video>
+
+      </div>
+
+
+      <div class="info">
+
+        <h2>
+          ${escapeHtml(title)}
+        </h2>
+
+        <p>
+          ${escapeHtml(description)}
+        </p>
+
+      </div>
+
+    `;
+
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+    showError(
+      "ভিডিও লোড করতে সমস্যা হয়েছে।"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+function showError(message) {
+
+  document.getElementById(
+    "content"
+  ).innerHTML = `
+
+    <div class="error">
+      ❌ ${escapeHtml(message)}
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   ESCAPE
+===================================================== */
+
+function escapeHtml(value) {
+
+  return String(value || "")
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+/* =====================================================
+   BACK
+===================================================== */
+
+function goBack() {
+
+  if (
+    document.referrer
+  ) {
+
+    history.back();
+
+  } else {
+
+    window.location.href =
+      "index.html";
+
+  }
+
+}
+
+</script>
+
+</body>
+
+</html>
