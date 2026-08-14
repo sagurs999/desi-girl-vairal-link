@@ -11,7 +11,6 @@
 
   <title>Desi Girl Vairal Link</title>
 
-  <!-- Telegram Mini App -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <!-- Monetag -->
@@ -26,161 +25,100 @@
 
 <body>
 
-  <div class="app">
+<div class="app">
 
-    <!-- HEADER -->
-    <header class="top-header">
+  <!-- HEADER -->
+  <header class="top-header">
 
-      <div>
-        <div class="brand">
-          🔐 Desi Girl Vairal Link
-        </div>
-
-        <div class="subtitle">
-          Trending Videos
-        </div>
+    <div>
+      <div class="brand">
+        🔐 Desi Girl Vairal Link
       </div>
 
-      <div id="tgUser" class="tg-user">
-        Guest
+      <div class="subtitle">
+        Trending Videos
       </div>
-
-    </header>
-
-
-    <!-- HERO -->
-    <section class="hero">
-
-      <div class="hero-icon">
-        🔓
-      </div>
-
-      <div>
-        <h1>Telegram Mini App</h1>
-
-        <p>
-          Watch ads and unlock videos
-        </p>
-      </div>
-
-    </section>
-
-
-    <!-- CATEGORY -->
-    <div class="category-bar">
-
-      <button
-        class="category-btn active"
-        data-category="All">
-        All
-      </button>
-
-      <button
-        class="category-btn"
-        data-category="Trending">
-        Trending
-      </button>
-
-      <button
-        class="category-btn"
-        data-category="Popular">
-        Popular
-      </button>
-
-      <button
-        class="category-btn"
-        data-category="Funny">
-        Funny
-      </button>
-
     </div>
 
-
-    <!-- SECTION TITLE -->
-    <div class="section-title">
-
-      <span class="section-badge">
-        TRENDING
-      </span>
-
-      <span>
-        Today's Videos 🔥
-      </span>
-
+    <div id="tgUser" class="tg-user">
+      Guest
     </div>
 
-
-    <!-- VIDEO GRID -->
-    <main
-      id="videoGrid"
-      class="video-grid">
-
-      <div class="loading">
-        Loading videos...
-      </div>
-
-    </main>
-
-  </div>
+  </header>
 
 
-  <!-- UNLOCK MODAL -->
-  <div
-    id="modal"
-    class="modal hidden">
+  <!-- HERO -->
+  <section class="hero">
 
-    <div class="modal-box">
+    <div class="hero-icon">
+      🔓
+    </div>
 
-      <button
-        id="closeModal"
-        class="modal-close">
-        ✕
-      </button>
+    <div>
+      <h1>Telegram Mini App</h1>
 
-      <div
-        id="preview"
-        class="preview">
-      </div>
-
-      <h2 id="modalTitle">
-        Video
-      </h2>
-
-      <p id="modalText">
-        Watch 3 ads to unlock this video.
+      <p>
+        Watch ads and unlock videos
       </p>
-
-      <!-- PROGRESS -->
-      <div class="progress">
-        <span
-          id="progressBar">
-        </span>
-      </div>
-
-      <div
-        id="progressText"
-        class="progress-text">
-        0 / 3
-      </div>
-
-      <!-- WATCH AD -->
-      <button
-        id="watchAdBtn"
-        class="watch-btn">
-        Watch Ad (0/3)
-      </button>
-
-      <!-- WATCH VIDEO -->
-      <button
-        id="videoBtn"
-        class="video-btn"
-        disabled>
-        🔒 Video Locked
-      </button>
-
     </div>
 
+  </section>
+
+
+  <!-- CATEGORY -->
+  <div class="category-bar">
+
+    <button
+      class="category-btn active"
+      data-category="All">
+      All
+    </button>
+
+    <button
+      class="category-btn"
+      data-category="Trending">
+      Trending
+    </button>
+
+    <button
+      class="category-btn"
+      data-category="Popular">
+      Popular
+    </button>
+
+    <button
+      class="category-btn"
+      data-category="Funny">
+      Funny
+    </button>
+
   </div>
+
+
+  <!-- SECTION -->
+  <div class="section-title">
+
+    <span class="section-badge">
+      TRENDING
+    </span>
+
+    <span>
+      Today's Videos 🔥
+    </span>
+
+  </div>
+
+
+  <!-- VIDEOS -->
+  <main
+    id="videoGrid"
+    class="video-grid">
+
+    <div class="loading">
+      Loading videos...
+    </div>
+
+  </main>
 
 
   <!-- BOTTOM NAV -->
@@ -222,9 +160,89 @@
 
   </nav>
 
+</div>
 
-  <script src="app.js"></script>
+
+<!-- =====================================================
+     VIDEO / AD MODAL
+===================================================== -->
+
+<div
+  id="modal"
+  class="modal hidden">
+
+  <div class="modal-box">
+
+    <button
+      id="closeModal"
+      class="close-modal">
+      ✕
+    </button>
+
+
+    <div
+      id="preview"
+      class="preview">
+      🎬
+    </div>
+
+
+    <h2 id="modalTitle">
+      Video
+    </h2>
+
+
+    <p
+      id="modalText"
+      class="modal-text">
+      Watch 3 ads to unlock this video.
+    </p>
+
+
+    <!-- PROGRESS -->
+    <div class="progress-container">
+
+      <div
+        id="progressBar"
+        class="progress-bar">
+      </div>
+
+    </div>
+
+
+    <div
+      id="adCounter"
+      class="ad-counter">
+      0 / 3 Ads Completed
+    </div>
+
+
+    <!-- AD BUTTON -->
+    <button
+      id="watchAdBtn"
+      class="watch-ad-btn">
+
+      ▶ Watch Ad (0/3)
+
+    </button>
+
+
+    <!-- VIDEO BUTTON -->
+    <button
+      id="videoBtn"
+      class="video-btn"
+      disabled>
+
+      🔒 Video Locked
+
+    </button>
+
+  </div>
+
+</div>
+
+
+<script src="app.js"></script>
 
 </body>
-
 </html>
