@@ -2,15 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
 
   <title>Desi Girl Vairal Link</title>
 
   <!-- Telegram Mini App -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Monetag SDK - KEEP THIS -->
+  <!-- Monetag -->
   <script
     src="https://libtl.com/sdk.js"
     data-zone="11571866"
@@ -24,73 +27,122 @@
 
   <div class="app">
 
-    <!-- Header -->
-    <header class="header">
-      <div class="header-title">
-        Desi Girl Vairal Link
+    <!-- HEADER -->
+    <header class="top-header">
+
+      <div class="brand-area">
+
+        <div class="brand-icon">
+          🔐
+        </div>
+
+        <div>
+          <h1>Desi Girl Vairal Link</h1>
+          <p>Watch • Unlock • Enjoy</p>
+        </div>
+
       </div>
 
-      <div id="tgUser" class="tg-user">
+      <div class="user-box" id="tgUser">
         Guest
       </div>
+
     </header>
 
 
-    <!-- Posts -->
+    <!-- HERO -->
+    <section class="hero">
+
+      <div class="hero-icon">
+        ▶
+      </div>
+
+      <div class="hero-text">
+
+        <h2>Viral Video</h2>
+
+        <p>
+          Watch 3 ads to unlock video
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- SECTION TITLE -->
+    <div class="section-title">
+
+      <div>
+        <span class="small-label">
+          TRENDING
+        </span>
+
+        <h2>
+          Today's Videos 🔥
+        </h2>
+      </div>
+
+    </div>
+
+
+    <!-- CATEGORY -->
+    <div class="categories">
+
+      <button
+        class="category-btn active"
+        data-category="All"
+      >
+        All
+      </button>
+
+      <button
+        class="category-btn"
+        data-category="Trending"
+      >
+        Trending
+      </button>
+
+      <button
+        class="category-btn"
+        data-category="Funny"
+      >
+        Funny
+      </button>
+
+      <button
+        class="category-btn"
+        data-category="Popular"
+      >
+        Popular
+      </button>
+
+    </div>
+
+
+    <!-- VIDEO GRID -->
     <main id="videoGrid" class="video-grid">
 
       <div class="loading">
-        Loading videos...
+        <div class="loader"></div>
+        <p>Loading videos...</p>
       </div>
 
     </main>
 
 
-    <!-- Category navigation -->
-    <nav class="bottom-tabs">
+    <!-- FOOTER -->
+    <footer>
 
-      <button class="tab active" data-category="All">
-        All
-      </button>
+      <p>
+        🔐 Secure Video Unlock
+      </p>
 
-      <button class="tab" data-category="Trending">
-        Trending
-      </button>
+      <span>
+        Watch 3 ads to unlock each video
+      </span>
 
-      <button class="tab" data-category="Funny">
-        Funny
-      </button>
-
-      <button class="tab" data-category="Popular">
-        Popular
-      </button>
-
-    </nav>
-
-  </div>
-
-
-  <!-- Video Modal -->
-  <div id="videoModal" class="video-modal hidden">
-
-    <div class="video-modal-box">
-
-      <button id="closeVideoModal" class="close-btn">
-        ×
-      </button>
-
-      <h2 id="videoModalTitle">
-        Video
-      </h2>
-
-      <video
-        id="mainVideo"
-        class="main-video"
-        controls
-        playsinline>
-      </video>
-
-    </div>
+    </footer>
 
   </div>
 
