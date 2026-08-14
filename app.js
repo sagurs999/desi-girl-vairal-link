@@ -30,15 +30,20 @@ const POSTS_API =
    SETTINGS
 ========================================================= */
 
-const requiredAds = 3;
+const REQUIRED_ADS = 3;
 
-let adsWatched = 0;
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const videos = [];
 
 let selectedVideo = null;
 
-let adLoading = false;
+let adsWatched = 0;
 
-const videos = [];
+let adLoading = false;
 
 
 /* =========================================================
@@ -69,8 +74,8 @@ const videoBtn =
 const progressBar =
   document.getElementById("progressBar");
 
-const progressText =
-  document.getElementById("progressText");
+const adCounter =
+  document.getElementById("adCounter");
 
 const closeModal =
   document.getElementById("closeModal");
@@ -99,53 +104,6 @@ if (
 
 
 /* =========================================================
-   SUPABASE STORAGE URL HELPER
-========================================================= */
-
-function getStorageUrl(value) {
-
-  if (!value) {
-    return "";
-  }
-
-  value = String(value).trim();
-
-  /*
-    Already a full URL
-  */
-
-  if (
-    value.startsWith("http://") ||
-    value.startsWith("https://")
-  ) {
-    return value;
-  }
-
-  /*
-    Supabase storage path
-  */
-
-  if (
-    value.startsWith("media/")
-  ) {
-
-    return (
-      `${SUPABASE_URL}/storage/v1/object/public/${value}`
-    );
-
-  }
-
-  /*
-    Only filename
-  */
-
-  return (
-    `${SUPABASE_URL}/storage/v1/object/public/media/${value}`
-  );
-}
-
-
-/* =========================================================
    LOAD POSTS
 ========================================================= */
 
@@ -161,7 +119,7 @@ async function loadPosts() {
 
     const response =
       await fetch(
-        `${POSTS_API}?select=*&order=created_at.desc`,
+        `${POSTS_API}?select=*`,
         {
           method: "GET",
 
@@ -170,10 +128,7 @@ async function loadPosts() {
               SUPABASE_ANON_KEY,
 
             Authorization:
-              `Bearer ${SUPABASE_ANON_KEY}`,
-
-            Accept:
-              "application/json"
+              `Bearer ${SUPABASE_ANON_KEY}`
           }
         }
       );
@@ -187,19 +142,12 @@ async function loadPosts() {
       throw new Error(
         `Supabase ${response.status}: ${errorText}`
       );
+
     }
 
 
     const data =
       await response.json();
-
-
-    if (!Array.isArray(data)) {
-
-      throw new Error(
-        "Invalid posts response."
-      );
-    }
 
 
     videos.length = 0;
@@ -221,22 +169,27 @@ async function loadPosts() {
           "Trending",
 
         thumbnail:
-          getStorageUrl(
-            post.thumbnail_url ||
-            post.thumbnail ||
-            ""
-          ),
+          post.thumbnail_url ||
+          "",
+
+        /*
+          IMPORTANT:
+          Only video_url
+        */
 
         videoUrl:
-          getStorageUrl(
-            post.video_url ||
-            post.video ||
-            ""
-          )
+          post.video_url ||
+          ""
 
       });
 
     });
+
+
+    console.log(
+      "Posts loaded:",
+      videos
+    );
 
 
     render("All");
@@ -258,10 +211,6 @@ async function loadPosts() {
         </h3>
 
         <p>
-          Supabase থেকে ভিডিও লোড করা যাচ্ছে না।
-        </p>
-
-        <p style="margin-top:10px;font-size:12px;">
           ${escapeHTML(error.message)}
         </p>
 
@@ -287,7 +236,10 @@ function render(category = "All") {
       ? videos
       : videos.filter(
           video =>
-            video.category === category
+            String(video.category)
+              .toLowerCase() ===
+            String(category)
+              .toLowerCase()
         );
 
 
@@ -304,10 +256,12 @@ function render(category = "All") {
 
 
   filteredVideos.forEach(
-    (video, index) => {
+    video => {
 
       const card =
-        document.createElement("article");
+        document.createElement(
+          "article"
+        );
 
       card.className =
         "video-card";
@@ -323,7 +277,6 @@ function render(category = "All") {
             src="${escapeHTML(video.thumbnail)}"
             alt="${escapeHTML(video.title)}"
             loading="lazy"
-            onerror="this.parentElement.innerHTML='<div class=&quot;thumbnail-placeholder&quot;>🎬</div>'"
           >
         `;
 
@@ -341,11 +294,8 @@ function render(category = "All") {
       card.innerHTML = `
 
         <div class="thumbnail">
-
           ${thumbnailHTML}
-
         </div>
-
 
         <div class="card-content">
 
@@ -402,11 +352,9 @@ function openVideo(video) {
   selectedVideo =
     video;
 
-  adsWatched =
-    0;
+  adsWatched = 0;
 
-  adLoading =
-    false;
+  adLoading = false;
 
 
   modalTitle.textContent =
@@ -428,14 +376,8 @@ function openVideo(video) {
 
   } else {
 
-    preview.innerHTML = `
-      <div
-        class="thumbnail-placeholder"
-        style="height:100%;"
-      >
-        🎬
-      </div>
-    `;
+    preview.textContent =
+      "🎬";
 
   }
 
@@ -451,33 +393,37 @@ function openVideo(video) {
 
 
 /* =========================================================
-   UPDATE UNLOCK UI
+   UPDATE UI
 ========================================================= */
 
 function updateUnlockUI() {
 
   const percent =
-    Math.min(
-      100,
-      (adsWatched / requiredAds) * 100
-    );
+    (
+      adsWatched /
+      REQUIRED_ADS
+    ) * 100;
 
 
   progressBar.style.width =
     `${percent}%`;
 
 
-  progressText.textContent =
-    `${adsWatched} / ${requiredAds}`;
-
-
-  watchAdBtn.textContent =
-    `Watch Ad (${adsWatched}/${requiredAds})`;
+  adCounter.textContent =
+    `${adsWatched} / ${REQUIRED_ADS} Ads Completed`;
 
 
   if (
-    adsWatched >= requiredAds
+    adsWatched >=
+    REQUIRED_ADS
   ) {
+
+    watchAdBtn.disabled =
+      true;
+
+    watchAdBtn.textContent =
+      "✓ All Ads Completed";
+
 
     videoBtn.disabled =
       false;
@@ -485,25 +431,24 @@ function updateUnlockUI() {
     videoBtn.textContent =
       "▶ Watch Video";
 
-    watchAdBtn.disabled =
-      true;
-
-    watchAdBtn.textContent =
-      "✓ Ads Completed";
 
     modalText.textContent =
       "🎉 All ads completed! Your video is unlocked.";
 
   } else {
 
+    watchAdBtn.disabled =
+      false;
+
+    watchAdBtn.textContent =
+      `▶ Watch Ad (${adsWatched}/${REQUIRED_ADS})`;
+
+
     videoBtn.disabled =
       true;
 
     videoBtn.textContent =
       "🔒 Video Locked";
-
-    watchAdBtn.disabled =
-      false;
 
   }
 
@@ -522,20 +467,20 @@ async function showRewardedAd() {
 
 
   if (
-    adsWatched >= requiredAds
+    adsWatched >=
+    REQUIRED_ADS
   ) {
     return;
   }
 
 
-  adLoading =
-    true;
+  adLoading = true;
 
   watchAdBtn.disabled =
     true;
 
   watchAdBtn.textContent =
-    "Loading Ad...";
+    "⏳ Loading Ad...";
 
 
   try {
@@ -553,12 +498,13 @@ async function showRewardedAd() {
 
 
     /*
-      IMPORTANT:
+      VERY IMPORTANT
 
-      এখানে counter আগে বাড়বে না।
+      Do NOT increment the counter
+      before this promise resolves.
 
-      SDK promise সফলভাবে resolve
-      করার পরেই 1/3, 2/3, 3/3 হবে।
+      The counter is increased only
+      after the ad function completes.
     */
 
     const result =
@@ -572,10 +518,11 @@ async function showRewardedAd() {
 
 
     /*
-      AD COMPLETION SUCCESS
+      Ad completed successfully
     */
 
-    adsWatched++;
+    adsWatched =
+      adsWatched + 1;
 
 
     updateUnlockUI();
@@ -584,13 +531,13 @@ async function showRewardedAd() {
   } catch (error) {
 
     console.error(
-      "MONETAG ERROR:",
+      "AD ERROR:",
       error
     );
 
 
     modalText.textContent =
-      "Ad is not available right now. Please try again.";
+      "⚠️ Ad is not available right now. Please try again.";
 
 
     watchAdBtn.disabled =
@@ -598,7 +545,7 @@ async function showRewardedAd() {
 
 
     watchAdBtn.textContent =
-      `Watch Ad (${adsWatched}/${requiredAds})`;
+      `▶ Watch Ad (${adsWatched}/${REQUIRED_ADS})`;
 
   } finally {
 
@@ -611,7 +558,7 @@ async function showRewardedAd() {
 
 
 /* =========================================================
-   WATCH AD BUTTON
+   AD BUTTON
 ========================================================= */
 
 watchAdBtn.addEventListener(
@@ -621,7 +568,7 @@ watchAdBtn.addEventListener(
 
 
 /* =========================================================
-   WATCH VIDEO BUTTON
+   WATCH VIDEO
 ========================================================= */
 
 videoBtn.addEventListener(
@@ -634,37 +581,41 @@ videoBtn.addEventListener(
 
 
     if (
-      adsWatched < requiredAds
+      adsWatched <
+      REQUIRED_ADS
     ) {
+
       return;
+
     }
 
 
     if (!selectedVideo.id) {
 
       alert(
-        "Video ID পাওয়া যায়নি।"
+        "Video ID missing."
       );
 
       return;
+
     }
 
 
-    /*
-      শুধু post ID পাঠানো হচ্ছে।
-
-      video.html আবার Supabase থেকে
-      সেই post-এর video_url নেবে।
-    */
-
-    const id =
+    const videoId =
       encodeURIComponent(
         selectedVideo.id
       );
 
 
+    /*
+      Only post ID is sent.
+
+      video.html will get
+      video_url from Supabase.
+    */
+
     window.location.href =
-      `video.html?id=${id}`;
+      `video.html?id=${videoId}`;
 
   }
 );
@@ -712,38 +663,42 @@ document
   .querySelectorAll(
     ".category-btn"
   )
-  .forEach(button => {
+  .forEach(
+    button => {
 
-    button.addEventListener(
-      "click",
-      () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-        document
-          .querySelectorAll(
-            ".category-btn"
-          )
-          .forEach(btn => {
+          document
+            .querySelectorAll(
+              ".category-btn"
+            )
+            .forEach(
+              btn => {
 
-            btn.classList.remove(
-              "active"
+                btn.classList.remove(
+                  "active"
+                );
+
+              }
             );
 
-          });
+
+          button.classList.add(
+            "active"
+          );
 
 
-        button.classList.add(
-          "active"
-        );
+          render(
+            button.dataset.category
+          );
 
+        }
+      );
 
-        render(
-          button.dataset.category
-        );
-
-      }
-    );
-
-  });
+    }
+  );
 
 
 /* =========================================================
@@ -754,86 +709,87 @@ document
   .querySelectorAll(
     ".bottom-nav button"
   )
-  .forEach(button => {
+  .forEach(
+    button => {
 
-    button.addEventListener(
-      "click",
-      () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-        document
-          .querySelectorAll(
-            ".bottom-nav button"
-          )
-          .forEach(btn => {
+          document
+            .querySelectorAll(
+              ".bottom-nav button"
+            )
+            .forEach(
+              btn => {
 
-            btn.classList.remove(
-              "bottom-active"
+                btn.classList.remove(
+                  "bottom-active"
+                );
+
+              }
             );
 
-          });
+
+          button.classList.add(
+            "bottom-active"
+          );
 
 
-        button.classList.add(
-          "bottom-active"
-        );
+          const category =
+            button.dataset.category ||
+            "All";
 
 
-        const category =
-          button.dataset.category ||
-          "All";
+          document
+            .querySelectorAll(
+              ".category-btn"
+            )
+            .forEach(
+              btn => {
 
+                btn.classList.toggle(
+                  "active",
+                  btn.dataset.category ===
+                  category
+                );
 
-        document
-          .querySelectorAll(
-            ".category-btn"
-          )
-          .forEach(btn => {
-
-            btn.classList.toggle(
-              "active",
-              btn.dataset.category ===
-              category
+              }
             );
 
-          });
 
+          render(category);
 
-        render(category);
+        }
+      );
 
-      }
-    );
-
-  });
+    }
+  );
 
 
 /* =========================================================
-   ESCAPE HTML
+   HTML ESCAPE
 ========================================================= */
 
 function escapeHTML(value) {
 
   return String(value)
-
     .replace(
       /&/g,
       "&amp;"
     )
-
     .replace(
       /</g,
       "&lt;"
     )
-
     .replace(
       />/g,
       "&gt;"
     )
-
     .replace(
       /"/g,
       "&quot;"
     )
-
     .replace(
       /'/g,
       "&#039;"
@@ -843,7 +799,7 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   START APP
+   START
 ========================================================= */
 
 loadPosts();
