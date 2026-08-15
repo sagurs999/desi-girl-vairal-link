@@ -4,11 +4,13 @@
   padding: 0;
 }
 
+
 html,
 body {
   width: 100%;
   min-height: 100%;
 }
+
 
 body {
 
@@ -81,14 +83,14 @@ body {
   z-index: 50;
 }
 
+
 .brand {
 
   font-size: 20px;
 
   font-weight: 900;
-
-  letter-spacing: .2px;
 }
+
 
 .subtitle {
 
@@ -98,6 +100,7 @@ body {
 
   font-size: 13px;
 }
+
 
 .tg-user {
 
@@ -158,6 +161,7 @@ body {
     rgba(44,61,255,.25);
 }
 
+
 .hero-icon {
 
   width: 58px;
@@ -182,12 +186,14 @@ body {
     rgba(255,255,255,.2);
 }
 
+
 .hero h1 {
 
   font-size: 21px;
 
   margin-bottom: 5px;
 }
+
 
 .hero p {
 
@@ -215,9 +221,11 @@ body {
   scrollbar-width: none;
 }
 
+
 .category-bar::-webkit-scrollbar {
   display: none;
 }
+
 
 .category-btn {
 
@@ -226,7 +234,7 @@ body {
   border: 0;
 
   padding:
-    10px 17px;
+    10px 15px;
 
   border-radius: 25px;
 
@@ -242,6 +250,7 @@ body {
 
   cursor: pointer;
 }
+
 
 .category-btn.active {
 
@@ -279,6 +288,7 @@ body {
 
   font-weight: 900;
 }
+
 
 .section-badge {
 
@@ -348,6 +358,7 @@ body {
     transform .2s ease;
 }
 
+
 .video-card:active {
 
   transform:
@@ -379,6 +390,7 @@ body {
   cursor: pointer;
 }
 
+
 .thumb img {
 
   width: 100%;
@@ -388,16 +400,8 @@ body {
   object-fit: cover;
 
   display: block;
-
-  transition:
-    transform .25s ease;
 }
 
-.thumb:active img {
-
-  transform:
-    scale(1.03);
-}
 
 .thumb-placeholder {
 
@@ -431,6 +435,7 @@ body {
   padding: 12px;
 }
 
+
 .card-body h3 {
 
   font-size: 15px;
@@ -450,13 +455,65 @@ body {
   min-height: 39px;
 }
 
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
 .meta {
 
   margin-top: 7px;
 
-  color: #8f99b8;
+  color: #9da7c5;
 
   font-size: 11px;
+
+  text-transform: capitalize;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   VIEWS + DATE
+   Eye icon বাদ
+========================================================= */
+
+.post-info {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 6px;
+
+  margin-top: 8px;
+
+  color: #8893b3;
+
+  font-size: 10px;
+}
+
+
+.post-views {
+
+  color: #b6c0df;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+.post-date {
+
+  color: #77819f;
 
   white-space: nowrap;
 
@@ -502,6 +559,7 @@ body {
     0 8px 20px
     rgba(67,72,255,.24);
 }
+
 
 .open-btn:active {
 
@@ -567,7 +625,7 @@ body {
 
 
 /* =========================================================
-   NEW UNLOCK MODAL
+   MODAL
 ========================================================= */
 
 .modal {
@@ -596,10 +654,11 @@ body {
     blur(18px);
 }
 
-.modal.hidden {
 
+.modal.hidden {
   display: none;
 }
+
 
 .modal-box {
 
@@ -625,15 +684,14 @@ body {
 
   box-shadow:
     0 25px 80px
-    rgba(0,0,0,.65),
-    0 0 45px
-    rgba(91,72,255,.18);
+    rgba(0,0,0,.65);
 
   position: relative;
 
   animation:
     unlockModalIn .25s ease;
 }
+
 
 @keyframes unlockModalIn {
 
@@ -694,7 +752,7 @@ body {
 
 
 /* =========================================================
-   MODAL PREVIEW
+   PREVIEW
 ========================================================= */
 
 .modal-preview {
@@ -712,6 +770,7 @@ body {
 
   margin-bottom: 18px;
 }
+
 
 .modal-preview img {
 
@@ -740,10 +799,6 @@ body {
   margin-bottom: 10px;
 }
 
-
-/* =========================================================
-   MODAL DESCRIPTION
-========================================================= */
 
 .modal-description {
 
@@ -781,6 +836,7 @@ body {
   margin-bottom: 8px;
 }
 
+
 .ad-progress-bar {
 
   width: 0%;
@@ -802,10 +858,6 @@ body {
 }
 
 
-/* =========================================================
-   AD COUNT
-========================================================= */
-
 .ad-count {
 
   text-align:
@@ -823,7 +875,7 @@ body {
 
 
 /* =========================================================
-   WATCH AD BUTTON
+   WATCH AD
 ========================================================= */
 
 .watch-ad-btn {
@@ -839,7 +891,7 @@ body {
   background:
     linear-gradient(
       135deg,
-      #00c6ff,
+      #3c5cf5,
       #635bff,
       #9b3cff
     );
@@ -855,17 +907,8 @@ body {
 
   cursor:
     pointer;
-
-  box-shadow:
-    0 12px 30px
-    rgba(88,82,255,.3);
 }
 
-.watch-ad-btn:active {
-
-  transform:
-    scale(.98);
-}
 
 .watch-ad-btn:disabled {
 
@@ -878,7 +921,7 @@ body {
 
 
 /* =========================================================
-   VIDEO UNLOCK BUTTON
+   VIDEO UNLOCK
 ========================================================= */
 
 .video-unlock-btn {
@@ -913,6 +956,7 @@ body {
     pointer;
 }
 
+
 .video-unlock-btn:disabled {
 
   background:
@@ -923,9 +967,6 @@ body {
 
   cursor:
     not-allowed;
-
-  box-shadow:
-    none;
 }
 
 
@@ -983,6 +1024,7 @@ body {
     rgba(0,0,0,.35);
 }
 
+
 .bottom-nav button {
 
   flex: 1;
@@ -1011,6 +1053,7 @@ body {
     pointer;
 }
 
+
 .bottom-nav button span {
 
   display:
@@ -1019,6 +1062,7 @@ body {
   margin-top:
     3px;
 }
+
 
 .bottom-nav .bottom-active {
 
@@ -1069,17 +1113,27 @@ body {
       0 9px 25px;
   }
 
+
   .card-body {
 
     padding:
       9px;
   }
 
+
   .card-body h3 {
 
     font-size:
       13px;
   }
+
+
+  .post-info {
+
+    font-size:
+      9px;
+  }
+
 
   .open-btn {
 
@@ -1090,11 +1144,13 @@ body {
       10px 5px;
   }
 
+
   .modal {
 
     padding:
       10px;
   }
+
 
   .modal-box {
 
@@ -1104,6 +1160,7 @@ body {
     border-radius:
       24px;
   }
+
 
   .modal-title {
 
