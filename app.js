@@ -460,7 +460,7 @@ function render(
             </span>
 
             <span>
-              &nbsp;📅
+              &nbsp;
             </span>
 
             <span class="date">
