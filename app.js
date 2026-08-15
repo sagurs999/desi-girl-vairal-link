@@ -1,3 +1,7 @@
+/* =========================================================
+   TELEGRAM
+========================================================= */
+
 const tg =
   window.Telegram &&
   window.Telegram.WebApp;
@@ -11,15 +15,23 @@ if (tg) {
 }
 
 
+/* =========================================================
+   SUPABASE
+========================================================= */
+
 const SUPABASE_URL =
   "https://mshoftgubfbkvynndtnu.supabase.co";
 
 const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm9wZyIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
 const POSTS_API =
   `${SUPABASE_URL}/rest/v1/posts`;
 
+
+/* =========================================================
+   STATE
+========================================================= */
 
 const videos = [];
 
@@ -31,6 +43,10 @@ const requiredAds = 3;
 
 let adLoading = false;
 
+
+/* =========================================================
+   DOM
+========================================================= */
 
 const videoGrid =
   document.getElementById(
@@ -88,6 +104,10 @@ const tgUser =
   );
 
 
+/* =========================================================
+   TELEGRAM USER
+========================================================= */
+
 if (
   tg &&
   tg.initDataUnsafe &&
@@ -104,6 +124,11 @@ if (
 }
 
 
+/* =========================================================
+   LOAD POSTS
+   NEWEST POST FIRST
+========================================================= */
+
 async function loadPosts() {
 
   videoGrid.innerHTML = `
@@ -114,6 +139,14 @@ async function loadPosts() {
 
 
   try {
+
+    /*
+      IMPORTANT:
+
+      created_at.desc means:
+      New post = first
+      Old post = later
+    */
 
     const response =
       await fetch(
@@ -220,6 +253,10 @@ async function loadPosts() {
 }
 
 
+/* =========================================================
+   RENDER
+========================================================= */
+
 function render(
   category = "All"
 ) {
@@ -269,6 +306,8 @@ function render(
         "video-card";
 
 
+      /* ================= THUMBNAIL ================= */
+
       let thumbnailHTML;
 
 
@@ -296,6 +335,8 @@ function render(
 
       }
 
+
+      /* ================= CARD ================= */
 
       card.innerHTML = `
 
@@ -332,6 +373,8 @@ function render(
       `;
 
 
+      /* ================= WATCH BUTTON ================= */
+
       const openBtn =
         card.querySelector(
           ".open-btn"
@@ -349,6 +392,8 @@ function render(
         }
       );
 
+
+      /* ================= THUMBNAIL CLICK ================= */
 
       const thumb =
         card.querySelector(
@@ -380,6 +425,10 @@ function render(
 }
 
 
+/* =========================================================
+   OPEN VIDEO MODAL
+========================================================= */
+
 function openVideo(
   video
 ) {
@@ -402,6 +451,8 @@ function openVideo(
   modalText.textContent =
     "Watch 3 ads to unlock this video.";
 
+
+  /* ================= PREVIEW ================= */
 
   if (video.thumbnail) {
 
@@ -455,6 +506,10 @@ function openVideo(
 }
 
 
+/* =========================================================
+   UPDATE UNLOCK UI
+========================================================= */
+
 function updateUnlockUI() {
 
   watchAdBtn.textContent =
@@ -475,6 +530,8 @@ function updateUnlockUI() {
   progressBar.style.width =
     `${percent}%`;
 
+
+  /* ================= UNLOCKED ================= */
 
   if (
     adsWatched >=
@@ -500,6 +557,9 @@ function updateUnlockUI() {
 
   }
 
+
+  /* ================= LOCKED ================= */
+
   else {
 
     videoBtn.disabled =
@@ -515,6 +575,10 @@ function updateUnlockUI() {
 
 }
 
+
+/* =========================================================
+   MONETAG REWARDED AD
+========================================================= */
 
 async function showRewardedAd() {
 
@@ -551,6 +615,8 @@ async function showRewardedAd() {
 
   try {
 
+    /* ================= CHECK SDK ================= */
+
     if (
       typeof window.show_11571866 !==
       "function"
@@ -563,9 +629,21 @@ async function showRewardedAd() {
     }
 
 
+    /*
+      IMPORTANT:
+
+      adsWatched is NOT increased
+      before the ad promise completes.
+    */
+
     const result =
       await window.show_11571866();
 
+
+    /*
+      The SDK promise has completed.
+      Now increase the counter.
+    */
 
     adsWatched++;
 
@@ -610,11 +688,19 @@ async function showRewardedAd() {
 }
 
 
+/* =========================================================
+   WATCH AD BUTTON
+========================================================= */
+
 watchAdBtn.addEventListener(
   "click",
   showRewardedAd
 );
 
+
+/* =========================================================
+   WATCH VIDEO BUTTON
+========================================================= */
 
 videoBtn.addEventListener(
   "click",
@@ -652,6 +738,10 @@ videoBtn.addEventListener(
 );
 
 
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
 closeModal.addEventListener(
   "click",
   () => {
@@ -663,6 +753,10 @@ closeModal.addEventListener(
   }
 );
 
+
+/* =========================================================
+   CLICK OUTSIDE MODAL
+========================================================= */
 
 modal.addEventListener(
   "click",
@@ -681,6 +775,10 @@ modal.addEventListener(
   }
 );
 
+
+/* =========================================================
+   CATEGORY BUTTONS
+========================================================= */
 
 document
   .querySelectorAll(
@@ -723,6 +821,10 @@ document
     }
   );
 
+
+/* =========================================================
+   BOTTOM NAV
+========================================================= */
 
 document
   .querySelectorAll(
@@ -787,6 +889,10 @@ document
   );
 
 
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
 function escapeHTML(
   value
 ) {
@@ -817,5 +923,9 @@ function escapeHTML(
 
 }
 
+
+/* =========================================================
+   START
+========================================================= */
 
 loadPosts();
