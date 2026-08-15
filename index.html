@@ -12,10 +12,8 @@
 
   <title>Desi Girl Vairal Link</title>
 
-  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Monetag Rewarded Interstitial -->
   <script
     src="https://libtl.com/sdk.js"
     data-zone="11571866"
@@ -29,17 +27,13 @@
 
 </head>
 
-
 <body>
 
   <div class="app">
 
-
-    <!-- ================= HEADER ================= -->
-
     <header class="top-header">
 
-      <div class="brand-area">
+      <div>
 
         <div class="brand">
           🔐 Desi Girl Vairal Link
@@ -51,46 +45,98 @@
 
       </div>
 
-
-      <div class="earning-badge">
-        online earning
+      <div
+        id="tgUser"
+        class="tg-user"
+      >
+        Guest
       </div>
 
     </header>
 
 
-    <!-- ================= VIDEO SECTION ================= -->
+    <section class="hero">
 
-    <section class="videos-section">
-
-      <div class="section-heading">
-
-        <span class="section-icon">
-          🔥
-        </span>
-
-        <span>
-          Trending Videos
-        </span>
-
+      <div class="hero-icon">
+        🔓
       </div>
 
+      <div>
 
-      <main
-        id="videoGrid"
-        class="video-grid"
-      >
+        <h1>
+          Desi Girl Vairal Link
+        </h1>
 
-        <div class="loading">
-          Loading videos...
-        </div>
+        <p>
+          Watch ads and unlock videos
+        </p>
 
-      </main>
+      </div>
 
     </section>
 
 
-    <!-- ================= UNLOCK MODAL ================= -->
+    <div class="category-bar">
+
+      <button
+        class="category-btn active"
+        data-category="All"
+        type="button"
+      >
+        All
+      </button>
+
+      <button
+        class="category-btn"
+        data-category="Trending"
+        type="button"
+      >
+        Trending
+      </button>
+
+      <button
+        class="category-btn"
+        data-category="Popular"
+        type="button"
+      >
+        Popular
+      </button>
+
+      <button
+        class="category-btn"
+        data-category="Funny"
+        type="button"
+      >
+        Hot Video
+      </button>
+
+    </div>
+
+
+    <div class="section-title">
+
+      <span class="section-badge">
+        TRENDING
+      </span>
+
+      <span>
+        Today's Videos 🔥
+      </span>
+
+    </div>
+
+
+    <main
+      id="videoGrid"
+      class="video-grid"
+    >
+
+      <div class="loading">
+        Loading videos...
+      </div>
+
+    </main>
+
 
     <div
       id="modal"
@@ -99,11 +145,11 @@
 
       <div class="modal-box">
 
-
         <button
           id="closeModal"
           class="modal-close"
           type="button"
+          aria-label="Close"
         >
           ×
         </button>
@@ -156,7 +202,7 @@
           class="watch-ad-btn"
           type="button"
         >
-          🔒 Watch Ad
+          ▶ Watch Ad (0/3)
         </button>
 
 
@@ -174,68 +220,46 @@
     </div>
 
 
-    <!-- ================= BOTTOM NAV ================= -->
-
     <nav class="bottom-nav">
 
-
       <button
-        class="bottom-nav-btn bottom-active"
+        class="bottom-active"
         type="button"
-        data-category="All"
+        data-bottom-category="All"
       >
-
-        <span class="nav-icon">
-          🏠
-        </span>
-
+        🏠
         <span>
           All
         </span>
-
       </button>
 
-
       <button
-        class="bottom-nav-btn"
         type="button"
-        data-category="Trending"
+        data-bottom-category="Trending"
       >
-
-        <span class="nav-icon">
-          🔥
-        </span>
-
+        🔥
         <span>
           Trending
         </span>
-
       </button>
 
-
       <button
-        class="bottom-nav-btn"
         type="button"
-        data-category="Popular"
+        data-bottom-category="Popular"
       >
-
-        <span class="nav-icon">
-          ⭐
-        </span>
-
+        ⭐
         <span>
           Popular
         </span>
-
       </button>
-
 
     </nav>
 
   </div>
 
 
-  <script src="./app.js"></script>
-</body>
-</html>
+  <script src="app.js"></script>
 
+</body>
+
+</html>
