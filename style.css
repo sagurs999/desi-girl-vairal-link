@@ -4,11 +4,13 @@
   padding: 0;
 }
 
+
 html,
 body {
   width: 100%;
   min-height: 100%;
 }
+
 
 body {
 
@@ -28,6 +30,11 @@ body {
   color: #ffffff;
 
   padding-bottom: 100px;
+}
+
+
+button {
+  font-family: inherit;
 }
 
 
@@ -81,14 +88,14 @@ body {
   z-index: 50;
 }
 
+
 .brand {
 
   font-size: 20px;
 
   font-weight: 900;
-
-  letter-spacing: .2px;
 }
+
 
 .subtitle {
 
@@ -98,6 +105,7 @@ body {
 
   font-size: 13px;
 }
+
 
 .tg-user {
 
@@ -117,7 +125,7 @@ body {
 
   color: #cbd2ff;
 
-  max-width: 100px;
+  max-width: 120px;
 
   overflow: hidden;
 
@@ -158,6 +166,7 @@ body {
     rgba(44,61,255,.25);
 }
 
+
 .hero-icon {
 
   width: 58px;
@@ -180,7 +189,10 @@ body {
   border:
     1px solid
     rgba(255,255,255,.2);
+
+  flex-shrink: 0;
 }
+
 
 .hero h1 {
 
@@ -188,6 +200,7 @@ body {
 
   margin-bottom: 5px;
 }
+
 
 .hero p {
 
@@ -215,9 +228,11 @@ body {
   scrollbar-width: none;
 }
 
+
 .category-bar::-webkit-scrollbar {
   display: none;
 }
+
 
 .category-btn {
 
@@ -226,7 +241,7 @@ body {
   border: 0;
 
   padding:
-    10px 17px;
+    10px 15px;
 
   border-radius: 25px;
 
@@ -242,6 +257,7 @@ body {
 
   cursor: pointer;
 }
+
 
 .category-btn.active {
 
@@ -261,7 +277,7 @@ body {
 
 
 /* =========================================================
-   SECTION
+   SECTION TITLE
 ========================================================= */
 
 .section-title {
@@ -275,21 +291,22 @@ body {
   padding:
     8px 18px 14px;
 
-  font-size: 18px;
+  font-size: 20px;
 
   font-weight: 900;
 }
 
+
 .section-badge {
 
-  font-size: 10px;
+  font-size: 11px;
 
   letter-spacing: 1px;
 
   padding:
-    6px 9px;
+    7px 10px;
 
-  border-radius: 9px;
+  border-radius: 10px;
 
   background:
     rgba(255,190,72,.13);
@@ -348,10 +365,9 @@ body {
     transform .2s ease;
 }
 
-.video-card:active {
 
-  transform:
-    scale(.98);
+.video-card:active {
+  transform: scale(.98);
 }
 
 
@@ -379,6 +395,7 @@ body {
   cursor: pointer;
 }
 
+
 .thumb img {
 
   width: 100%;
@@ -388,16 +405,8 @@ body {
   object-fit: cover;
 
   display: block;
-
-  transition:
-    transform .25s ease;
 }
 
-.thumb:active img {
-
-  transform:
-    scale(1.03);
-}
 
 .thumb-placeholder {
 
@@ -411,7 +420,7 @@ body {
 
   justify-content: center;
 
-  font-size: 38px;
+  font-size: 42px;
 
   background:
     linear-gradient(
@@ -430,6 +439,7 @@ body {
 
   padding: 12px;
 }
+
 
 .card-body h3 {
 
@@ -450,19 +460,32 @@ body {
   min-height: 39px;
 }
 
+
+/* =========================================================
+   META
+========================================================= */
+
 .meta {
 
-  margin-top: 7px;
+  margin-top: 8px;
 
   color: #8f99b8;
 
   font-size: 11px;
 
-  white-space: nowrap;
+  line-height: 1.5;
 
-  overflow: hidden;
+  min-height: 17px;
+}
 
-  text-overflow: ellipsis;
+
+.meta .views {
+  color: #9fa9c7;
+}
+
+
+.meta .date {
+  color: #9fa9c7;
 }
 
 
@@ -503,10 +526,9 @@ body {
     rgba(67,72,255,.24);
 }
 
-.open-btn:active {
 
-  transform:
-    scale(.98);
+.open-btn:active {
+  transform: scale(.98);
 }
 
 
@@ -567,7 +589,7 @@ body {
 
 
 /* =========================================================
-   NEW UNLOCK MODAL
+   MODAL
 ========================================================= */
 
 .modal {
@@ -596,10 +618,11 @@ body {
     blur(18px);
 }
 
-.modal.hidden {
 
+.modal.hidden {
   display: none;
 }
+
 
 .modal-box {
 
@@ -625,9 +648,7 @@ body {
 
   box-shadow:
     0 25px 80px
-    rgba(0,0,0,.65),
-    0 0 45px
-    rgba(91,72,255,.18);
+    rgba(0,0,0,.65);
 
   position: relative;
 
@@ -635,26 +656,21 @@ body {
     unlockModalIn .25s ease;
 }
 
+
 @keyframes unlockModalIn {
 
   from {
-
     opacity: 0;
-
     transform:
       translateY(25px)
       scale(.94);
-
   }
 
   to {
-
     opacity: 1;
-
     transform:
       translateY(0)
       scale(1);
-
   }
 
 }
@@ -694,7 +710,7 @@ body {
 
 
 /* =========================================================
-   MODAL PREVIEW
+   PREVIEW
 ========================================================= */
 
 .modal-preview {
@@ -712,6 +728,7 @@ body {
 
   margin-bottom: 18px;
 }
+
 
 .modal-preview img {
 
@@ -742,7 +759,7 @@ body {
 
 
 /* =========================================================
-   MODAL DESCRIPTION
+   DESCRIPTION
 ========================================================= */
 
 .modal-description {
@@ -762,7 +779,7 @@ body {
 
 
 /* =========================================================
-   AD PROGRESS
+   PROGRESS
 ========================================================= */
 
 .ad-progress {
@@ -780,6 +797,7 @@ body {
 
   margin-bottom: 8px;
 }
+
 
 .ad-progress-bar {
 
@@ -803,7 +821,7 @@ body {
 
 
 /* =========================================================
-   AD COUNT
+   COUNT
 ========================================================= */
 
 .ad-count {
@@ -823,7 +841,7 @@ body {
 
 
 /* =========================================================
-   WATCH AD BUTTON
+   WATCH AD
 ========================================================= */
 
 .watch-ad-btn {
@@ -855,17 +873,8 @@ body {
 
   cursor:
     pointer;
-
-  box-shadow:
-    0 12px 30px
-    rgba(88,82,255,.3);
 }
 
-.watch-ad-btn:active {
-
-  transform:
-    scale(.98);
-}
 
 .watch-ad-btn:disabled {
 
@@ -878,7 +887,7 @@ body {
 
 
 /* =========================================================
-   VIDEO UNLOCK BUTTON
+   VIDEO BUTTON
 ========================================================= */
 
 .video-unlock-btn {
@@ -913,6 +922,7 @@ body {
     pointer;
 }
 
+
 .video-unlock-btn:disabled {
 
   background:
@@ -923,9 +933,6 @@ body {
 
   cursor:
     not-allowed;
-
-  box-shadow:
-    none;
 }
 
 
@@ -983,6 +990,7 @@ body {
     rgba(0,0,0,.35);
 }
 
+
 .bottom-nav button {
 
   flex: 1;
@@ -1011,6 +1019,7 @@ body {
     pointer;
 }
 
+
 .bottom-nav button span {
 
   display:
@@ -1019,6 +1028,7 @@ body {
   margin-top:
     3px;
 }
+
 
 .bottom-nav .bottom-active {
 
@@ -1069,32 +1079,32 @@ body {
       0 9px 25px;
   }
 
-  .card-body {
 
-    padding:
-      9px;
+  .card-body {
+    padding: 9px;
   }
+
 
   .card-body h3 {
-
-    font-size:
-      13px;
+    font-size: 13px;
   }
+
 
   .open-btn {
 
-    font-size:
-      11px;
+    font-size: 11px;
 
     padding:
       10px 5px;
   }
+
 
   .modal {
 
     padding:
       10px;
   }
+
 
   .modal-box {
 
@@ -1105,10 +1115,9 @@ body {
       24px;
   }
 
-  .modal-title {
 
-    font-size:
-      19px;
+  .modal-title {
+    font-size: 19px;
   }
 
 }
