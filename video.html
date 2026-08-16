@@ -12,9 +12,6 @@
 
   <title>Watch Video</title>
 
-
-  <!-- Telegram -->
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 
@@ -90,6 +87,10 @@
 
       font-weight:
         800;
+
+      box-shadow:
+        0 8px 25px
+        rgba(80,70,255,.25);
     }
 
 
@@ -115,6 +116,9 @@
       box-shadow:
         0 20px 60px
         rgba(0,0,0,.35);
+
+      backdrop-filter:
+        blur(15px);
     }
 
 
@@ -160,45 +164,6 @@
 
       margin:
         6px 0 18px;
-    }
-
-
-    .video-info {
-
-      display:
-        flex;
-
-      gap:
-        10px;
-
-      flex-wrap:
-        wrap;
-
-      margin-bottom:
-        18px;
-
-      color:
-        #aeb6cf;
-
-      font-size:
-        13px;
-    }
-
-
-    .info-item {
-
-      padding:
-        7px 10px;
-
-      border-radius:
-        12px;
-
-      background:
-        rgba(255,255,255,.06);
-
-      border:
-        1px solid
-        rgba(255,255,255,.06);
     }
 
 
@@ -271,9 +236,6 @@
 
       margin-bottom:
         15px;
-
-      padding:
-        14px;
     }
 
   </style>
@@ -288,7 +250,7 @@
 
     <button
       class="back"
-      onclick="goBack()"
+      onclick="history.back()"
       type="button"
     >
       ← Back
@@ -306,13 +268,6 @@
       <h1 id="title">
         Loading...
       </h1>
-
-
-      <div
-        id="videoInfo"
-        class="video-info"
-      >
-      </div>
 
 
       <div id="playerArea">
@@ -362,7 +317,7 @@
 
 
     /* =====================================================
-       URL
+       URL PARAMETER
     ===================================================== */
 
     const params =
@@ -391,74 +346,12 @@
       );
 
 
-    const videoInfo =
-      document.getElementById(
-        "videoInfo"
-      );
-
-
-    /* =====================================================
-       BACK
-    ===================================================== */
-
-    function goBack() {
-
-      if (
-        window.history.length > 1
-      ) {
-
-        window.history.back();
-
-      } else {
-
-        window.location.href =
-          "index.html";
-
-      }
-
-    }
-
-
-    /* =====================================================
-       DATE
-    ===================================================== */
-
-    function formatDate(
-      value
-    ) {
-
-      if (!value) {
-        return "Unknown";
-      }
-
-
-      const date =
-        new Date(value);
-
-
-      if (
-        Number.isNaN(
-          date.getTime()
-        )
-      ) {
-
-        return "Unknown";
-
-      }
-
-
-      return date.toLocaleDateString(
-        "en-CA"
-      );
-
-    }
-
-
     /* =====================================================
        LOAD VIDEO
     ===================================================== */
 
     async function loadVideo() {
+
 
       if (!postId) {
 
@@ -473,10 +366,21 @@
 
       try {
 
+
+        /*
+          IMPORTANT:
+
+          Only request columns that
+          actually exist in posts.
+
+          video_url is used.
+          NOT video.
+        */
+
         const url =
           `${SUPABASE_URL}/rest/v1/posts` +
           `?id=eq.${encodeURIComponent(postId)}` +
-          `&select=id,title,category,video_url,created_at`;
+          `&select=id,title,video_url`;
 
 
         const response =
@@ -494,10 +398,7 @@
                     SUPABASE_ANON_KEY,
 
                   Authorization:
-                    `Bearer ${SUPABASE_ANON_KEY}`,
-
-                  "Content-Type":
-                    "application/json"
+                    `Bearer ${SUPABASE_ANON_KEY}`
 
                 }
 
@@ -548,30 +449,6 @@
 
 
         /* =================================================
-           INFO
-        ================================================= */
-
-        videoInfo.innerHTML = `
-
-          <div class="info-item">
-             ${escapeHTML(
-              formatDate(
-                post.created_at
-              )
-            )}
-          </div>
-
-          <div class="info-item">
-            📁 ${escapeHTML(
-              post.category ||
-              "Video"
-            )}
-          </div>
-
-        `;
-
-
-        /* =================================================
            VIDEO URL
         ================================================= */
 
@@ -592,7 +469,7 @@
 
 
         /* =================================================
-           PLAYER
+           CREATE PLAYER
         ================================================= */
 
         const video =
@@ -620,13 +497,9 @@
 
 
         video.setAttribute(
-          "disablePictureInPicture",
-          ""
+          "oncontextmenu",
+          "return false;"
         );
-
-
-        video.oncontextmenu =
-          () => false;
 
 
         const source =
@@ -648,8 +521,7 @@
         );
 
 
-        playerArea.innerHTML =
-          "";
+        playerArea.innerHTML = "";
 
 
         const success =
@@ -659,11 +531,11 @@
 
 
         success.className =
-          "success";
+          "status success";
 
 
         success.textContent =
-          "✅ ভিডিওটি আনলক হয়েছে। এখন ভিডিওটি দেখতে পারবেন।";
+          "আপনি সফলভাবে ভিডিওটি আনলক করেছেন। নিচের player থেকে ভিডিওটি দেখতে পারবেন।";
 
 
         playerArea.appendChild(
@@ -673,17 +545,6 @@
 
         playerArea.appendChild(
           video
-        );
-
-
-        /* =================================================
-           RECORD VIEW
-        ================================================= */
-
-        await recordView(
-          String(
-            post.id
-          )
         );
 
 
@@ -703,7 +564,9 @@
         );
 
 
-      } catch (error) {
+      } catch (
+        error
+      ) {
 
         console.error(
           "Video loading error:",
@@ -713,143 +576,6 @@
 
         showError(
           `Unable to load video: ${error.message}`
-        );
-
-      }
-
-    }
-
-
-    /* =====================================================
-       RECORD VIEW
-    ===================================================== */
-
-    async function recordView(
-      id
-    ) {
-
-      try {
-
-        let viewerKey =
-          null;
-
-
-        /*
-          Telegram user ID থাকলে
-          সেটি ব্যবহার হবে।
-        */
-
-        if (
-          tg &&
-          tg.initDataUnsafe &&
-          tg.initDataUnsafe.user &&
-          tg.initDataUnsafe.user.id
-        ) {
-
-          viewerKey =
-            `tg_${tg.initDataUnsafe.user.id}`;
-
-        }
-
-
-        /*
-          Telegram ID না থাকলে
-          browser-এর জন্য anonymous key।
-        */
-
-        if (!viewerKey) {
-
-          viewerKey =
-            localStorage.getItem(
-              "desi_girl_viewer_key"
-            );
-
-
-          if (!viewerKey) {
-
-            viewerKey =
-              "web_" +
-              crypto.randomUUID();
-
-
-            localStorage.setItem(
-              "desi_girl_viewer_key",
-              viewerKey
-            );
-
-          }
-
-        }
-
-
-        const response =
-          await fetch(
-            `${SUPABASE_URL}/rest/v1/rpc/record_post_view`,
-            {
-
-              method:
-                "POST",
-
-              headers: {
-
-                apikey:
-                  SUPABASE_ANON_KEY,
-
-                Authorization:
-                  `Bearer ${SUPABASE_ANON_KEY}`,
-
-                "Content-Type":
-                  "application/json"
-
-              },
-
-              body:
-                JSON.stringify({
-
-                  p_post_id:
-                    String(id),
-
-                  p_viewer_key:
-                    viewerKey
-
-                })
-
-            }
-          );
-
-
-        if (!response.ok) {
-
-          console.error(
-            "View recording failed:",
-            await response.text()
-          );
-
-          return;
-
-        }
-
-
-        const result =
-          await response.json();
-
-
-        console.log(
-          "View recorded:",
-          result
-        );
-
-
-      } catch (error) {
-
-        /*
-          View recording fail করলেও
-          video বন্ধ হবে না।
-        */
-
-        console.error(
-          "View tracking error:",
-          error
         );
 
       }
