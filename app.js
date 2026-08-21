@@ -25,11 +25,27 @@ const SUPABASE_URL =
 
 
 const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm91bmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4NjY0OTA5NCwiZXhwIjoyMTAyMjI1MDk0fQ.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmUiLCJyZWYiOiJtc2hvdGd1YmZia3Z5bm5kdG51IiwiaWF0IjoxNzg2NjQ5MDk0LCJleHAiOjIxMDIyMjUwOTR9.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
 
 const POSTS_API =
   `${SUPABASE_URL}/rest/v1/posts`;
+
+
+/* =========================================================
+   MONETAG
+========================================================= */
+
+const MONETAG_FUNCTION =
+  "show_11571866";
+
+
+/* =========================================================
+   REWARDED AD SETTINGS
+========================================================= */
+
+const requiredAds =
+  3;
 
 
 /* =========================================================
@@ -38,13 +54,17 @@ const POSTS_API =
 
 const videos = [];
 
-let selectedVideo = null;
 
-let adsWatched = 0;
+let selectedVideo =
+  null;
 
-const requiredAds = 3;
 
-let adLoading = false;
+let adsWatched =
+  0;
+
+
+let adLoading =
+  false;
 
 
 /* =========================================================
@@ -52,47 +72,69 @@ let adLoading = false;
 ========================================================= */
 
 const videoGrid =
-  document.getElementById("videoGrid");
+  document.getElementById(
+    "videoGrid"
+  );
 
 
 const modal =
-  document.getElementById("modal");
+  document.getElementById(
+    "modal"
+  );
 
 
 const modalTitle =
-  document.getElementById("modalTitle");
+  document.getElementById(
+    "modalTitle"
+  );
 
 
 const modalText =
-  document.getElementById("modalText");
+  document.getElementById(
+    "modalText"
+  );
 
 
 const preview =
-  document.getElementById("preview");
+  document.getElementById(
+    "preview"
+  );
 
 
 const watchAdBtn =
-  document.getElementById("watchAdBtn");
+  document.getElementById(
+    "watchAdBtn"
+  );
 
 
 const videoBtn =
-  document.getElementById("videoBtn");
+  document.getElementById(
+    "videoBtn"
+  );
 
 
 const progressBar =
-  document.getElementById("progressBar");
+  document.getElementById(
+    "progressBar"
+  );
 
 
 const adCount =
-  document.getElementById("adCount");
+  document.getElementById(
+    "adCount"
+  );
 
 
 const closeModal =
-  document.getElementById("closeModal");
+  document.getElementById(
+    "closeModal"
+  );
 
 
 const tgUser =
-  document.getElementById("tgUser");
+  document.getElementById(
+    "tgUser"
+  );
 
 
 /* =========================================================
@@ -133,7 +175,9 @@ async function loadPosts() {
 
     const response =
       await fetch(
+
         `${POSTS_API}?select=id,title,category,thumbnail_url,video_url,created_at&order=created_at.desc`,
+
         {
           method: "GET",
 
@@ -148,6 +192,7 @@ async function loadPosts() {
           }
 
         }
+
       );
 
 
@@ -168,42 +213,47 @@ async function loadPosts() {
       await response.json();
 
 
-    videos.length = 0;
+    videos.length =
+      0;
 
 
-    data.forEach(post => {
+    data.forEach(
+      post => {
 
-      videos.push({
+        videos.push({
 
-        id:
-          post.id,
+          id:
+            post.id,
 
-        title:
-          post.title ||
-          "Untitled Video",
+          title:
+            post.title ||
+            "Untitled Video",
 
-        category:
-          post.category ||
-          "Trending",
+          category:
+            post.category ||
+            "Trending",
 
-        thumbnail:
-          post.thumbnail_url ||
-          "",
+          thumbnail:
+            post.thumbnail_url ||
+            "",
 
-        videoUrl:
-          post.video_url ||
-          "",
+          videoUrl:
+            post.video_url ||
+            "",
 
-        createdAt:
-          post.created_at ||
-          ""
+          createdAt:
+            post.created_at ||
+            ""
 
-      });
+        });
 
-    });
+      }
+    );
 
 
-    render("All");
+    render(
+      "All"
+    );
 
 
   } catch (error) {
@@ -215,6 +265,7 @@ async function loadPosts() {
 
 
     videoGrid.innerHTML = `
+
       <div class="error-box">
 
         <h3>
@@ -222,10 +273,13 @@ async function loadPosts() {
         </h3>
 
         <p>
-          ${escapeHTML(error.message)}
+          ${escapeHTML(
+            error.message
+          )}
         </p>
 
       </div>
+
     `;
 
   }
@@ -234,14 +288,15 @@ async function loadPosts() {
 
 
 /* =========================================================
-   RENDER
+   RENDER VIDEOS
 ========================================================= */
 
 function render(
   category = "All"
 ) {
 
-  videoGrid.innerHTML = "";
+  videoGrid.innerHTML =
+    "";
 
 
   const filteredVideos =
@@ -251,12 +306,15 @@ function render(
 
       : videos.filter(
           video =>
+
             String(
               video.category
             ).toLowerCase() ===
+
             String(
               category
             ).toLowerCase()
+
         );
 
 
@@ -265,9 +323,11 @@ function render(
   ) {
 
     videoGrid.innerHTML = `
+
       <div class="loading">
         No videos found.
       </div>
+
     `;
 
     return;
@@ -291,9 +351,12 @@ function render(
       let thumbnailHTML;
 
 
-      if (video.thumbnail) {
+      if (
+        video.thumbnail
+      ) {
 
         thumbnailHTML = `
+
           <img
             src="${escapeHTML(
               video.thumbnail
@@ -303,14 +366,17 @@ function render(
             )}"
             loading="lazy"
           >
+
         `;
 
       } else {
 
         thumbnailHTML = `
+
           <div class="thumb-placeholder">
             🎬
           </div>
+
         `;
 
       }
@@ -335,9 +401,11 @@ function render(
 
 
           <div class="meta">
+
             ${escapeHTML(
               video.category
             )}
+
           </div>
 
 
@@ -365,7 +433,9 @@ function render(
 
           event.stopPropagation();
 
-          openVideo(video);
+          openVideo(
+            video
+          );
 
         }
       );
@@ -383,7 +453,9 @@ function render(
           "click",
           () => {
 
-            openVideo(video);
+            openVideo(
+              video
+            );
 
           }
         );
@@ -413,6 +485,11 @@ function openVideo(
     video;
 
 
+  /*
+    Every new video starts
+    a fresh 3-ad session.
+  */
+
   adsWatched =
     0;
 
@@ -426,30 +503,38 @@ function openVideo(
     "Video";
 
 
-  modalText.innerHTML = `
-    Watch 3 ads to unlock this video.<br>
-    ভিডিও আনলক করতে ৩টি বিজ্ঞাপন সম্পূর্ণ করুন।
-  `;
+  /*
+    Normal message.
+    No error message.
+  */
+
+  modalText.textContent =
+    "Watch 3 ads to unlock this video.";
 
 
   /* =======================================================
      PREVIEW
   ======================================================= */
 
-  if (video.thumbnail) {
+  if (
+    video.thumbnail
+  ) {
 
     preview.innerHTML = `
+
       <img
         src="${escapeHTML(
           video.thumbnail
         )}"
         alt=""
       >
+
     `;
 
   } else {
 
     preview.innerHTML = `
+
       <div
         style="
           width:100%;
@@ -462,6 +547,7 @@ function openVideo(
       >
         🎬
       </div>
+
     `;
 
   }
@@ -477,7 +563,7 @@ function openVideo(
 
 
   videoBtn.textContent =
-    "🔒 Video Locked / ভিডিও লক";
+    "🔒 Video Locked";
 
 
   watchAdBtn.disabled =
@@ -490,28 +576,40 @@ function openVideo(
 
 
 /* =========================================================
-   UPDATE UI
+   UPDATE UNLOCK UI
 ========================================================= */
 
 function updateUnlockUI() {
+
+  /*
+    For 1/3 and 2/3:
+    NO warning message.
+  */
+
+  if (
+    adsWatched <
+    requiredAds
+  ) {
+
+    modalText.textContent =
+      "Watch 3 ads to unlock this video.";
+
+  }
+
 
   watchAdBtn.textContent =
     `▶ Watch Ad (${adsWatched}/${requiredAds})`;
 
 
   adCount.textContent =
-    `${adsWatched} / ${requiredAds} Ads Completed
-     • ${adsWatched}/${requiredAds} বিজ্ঞাপন সম্পূর্ণ`;
+    `${adsWatched} / ${requiredAds} Ads Completed`;
 
 
   const percent =
-    Math.min(
-      100,
-      (
-        adsWatched /
-        requiredAds
-      ) * 100
-    );
+    (
+      adsWatched /
+      requiredAds
+    ) * 100;
 
 
   progressBar.style.width =
@@ -519,7 +617,7 @@ function updateUnlockUI() {
 
 
   /* =======================================================
-     UNLOCKED
+     3/3 COMPLETE
   ======================================================= */
 
   if (
@@ -532,13 +630,11 @@ function updateUnlockUI() {
 
 
     videoBtn.textContent =
-      "▶ Watch Video / ভিডিও দেখুন";
+      "▶ Watch Video";
 
 
-    modalText.innerHTML = `
-      🎉 All 3 ads completed! Your video is unlocked.<br>
-      🎉 ৩টি বিজ্ঞাপন সম্পূর্ণ হয়েছে! আপনার ভিডিও আনলক হয়েছে।
-    `;
+    modalText.textContent =
+      "🎉 All ads completed! Your video is unlocked.";
 
 
     watchAdBtn.disabled =
@@ -546,7 +642,7 @@ function updateUnlockUI() {
 
 
     watchAdBtn.textContent =
-      "✓ Ads Completed / বিজ্ঞাপন সম্পূর্ণ";
+      "✓ Ads Completed";
 
 
     return;
@@ -563,11 +659,47 @@ function updateUnlockUI() {
 
 
   videoBtn.textContent =
-    "🔒 Video Locked / ভিডিও লক";
+    "🔒 Video Locked";
 
 
   watchAdBtn.disabled =
     false;
+
+}
+
+
+/* =========================================================
+   INCOMPLETE AD MESSAGE
+========================================================= */
+
+function showIncompleteAdMessage() {
+
+  modalText.innerHTML = `
+
+    <strong>
+      বিজ্ঞাপনটি সম্পূর্ণ হয়নি।
+    </strong>
+
+    <br>
+
+    আপনি X চাপ দিয়ে বিজ্ঞাপন থেকে বের হয়ে গেছেন।
+    ভিডিও আনলক করতে আবার Continue / Watch Ad
+    বাটনে ক্লিক করুন।
+
+    <br>
+    <br>
+
+    <strong>
+      The ad was not completed.
+    </strong>
+
+    <br>
+
+    You exited the ad using X.
+    To unlock the video, please click
+    Continue / Watch Ad again.
+
+  `;
 
 }
 
@@ -578,12 +710,22 @@ function updateUnlockUI() {
 
 async function showRewardedAd() {
 
-  if (adLoading) {
+  /*
+    Prevent double click.
+  */
+
+  if (
+    adLoading
+  ) {
 
     return;
 
   }
 
+
+  /*
+    Already 3/3.
+  */
 
   if (
     adsWatched >=
@@ -604,7 +746,21 @@ async function showRewardedAd() {
 
 
   watchAdBtn.textContent =
-    "⏳ Loading Ad... / বিজ্ঞাপন লোড হচ্ছে...";
+    "⏳ Loading Ad...";
+
+
+  /*
+    IMPORTANT:
+
+    Counter is NOT increased here.
+
+    It will only increase after
+    the Monetag function completes.
+  */
+
+
+  let completed =
+    false;
 
 
   try {
@@ -614,12 +770,13 @@ async function showRewardedAd() {
     ===================================================== */
 
     if (
-      typeof window.show_11571866 !==
-      "function"
+      typeof window[
+        MONETAG_FUNCTION
+      ] !== "function"
     ) {
 
       throw new Error(
-        "Monetag SDK is not loaded."
+        "MONETAG_SDK_NOT_LOADED"
       );
 
     }
@@ -630,55 +787,45 @@ async function showRewardedAd() {
     ===================================================== */
 
     const result =
-      await window.show_11571866();
+      await window[
+        MONETAG_FUNCTION
+      ]();
+
+
+    /*
+      Monetag promise completed.
+    */
+
+    completed =
+      true;
 
 
     console.log(
-      "Monetag Rewarded Result:",
+      "Monetag rewarded ad completed:",
       result
     );
 
 
     /* =====================================================
-       CHECK REWARD
-    ===================================================== */
-
-    const rewardConfirmed =
-      isRewardConfirmed(
-        result
-      );
-
-
-    /* =====================================================
-       NOT COMPLETED
+       ADD ONE REWARD
     ===================================================== */
 
     if (
-      !rewardConfirmed
+      adsWatched <
+      requiredAds
     ) {
 
-      throw new Error(
-        "Reward was not confirmed."
-      );
+      adsWatched++;
 
     }
 
 
-    /* =====================================================
-       REWARD CONFIRMED
-    ===================================================== */
+    /*
+      Successful ad:
 
-    adsWatched =
-      Math.min(
-        requiredAds,
-        adsWatched + 1
-      );
-
-
-    console.log(
-      `Reward confirmed: ${adsWatched}/${requiredAds}`
-    );
-
+      - Remove any old warning
+      - Update counter
+    */
 
     updateUnlockUI();
 
@@ -686,45 +833,55 @@ async function showRewardedAd() {
   } catch (error) {
 
     console.error(
-      "Rewarded Ad Error:",
+      "Monetag rewarded ad:",
       error
     );
 
 
-    /* =====================================================
-       BILINGUAL MESSAGE
-    ===================================================== */
+    /*
+      IMPORTANT:
 
-    modalText.innerHTML = `
-      ⚠️ <strong>Ad Completed হয়নি / বিজ্ঞাপন সম্পূর্ণ হয়নি</strong><br><br>
+      X / close / failed ad
+      DOES NOT increase counter.
+    */
 
-      আপনি বিজ্ঞাপনটি সম্পূর্ণ না করে বাইরে চলে গেছেন
-      অথবা <strong>X</strong> চাপ দিয়েছেন।<br>
+    if (
+      !completed
+    ) {
 
-      You left the ad or pressed <strong>X</strong>
-      before completing it.<br><br>
+      showIncompleteAdMessage();
 
-      👉 বিজ্ঞাপনের
-      <strong>Continue</strong>
-      বাটনে ক্লিক করে বিজ্ঞাপনটি সম্পূর্ণ করুন।<br>
+    }
 
-      👉 Click the
-      <strong>Continue</strong>
-      button in the ad to complete it.<br><br>
 
-      ❌ কাউন্ট হবে না / No count added.<br>
+    /*
+      Restore Watch Ad button.
+    */
 
-      ✅ Reward সম্পূর্ণ হলে তবেই
-      ${adsWatched + 1}/3 হবে।
-    `;
+    watchAdBtn.disabled =
+      false;
 
 
     watchAdBtn.textContent =
       `▶ Watch Ad (${adsWatched}/${requiredAds})`;
 
 
-    watchAdBtn.disabled =
-      false;
+    /*
+      Video remains locked.
+    */
+
+    if (
+      adsWatched <
+      requiredAds
+    ) {
+
+      videoBtn.disabled =
+        true;
+
+      videoBtn.textContent =
+        "🔒 Video Locked";
+
+    }
 
   } finally {
 
@@ -737,72 +894,12 @@ async function showRewardedAd() {
 
 
 /* =========================================================
-   REWARD RESULT CHECK
-========================================================= */
-
-function isRewardConfirmed(
-  result
-) {
-
-  /*
-    IMPORTANT:
-
-    We do NOT count undefined,
-    null or false.
-
-    Only explicit successful
-    reward values are accepted.
-  */
-
-
-  if (
-    result === true
-  ) {
-
-    return true;
-
-  }
-
-
-  if (
-    result === "completed" ||
-    result === "rewarded" ||
-    result === "success"
-  ) {
-
-    return true;
-
-  }
-
-
-  if (
-    result &&
-    typeof result === "object"
-  ) {
-
-    if (
-      result.completed === true ||
-      result.rewarded === true ||
-      result.success === true
-    ) {
-
-      return true;
-
-    }
-
-  }
-
-
-  return false;
-
-}
-
-
-/* =========================================================
    WATCH AD BUTTON
 ========================================================= */
 
-if (watchAdBtn) {
+if (
+  watchAdBtn
+) {
 
   watchAdBtn.addEventListener(
     "click",
@@ -813,16 +910,20 @@ if (watchAdBtn) {
 
 
 /* =========================================================
-   VIDEO BUTTON
+   WATCH VIDEO
 ========================================================= */
 
-if (videoBtn) {
+if (
+  videoBtn
+) {
 
   videoBtn.addEventListener(
     "click",
     () => {
 
-      if (!selectedVideo) {
+      if (
+        !selectedVideo
+      ) {
 
         return;
 
@@ -858,7 +959,9 @@ if (videoBtn) {
    CLOSE MODAL
 ========================================================= */
 
-if (closeModal) {
+if (
+  closeModal
+) {
 
   closeModal.addEventListener(
     "click",
@@ -878,7 +981,9 @@ if (closeModal) {
    CLICK OUTSIDE MODAL
 ========================================================= */
 
-if (modal) {
+if (
+  modal
+) {
 
   modal.addEventListener(
     "click",
@@ -963,7 +1068,8 @@ document
         () => {
 
           const category =
-            button.dataset.bottomCategory;
+            button.dataset
+              .bottomCategory;
 
 
           document
@@ -995,8 +1101,10 @@ document
 
                 btn.classList.toggle(
                   "active",
+
                   btn.dataset.category ===
                   category
+
                 );
 
               }
@@ -1022,7 +1130,9 @@ function escapeHTML(
   value
 ) {
 
-  return String(value)
+  return String(
+    value
+  )
 
     .replace(
       /&/g,
