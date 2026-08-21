@@ -12,39 +12,17 @@
 
   <title>Desi Girl Vairal Link</title>
 
-
-  <!-- =====================================================
-       TELEGRAM WEB APP
-  ====================================================== -->
-
+  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-
-  <!-- =====================================================
-       MONETAG SDK
-
-       Zone:
-       11571866
-
-       In-App Interstitial:
-       2 ads / 0.1 hour
-       30 seconds interval
-       5 seconds first delay
-       session continues between pages
-  ====================================================== -->
-
+  <!-- Monetag SDK -->
   <script
     src="https://libtl.com/sdk.js"
     data-zone="11571866"
-    data-sdk="show_11571866"
-    data-auto="2/0.1/30/5/0">
+    data-sdk="show_11571866">
   </script>
 
-
-  <!-- =====================================================
-       STYLE
-  ====================================================== -->
-
+  <!-- Your CSS -->
   <link
     rel="stylesheet"
     href="style.css"
@@ -57,10 +35,7 @@
 
   <div class="app">
 
-
-    <!-- ===================================================
-         HEADER
-    ==================================================== -->
+    <!-- ================= HEADER ================= -->
 
     <header class="top-header">
 
@@ -76,7 +51,6 @@
 
       </div>
 
-
       <div
         id="tgUser"
         class="tg-user"
@@ -87,9 +61,7 @@
     </header>
 
 
-    <!-- ===================================================
-         HERO
-    ==================================================== -->
+    <!-- ================= HERO ================= -->
 
     <section class="hero">
 
@@ -112,9 +84,7 @@
     </section>
 
 
-    <!-- ===================================================
-         CATEGORY
-    ==================================================== -->
+    <!-- ================= CATEGORY ================= -->
 
     <div class="category-bar">
 
@@ -126,7 +96,6 @@
         All
       </button>
 
-
       <button
         class="category-btn"
         data-category="Trending"
@@ -135,7 +104,6 @@
         Trending
       </button>
 
-
       <button
         class="category-btn"
         data-category="Popular"
@@ -143,7 +111,6 @@
       >
         Popular
       </button>
-
 
       <button
         class="category-btn"
@@ -156,9 +123,7 @@
     </div>
 
 
-    <!-- ===================================================
-         SECTION TITLE
-    ==================================================== -->
+    <!-- ================= SECTION TITLE ================= -->
 
     <div class="section-title">
 
@@ -173,9 +138,7 @@
     </div>
 
 
-    <!-- ===================================================
-         VIDEO GRID
-    ==================================================== -->
+    <!-- ================= VIDEO GRID ================= -->
 
     <main
       id="videoGrid"
@@ -189,9 +152,7 @@
     </main>
 
 
-    <!-- ===================================================
-         VIDEO UNLOCK MODAL
-    ==================================================== -->
+    <!-- ================= VIDEO UNLOCK MODAL ================= -->
 
     <div
       id="modal"
@@ -199,9 +160,6 @@
     >
 
       <div class="modal-box">
-
-
-        <!-- CLOSE -->
 
         <button
           id="closeModal"
@@ -213,7 +171,7 @@
         </button>
 
 
-        <!-- PREVIEW -->
+        <!-- Preview -->
 
         <div
           id="preview"
@@ -223,7 +181,7 @@
         </div>
 
 
-        <!-- TITLE -->
+        <!-- Title -->
 
         <h2
           id="modalTitle"
@@ -233,7 +191,7 @@
         </h2>
 
 
-        <!-- DESCRIPTION -->
+        <!-- Description -->
 
         <p
           id="modalText"
@@ -243,7 +201,7 @@
         </p>
 
 
-        <!-- PROGRESS -->
+        <!-- Progress -->
 
         <div class="ad-progress">
 
@@ -255,7 +213,7 @@
         </div>
 
 
-        <!-- COUNTER -->
+        <!-- Counter -->
 
         <div
           id="adCount"
@@ -265,7 +223,7 @@
         </div>
 
 
-        <!-- WATCH AD -->
+        <!-- Watch Ad -->
 
         <button
           id="watchAdBtn"
@@ -276,7 +234,7 @@
         </button>
 
 
-        <!-- VIDEO -->
+        <!-- Video -->
 
         <button
           id="videoBtn"
@@ -292,9 +250,7 @@
     </div>
 
 
-    <!-- ===================================================
-         BOTTOM NAV
-    ==================================================== -->
+    <!-- ================= BOTTOM NAV ================= -->
 
     <nav class="bottom-nav">
 
@@ -304,9 +260,11 @@
         data-bottom-category="All"
       >
         🏠
+
         <span>
           All
         </span>
+
       </button>
 
 
@@ -315,9 +273,11 @@
         data-bottom-category="Trending"
       >
         🔥
+
         <span>
           Trending
         </span>
+
       </button>
 
 
@@ -326,20 +286,19 @@
         data-bottom-category="Popular"
       >
         ⭐
+
         <span>
           Popular
         </span>
+
       </button>
 
     </nav>
 
-
   </div>
 
 
-  <!-- =====================================================
-       APP JS
-  ====================================================== -->
+  <!-- APP JS -->
 
   <script src="app.js"></script>
 
