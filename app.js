@@ -1,12 +1,16 @@
-/* =========================================================
+্/* =========================================================
    TELEGRAM
 ========================================================= */
 
 const tg = window.Telegram?.WebApp;
 
 if (tg) {
-  tg.ready();
-  tg.expand();
+  try {
+    tg.ready();
+    tg.expand();
+  } catch (e) {
+    console.warn("Telegram error:", e);
+  }
 }
 
 
@@ -15,13 +19,13 @@ if (tg) {
 ========================================================= */
 
 const SUPABASE_URL =
-"https://mshoftgubfbkvynndtnu.supabase.co";
+  "https://mshoftgubfbkvynndtnu.supabase.co";
 
 const SUPABASE_ANON_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5fQ.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmxlIiwicmVmIjoibXNob2Z0Z3Via3ZueW5uZHRudSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2NjQ5MDk0LCJleHAiOjIxMDIyMjUwOTR9.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
 const POSTS_API =
-`${SUPABASE_URL}/rest/v1/posts`;
+  `${SUPABASE_URL}/rest/v1/posts`;
 
 
 /* =========================================================
@@ -44,724 +48,978 @@ let adLoading = false;
 ========================================================= */
 
 const videoGrid =
-document.getElementById("videoGrid");
+  document.getElementById("videoGrid");
 
 const modal =
-document.getElementById("modal");
+  document.getElementById("modal");
 
 const modalTitle =
-document.getElementById("modalTitle");
+  document.getElementById("modalTitle");
 
 const modalText =
-document.getElementById("modalText");
+  document.getElementById("modalText");
 
 const preview =
-document.getElementById("preview");
+  document.getElementById("preview");
 
 const watchAdBtn =
-document.getElementById("watchAdBtn");
+  document.getElementById("watchAdBtn");
 
 const videoBtn =
-document.getElementById("videoBtn");
+  document.getElementById("videoBtn");
 
 const progressBar =
-document.getElementById("progressBar");
+  document.getElementById("progressBar");
 
 const adCount =
-document.getElementById("adCount");
+  document.getElementById("adCount");
 
 const closeModal =
-document.getElementById("closeModal");
+  document.getElementById("closeModal");
 
 const tgUser =
-document.getElementById("tgUser");
+  document.getElementById("tgUser");
 
 
 /* =========================================================
-   USER
+   TELEGRAM USER
 ========================================================= */
 
-if(
- tg?.initDataUnsafe?.user &&
- tgUser
-){
+if (tgUser) {
 
- tgUser.textContent =
- tg.initDataUnsafe.user.first_name ||
- "Telegram User";
+  const user =
+    tg?.initDataUnsafe?.user;
+
+  if (user) {
+
+    tgUser.textContent =
+      user.first_name ||
+      "Telegram User";
+
+  }
 
 }
 
 
 /* =========================================================
-   LOAD VIDEOS FROM SUPABASE
+   LOAD POSTS
 ========================================================= */
 
-async function loadPosts(){
+async function loadPosts() {
 
-videoGrid.innerHTML=`
+  if (!videoGrid) return;
 
-<div class="loading">
-Loading videos...
-</div>
+  videoGrid.innerHTML = `
+    <div class="loading">
+      Loading videos...
+    </div>
+  `;
 
-`;
+  try {
+
+    const response =
+      await fetch(
+        `${POSTS_API}?select=*&order=created_at.desc`,
+        {
+          method: "GET",
+
+          headers: {
+
+            apikey:
+              SUPABASE_ANON_KEY,
+
+            Authorization:
+              `Bearer ${SUPABASE_ANON_KEY}`,
+
+            Accept:
+              "application/json"
+
+          }
+
+        }
+      );
 
 
-try{
+    const text =
+      await response.text();
 
 
-const res =
-await fetch(
-`${POSTS_API}?select=*&order=created_at.desc`,
-{
+    if (!response.ok) {
 
-headers:{
+      throw new Error(
+        `Supabase ${response.status}: ${text}`
+      );
 
-apikey:
-SUPABASE_ANON_KEY,
+    }
 
-Authorization:
-`Bearer ${SUPABASE_ANON_KEY}`
+
+    const data =
+      JSON.parse(text);
+
+
+    videos.length = 0;
+
+
+    if (Array.isArray(data)) {
+
+      data.forEach(post => {
+
+        if (!post) return;
+
+
+        videos.push({
+
+          id:
+            post.id ??
+            post.post_id ??
+            "",
+
+          title:
+            post.title ??
+            post.name ??
+            "Untitled Video",
+
+          category:
+            post.category ??
+            "Trending",
+
+          thumbnail:
+            post.thumbnail_url ??
+            post.thumbnail ??
+            post.image_url ??
+            post.image ??
+            post.poster_url ??
+            "",
+
+          videoUrl:
+            post.video_url ??
+            post.video ??
+            post.video_link ??
+            post.url ??
+            post.link ??
+            "",
+
+          createdAt:
+            post.created_at ??
+            ""
+
+        });
+
+      });
+
+    }
+
+
+    console.log(
+      "Videos loaded:",
+      videos.length
+    );
+
+
+    render("All");
+
+
+  } catch (error) {
+
+    console.error(
+      "Video loading error:",
+      error
+    );
+
+
+    videoGrid.innerHTML = `
+      <div class="error-box">
+
+        <h3>
+          Unable to load videos
+        </h3>
+
+        <p>
+          Please refresh the app.
+        </p>
+
+        <button
+          id="retryVideos"
+          type="button"
+        >
+          🔄 Retry
+        </button>
+
+      </div>
+    `;
+
+
+    const retry =
+      document.getElementById(
+        "retryVideos"
+      );
+
+
+    if (retry) {
+
+      retry.addEventListener(
+        "click",
+        loadPosts
+      );
+
+    }
+
+  }
 
 }
-
-});
-
-
-if(!res.ok){
-
-throw new Error(
-await res.text()
-);
-
-}
-
-
-const data =
-await res.json();
-
-
-videos.length=0;
-
-
-data.forEach(post=>{
-
-
-videos.push({
-
-id:
-post.id,
-
-title:
-post.title ||
-"Untitled Video",
-
-category:
-post.category ||
-"Trending",
-
-thumbnail:
-post.thumbnail_url ||
-"",
-
-videoUrl:
-post.video_url ||
-""
-
-});
-
-
-});
-
-
-render("All");
-
-
-console.log(
-"Videos:",
-videos
-);
-
-
-}catch(err){
-
-
-console.error(
-err
-);
-
-
-videoGrid.innerHTML=`
-
-<div class="error-box">
-
-<h3>
-Unable to load videos
-</h3>
-
-<p>
-${err.message}
-</p>
-
-</div>
-
-`;
-
-
-}
-
-}
-
 
 
 /* =========================================================
-   RENDER VIDEO CARD
+   RENDER
 ========================================================= */
 
-function render(category="All"){
+function render(
+  category = "All"
+) {
+
+  if (!videoGrid) return;
 
 
-videoGrid.innerHTML="";
+  videoGrid.innerHTML = "";
 
 
-let list =
-category==="All"
-?
-videos
-:
-videos.filter(v=>
-String(v.category).toLowerCase()
-===
-String(category).toLowerCase()
-);
+  const filtered =
+    category === "All"
+      ? videos
+      : videos.filter(
+          video =>
+            String(
+              video.category
+            )
+              .trim()
+              .toLowerCase() ===
+            String(
+              category
+            )
+              .trim()
+              .toLowerCase()
+        );
 
 
+  if (!filtered.length) {
 
-if(!list.length){
+    videoGrid.innerHTML = `
+      <div class="loading">
+        No videos found.
+      </div>
+    `;
 
-videoGrid.innerHTML=`
+    return;
 
-<div class="loading">
-No videos found.
-</div>
+  }
 
-`;
 
-return;
+  filtered.forEach(video => {
+
+    const card =
+      document.createElement(
+        "article"
+      );
+
+
+    card.className =
+      "video-card";
+
+
+    let thumbnailHTML;
+
+
+    if (
+      video.thumbnail &&
+      isValidUrl(video.thumbnail)
+    ) {
+
+      thumbnailHTML = `
+        <img
+          src="${escapeHTML(
+            video.thumbnail
+          )}"
+          alt="${escapeHTML(
+            video.title
+          )}"
+          loading="lazy"
+        >
+      `;
+
+    } else {
+
+      thumbnailHTML = `
+        <div class="thumb-placeholder">
+          🎬
+        </div>
+      `;
+
+    }
+
+
+    card.innerHTML = `
+
+      <div class="thumb">
+
+        ${thumbnailHTML}
+
+      </div>
+
+
+      <div class="card-body">
+
+        <h3>
+          ${escapeHTML(
+            video.title
+          )}
+        </h3>
+
+
+        <div class="meta">
+          ${escapeHTML(
+            video.category
+          )}
+        </div>
+
+
+        <button
+          class="open-btn"
+          type="button"
+        >
+          🔒 Watch Ad
+        </button>
+
+      </div>
+
+    `;
+
+
+    const openBtn =
+      card.querySelector(
+        ".open-btn"
+      );
+
+
+    if (openBtn) {
+
+      openBtn.addEventListener(
+        "click",
+        event => {
+
+          event.stopPropagation();
+
+          openVideo(video);
+
+        }
+      );
+
+    }
+
+
+    const thumb =
+      card.querySelector(
+        ".thumb"
+      );
+
+
+    if (thumb) {
+
+      thumb.addEventListener(
+        "click",
+        () => {
+
+          openVideo(video);
+
+        }
+      );
+
+    }
+
+
+    videoGrid.appendChild(
+      card
+    );
+
+  });
 
 }
-
-
-
-list.forEach(video=>{
-
-
-const card =
-document.createElement("article");
-
-
-card.className =
-"video-card";
-
-
-card.innerHTML=`
-
-<div class="thumb">
-
-<img src="${video.thumbnail}">
-
-</div>
-
-
-<div class="card-body">
-
-<h3>
-${escapeHTML(video.title)}
-</h3>
-
-
-<div class="meta">
-${escapeHTML(video.category)}
-</div>
-
-
-<button class="open-btn">
-🔒 Watch Ad
-</button>
-
-
-</div>
-
-`;
-
-
-
-card.querySelector(".open-btn")
-.onclick=()=>{
-
-openVideo(video);
-
-};
-
-
-
-card.querySelector(".thumb")
-.onclick=()=>{
-
-openVideo(video);
-
-};
-
-
-
-videoGrid.appendChild(card);
-
-
-});
-
-
-}
-
 
 
 /* =========================================================
-   OPEN MODAL
+   OPEN VIDEO
 ========================================================= */
 
-function openVideo(video){
+function openVideo(video) {
+
+  selectedVideo =
+    video;
+
+  adsWatched =
+    0;
+
+  adLoading =
+    false;
 
 
-selectedVideo =
-video;
+  if (modalTitle) {
+
+    modalTitle.textContent =
+      video.title ||
+      "Video";
+
+  }
 
 
-adsWatched=0;
+  if (modalText) {
+
+    modalText.textContent =
+      "Watch 3 ads to unlock this video.";
+
+  }
 
 
-modalTitle.textContent =
-video.title;
+  if (
+    preview &&
+    video.thumbnail &&
+    isValidUrl(video.thumbnail)
+  ) {
+
+    preview.innerHTML = `
+      <img
+        src="${escapeHTML(
+          video.thumbnail
+        )}"
+        alt=""
+      >
+    `;
+
+  } else if (preview) {
+
+    preview.innerHTML = `
+      <div
+        style="
+          width:100%;
+          height:100%;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:50px;
+        "
+      >
+        🎬
+      </div>
+    `;
+
+  }
 
 
-modalText.textContent =
-"Watch 3 ads to unlock video.";
+  if (modal) {
+
+    modal.classList.remove(
+      "hidden"
+    );
+
+  }
 
 
-preview.innerHTML=`
-
-<img src="${video.thumbnail}">
-
-`;
-
-
-modal.classList.remove(
-"hidden"
-);
-
-
-updateUnlockUI();
-
+  updateUnlockUI();
 
 }
+
 
 /* =========================================================
    UPDATE UNLOCK UI
 ========================================================= */
 
-function updateUnlockUI(){
+function updateUnlockUI() {
+
+  if (watchAdBtn) {
+
+    watchAdBtn.textContent =
+      `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+
+  }
 
 
-watchAdBtn.textContent =
-`▶ Watch Ad (${adsWatched}/${requiredAds})`;
+  if (adCount) {
+
+    adCount.textContent =
+      `${adsWatched} / ${requiredAds} Ads Completed`;
+
+  }
 
 
-adCount.textContent =
-`${adsWatched} / ${requiredAds} Ads Completed`;
+  if (progressBar) {
+
+    const percent =
+      Math.min(
+        (adsWatched / requiredAds) * 100,
+        100
+      );
+
+    progressBar.style.width =
+      `${percent}%`;
+
+  }
 
 
-progressBar.style.width =
-`${(adsWatched / requiredAds) * 100}%`;
+  /* ================= 3/3 UNLOCKED ================= */
+
+  if (
+    adsWatched >=
+    requiredAds
+  ) {
+
+    if (videoBtn) {
+
+      videoBtn.disabled =
+        false;
+
+      videoBtn.textContent =
+        "▶ Watch Video";
+
+    }
 
 
+    if (modalText) {
 
-if(
-adsWatched >= requiredAds
-){
+      modalText.textContent =
+        "🎉 All ads completed! Your video is unlocked.";
 
-videoBtn.disabled =
-false;
-
-
-videoBtn.textContent =
-"▶ Watch Video";
+    }
 
 
-modalText.textContent =
-"🎉 All ads completed! Your video is unlocked.";
+    if (watchAdBtn) {
+
+      watchAdBtn.disabled =
+        true;
+
+      watchAdBtn.textContent =
+        "✓ Ads Completed";
+
+    }
 
 
-watchAdBtn.disabled =
-true;
+    return;
+
+  }
 
 
-watchAdBtn.textContent =
-"✓ Ads Completed";
+  /* ================= 0/3, 1/3, 2/3 ================= */
+
+  if (videoBtn) {
+
+    videoBtn.disabled =
+      true;
+
+    videoBtn.textContent =
+      "🔒 Video Locked";
+
+  }
 
 
-}
+  if (watchAdBtn) {
 
-else{
+    watchAdBtn.disabled =
+      false;
 
-
-videoBtn.disabled =
-true;
-
-
-videoBtn.textContent =
-"🔒 Video Locked";
-
-
-}
-
-}
-
-
-
-/* =========================================================
-   AD NOT COMPLETED MESSAGE
-========================================================= */
-
-function adNotCompleted(){
-
-
-modalText.innerHTML = `
-
-<div style="text-align:center">
-
-<h3>
-⚠️ বিজ্ঞাপন সম্পূর্ণ হয়নি
-</h3>
-
-<p>
-আপনি বিজ্ঞাপনের ভিতরের
-<b>Continue</b>
-বাটনে ক্লিক করে বিজ্ঞাপনটি সম্পূর্ণ করুন।
-</p>
-
-
-<hr>
-
-
-<h3>
-⚠️ Ad Not Completed
-</h3>
-
-<p>
-Please click the
-<b>Continue</b>
-button inside the ad
-to complete the advertisement.
-</p>
-
-
-</div>
-
-`;
+  }
 
 }
-
 
 
 /* =========================================================
    MONETAG REWARDED AD
 ========================================================= */
 
-async function showRewardedAd(){
+async function showRewardedAd() {
+
+  if (adLoading) {
+    return;
+  }
 
 
-if(adLoading)
-return;
+  if (
+    adsWatched >=
+    requiredAds
+  ) {
+
+    return;
+
+  }
 
 
-if(adsWatched >= requiredAds)
-return;
+  adLoading =
+    true;
 
 
+  if (watchAdBtn) {
 
-adLoading=true;
+    watchAdBtn.disabled =
+      true;
 
+    watchAdBtn.textContent =
+      "⏳ Loading Ad...";
 
-watchAdBtn.disabled=true;
-
-
-watchAdBtn.textContent =
-"⏳ Loading Ad...";
-
-
-
-try{
+  }
 
 
-if(
-typeof window.show_11571866 !== "function"
-){
+  try {
 
-throw new Error(
-"Monetag SDK not loaded"
-);
+    /* ================= CHECK SDK ================= */
+
+    if (
+      typeof window.show_11571866 !==
+      "function"
+    ) {
+
+      throw new Error(
+        "Monetag SDK is not loaded."
+      );
+
+    }
+
+
+    /*
+      Open Rewarded Ad.
+
+      IMPORTANT:
+      We do NOT change the counter
+      before the SDK call finishes.
+    */
+
+    const result =
+      await window.show_11571866();
+
+
+    console.log(
+      "Monetag result:",
+      result
+    );
+
+
+    /*
+      Keep the existing behavior:
+      when the SDK call successfully
+      finishes, count one completed ad.
+    */
+
+    if (
+      adsWatched <
+      requiredAds
+    ) {
+
+      adsWatched++;
+
+    }
+
+
+    updateUnlockUI();
+
+
+  } catch (error) {
+
+    console.error(
+      "Monetag ad error:",
+      error
+    );
+
+
+    /*
+      X / closed / failed:
+
+      No message.
+      No counter increase.
+    */
+
+    if (watchAdBtn) {
+
+      watchAdBtn.textContent =
+        `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+
+      watchAdBtn.disabled =
+        false;
+
+    }
+
+  } finally {
+
+    adLoading =
+      false;
+
+  }
 
 }
-
-
-
-/*
-  IMPORTANT
-
-  Count only after SDK success
-*/
-
-
-const result =
-await window.show_11571866();
-
-
-
-console.log(
-"Ad Result:",
-result
-);
-
-
-
-/*
-  Completed হলে count হবে
-
-  না হলে warning
-*/
-
-
-if(
-result === true ||
-result?.completed === true ||
-result?.reward === true
-){
-
-
-adsWatched++;
-
-
-updateUnlockUI();
-
-
-}
-
-else{
-
-
-adNotCompleted();
-
-
-watchAdBtn.disabled=false;
-
-
-watchAdBtn.textContent =
-`▶ Watch Ad (${adsWatched}/${requiredAds})`;
-
-}
-
-
-}
-catch(error){
-
-
-console.error(
-"Ad Error:",
-error
-);
-
-
-adNotCompleted();
-
-
-
-watchAdBtn.disabled=false;
-
-
-watchAdBtn.textContent =
-`▶ Watch Ad (${adsWatched}/${requiredAds})`;
-
-
-
-}
-
-
-
-adLoading=false;
-
-
-}
-
 
 
 /* =========================================================
    WATCH AD BUTTON
 ========================================================= */
 
-watchAdBtn.onclick =
-showRewardedAd;
+if (watchAdBtn) {
 
+  watchAdBtn.addEventListener(
+    "click",
+    showRewardedAd
+  );
+
+}
 
 
 /* =========================================================
-   VIDEO UNLOCK BUTTON
+   WATCH VIDEO BUTTON
 ========================================================= */
 
-videoBtn.onclick=()=>{
+if (videoBtn) {
+
+  videoBtn.addEventListener(
+    "click",
+    () => {
+
+      if (!selectedVideo) {
+        return;
+      }
 
 
-if(!selectedVideo)
-return;
+      if (
+        adsWatched <
+        requiredAds
+      ) {
+
+        return;
+
+      }
 
 
-if(
-adsWatched < requiredAds
-)
-return;
+      const videoId =
+        encodeURIComponent(
+          selectedVideo.id
+        );
 
 
+      window.location.href =
+        `video.html?id=${videoId}`;
 
-window.location.href =
-`video.html?id=${selectedVideo.id}`;
+    }
+  );
 
-
-};
-
-
+}
 
 
 /* =========================================================
    CLOSE MODAL
 ========================================================= */
 
-closeModal.onclick=()=>{
+if (closeModal) {
 
-modal.classList.add(
-"hidden"
-);
+  closeModal.addEventListener(
+    "click",
+    () => {
 
-};
+      if (modal) {
 
+        modal.classList.add(
+          "hidden"
+        );
 
+      }
 
-
-modal.onclick=(e)=>{
-
-
-if(e.target===modal){
-
-modal.classList.add(
-"hidden"
-);
+    }
+  );
 
 }
 
-};
 
+/* =========================================================
+   OUTSIDE MODAL
+========================================================= */
 
+if (modal) {
+
+  modal.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === modal
+      ) {
+
+        modal.classList.add(
+          "hidden"
+        );
+
+      }
+
+    }
+  );
+
+}
 
 
 /* =========================================================
-   CATEGORY
+   CATEGORY BUTTONS
 ========================================================= */
 
-
 document
-.querySelectorAll(".category-btn")
-.forEach(btn=>{
+  .querySelectorAll(
+    ".category-btn"
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        document
+          .querySelectorAll(
+            ".category-btn"
+          )
+          .forEach(btn => {
+
+            btn.classList.remove(
+              "active"
+            );
+
+          });
 
 
-btn.onclick=()=>{
+        button.classList.add(
+          "active"
+        );
 
 
-document
-.querySelectorAll(".category-btn")
-.forEach(b=>{
+        render(
+          button.dataset.category
+        );
 
-b.classList.remove("active");
+      }
+    );
 
-});
-
-
-btn.classList.add(
-"active"
-);
-
-
-
-render(
-btn.dataset.category
-);
-
-
-};
-
-
-});
-
-
-
+  });
 
 
 /* =========================================================
    BOTTOM NAV
 ========================================================= */
 
-
 document
-.querySelectorAll(".bottom-nav button")
-.forEach(btn=>{
+  .querySelectorAll(
+    ".bottom-nav button"
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const category =
+          button.dataset.bottomCategory;
 
 
-btn.onclick=()=>{
+        document
+          .querySelectorAll(
+            ".bottom-nav button"
+          )
+          .forEach(btn => {
+
+            btn.classList.remove(
+              "bottom-active"
+            );
+
+          });
 
 
-render(
-btn.dataset.bottomCategory
-);
+        button.classList.add(
+          "bottom-active"
+        );
 
 
-};
+        document
+          .querySelectorAll(
+            ".category-btn"
+          )
+          .forEach(btn => {
+
+            btn.classList.toggle(
+              "active",
+              btn.dataset.category ===
+              category
+            );
+
+          });
 
 
-});
+        render(
+          category
+        );
 
+      }
+    );
 
-
+  });
 
 
 /* =========================================================
-   ESCAPE HTML
+   URL VALIDATION
 ========================================================= */
 
+function isValidUrl(value) {
 
-function escapeHTML(str){
+  if (!value) {
+    return false;
+  }
 
 
-return String(str ?? "")
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
+  try {
 
+    new URL(value);
+
+    return true;
+
+  } catch (e) {
+
+    return false;
+
+  }
 
 }
 
 
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHTML(value) {
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
 
 
 /* =========================================================
-   START APP
+   START
 ========================================================= */
 
 loadPosts();
