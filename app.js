@@ -1,4 +1,4 @@
-্/* =========================================================
+/* =========================================================
    TELEGRAM
 ========================================================= */
 
@@ -124,7 +124,6 @@ async function loadPosts() {
           method: "GET",
 
           headers: {
-
             apikey:
               SUPABASE_ANON_KEY,
 
@@ -133,9 +132,7 @@ async function loadPosts() {
 
             Accept:
               "application/json"
-
           }
-
         }
       );
 
@@ -360,11 +357,8 @@ function render(
     card.innerHTML = `
 
       <div class="thumb">
-
         ${thumbnailHTML}
-
       </div>
-
 
       <div class="card-body">
 
@@ -374,13 +368,11 @@ function render(
           )}
         </h3>
 
-
         <div class="meta">
           ${escapeHTML(
             video.category
           )}
         </div>
-
 
         <button
           class="open-btn"
@@ -528,7 +520,7 @@ function openVideo(video) {
 
 
 /* =========================================================
-   UPDATE UNLOCK UI
+   UPDATE UI
 ========================================================= */
 
 function updateUnlockUI() {
@@ -563,10 +555,12 @@ function updateUnlockUI() {
   }
 
 
-  /* ================= 3/3 UNLOCKED ================= */
+  /*
+    ONLY 3/3 = UNLOCKED
+  */
 
   if (
-    adsWatched >=
+    adsWatched ===
     requiredAds
   ) {
 
@@ -599,13 +593,15 @@ function updateUnlockUI() {
 
     }
 
-
     return;
 
   }
 
 
-  /* ================= 0/3, 1/3, 2/3 ================= */
+  /*
+    0/3, 1/3, 2/3
+    No completion message.
+  */
 
   if (videoBtn) {
 
@@ -624,6 +620,45 @@ function updateUnlockUI() {
       false;
 
   }
+
+}
+
+
+/* =========================================================
+   AD NOT COMPLETED MESSAGE
+========================================================= */
+
+function showAdNotCompletedMessage() {
+
+  if (!modalText) return;
+
+
+  modalText.innerHTML = `
+
+    <strong>
+      ⚠️ বিজ্ঞাপনটি সম্পূর্ণ হয়নি
+    </strong>
+
+    <br><br>
+
+    বিজ্ঞাপনের ভিতরের
+    <b>Continue</b>
+    বাটনে ক্লিক করে বিজ্ঞাপনটি সম্পূর্ণ করুন।
+
+    <br><br>
+
+    <strong>
+      ⚠️ Ad Not Completed
+    </strong>
+
+    <br><br>
+
+    Please click the
+    <b>Continue</b>
+    button inside the ad
+    to complete the advertisement.
+
+  `;
 
 }
 
@@ -666,7 +701,9 @@ async function showRewardedAd() {
 
   try {
 
-    /* ================= CHECK SDK ================= */
+    /*
+      Check Monetag SDK
+    */
 
     if (
       typeof window.show_11571866 !==
@@ -681,11 +718,10 @@ async function showRewardedAd() {
 
 
     /*
-      Open Rewarded Ad.
+      IMPORTANT
 
-      IMPORTANT:
-      We do NOT change the counter
-      before the SDK call finishes.
+      Counter is NOT increased
+      before the ad call finishes.
     */
 
     const result =
@@ -699,9 +735,9 @@ async function showRewardedAd() {
 
 
     /*
-      Keep the existing behavior:
-      when the SDK call successfully
-      finishes, count one completed ad.
+      SDK promise completed.
+
+      Increase only here.
     */
 
     if (
@@ -713,6 +749,11 @@ async function showRewardedAd() {
 
     }
 
+
+    /*
+      1/3 or 2/3:
+      no completion message.
+    */
 
     updateUnlockUI();
 
@@ -726,11 +767,11 @@ async function showRewardedAd() {
 
 
     /*
-      X / closed / failed:
-
-      No message.
-      No counter increase.
+      X / closed / unavailable
     */
+
+    showAdNotCompletedMessage();
+
 
     if (watchAdBtn) {
 
@@ -742,12 +783,11 @@ async function showRewardedAd() {
 
     }
 
-  } finally {
-
-    adLoading =
-      false;
-
   }
+
+
+  adLoading =
+    false;
 
 }
 
@@ -767,7 +807,7 @@ if (watchAdBtn) {
 
 
 /* =========================================================
-   WATCH VIDEO BUTTON
+   WATCH VIDEO
 ========================================================= */
 
 if (videoBtn) {
@@ -782,7 +822,7 @@ if (videoBtn) {
 
 
       if (
-        adsWatched <
+        adsWatched !==
         requiredAds
       ) {
 
