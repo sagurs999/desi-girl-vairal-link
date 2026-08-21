@@ -6,13 +6,9 @@ const tg =
   window.Telegram &&
   window.Telegram.WebApp;
 
-
 if (tg) {
-
   tg.ready();
-
   tg.expand();
-
 }
 
 
@@ -20,27 +16,18 @@ if (tg) {
    SUPABASE
 ========================================================= */
 
-/*
-   IMPORTANT:
-
-   This is the correct Supabase project URL.
-*/
-
 const SUPABASE_URL =
   "https://mshoftgubfbkvynndtnu.supabase.co";
 
 
 /*
-   NEW SUPABASE PUBLISHABLE KEY
-
-   Use ONLY in apikey header.
-
-   Do NOT use:
-   Authorization: Bearer sb_publishable_...
+  IMPORTANT:
+  This is the PUBLIC / PUBLISHABLE key.
+  Never put a secret/service_role key here.
 */
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_2L716MuF36gsDT5fGu_k9Q_LzGLqTk0";
+  "sb_publishable_2L716MuF36gsDT5fGu_k9Q_LzGLqTk5";
 
 
 const POSTS_API =
@@ -67,69 +54,37 @@ let adLoading = false;
 ========================================================= */
 
 const videoGrid =
-  document.getElementById(
-    "videoGrid"
-  );
-
+  document.getElementById("videoGrid");
 
 const modal =
-  document.getElementById(
-    "modal"
-  );
-
+  document.getElementById("modal");
 
 const modalTitle =
-  document.getElementById(
-    "modalTitle"
-  );
-
+  document.getElementById("modalTitle");
 
 const modalText =
-  document.getElementById(
-    "modalText"
-  );
-
+  document.getElementById("modalText");
 
 const preview =
-  document.getElementById(
-    "preview"
-  );
-
+  document.getElementById("preview");
 
 const watchAdBtn =
-  document.getElementById(
-    "watchAdBtn"
-  );
-
+  document.getElementById("watchAdBtn");
 
 const videoBtn =
-  document.getElementById(
-    "videoBtn"
-  );
-
+  document.getElementById("videoBtn");
 
 const progressBar =
-  document.getElementById(
-    "progressBar"
-  );
-
+  document.getElementById("progressBar");
 
 const adCount =
-  document.getElementById(
-    "adCount"
-  );
-
+  document.getElementById("adCount");
 
 const closeModal =
-  document.getElementById(
-    "closeModal"
-  );
-
+  document.getElementById("closeModal");
 
 const tgUser =
-  document.getElementById(
-    "tgUser"
-  );
+  document.getElementById("tgUser");
 
 
 /* =========================================================
@@ -145,7 +100,6 @@ if (
   const user =
     tg.initDataUnsafe.user;
 
-
   tgUser.textContent =
     user.first_name ||
     "Telegram User";
@@ -154,116 +108,40 @@ if (
 
 
 /* =========================================================
-   MONETAG SDK CHECK
-========================================================= */
-
-function monetagReady() {
-
-  return (
-    typeof window.show_11571866 ===
-    "function"
-  );
-
-}
-
-
-/* =========================================================
-   IN-APP INTERSTITIAL
-   SEPARATE FROM REWARDED ADS
-========================================================= */
-
-/*
-   This is NOT part of the 3-ad unlock counter.
-
-   It is a separate Monetag In-App Interstitial.
-*/
-
-function startInAppInterstitial() {
-
-  if (!monetagReady()) {
-
-    console.warn(
-      "Monetag SDK is not ready for In-App Interstitial."
-    );
-
-    return;
-
-  }
-
-
-  try {
-
-    window.show_11571866({
-
-      type: "inApp",
-
-      inAppSettings: {
-
-        frequency: 2,
-
-        capping: 0.1,
-
-        interval: 30,
-
-        timeout: 5,
-
-        everyPage: false
-
-      }
-
-    });
-
-
-    console.log(
-      "In-App Interstitial started."
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "In-App Interstitial error:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   LOAD POSTS
+   LOAD POSTS FROM SUPABASE
 ========================================================= */
 
 async function loadPosts() {
 
   videoGrid.innerHTML = `
-
     <div class="loading">
       Loading videos...
     </div>
-
   `;
 
 
   try {
 
     /*
-       IMPORTANT:
+      IMPORTANT FIX:
 
-       Only apikey is sent.
+      We only send the apikey header.
 
-       We DO NOT send:
-       Authorization: Bearer sb_publishable_...
+      We DO NOT send:
+
+      Authorization:
+      Bearer sb_publishable_...
+
+      because publishable keys are not JWT tokens.
     */
 
+
     const url =
-      `${POSTS_API}?select=id,title,category,thumbnail_url,video_url,created_at&order=created_at.desc`;
+      `${POSTS_API}?select=id,title,category,thumbnail_url,video_url,created_at`;
 
 
     console.log(
-      "Loading posts from:",
-      url
+      "Loading Supabase posts..."
     );
 
 
@@ -271,7 +149,6 @@ async function loadPosts() {
       await fetch(
         url,
         {
-
           method: "GET",
 
           headers: {
@@ -279,26 +156,31 @@ async function loadPosts() {
             "apikey":
               SUPABASE_PUBLISHABLE_KEY,
 
-            "Content-Type":
+            "Accept":
               "application/json"
 
           },
 
-          cache:
-            "no-store"
+          cache: "no-store"
 
         }
       );
 
 
-    /* =====================================================
-       HTTP ERROR
-    ====================================================== */
+    /*
+      HTTP ERROR
+    */
 
     if (!response.ok) {
 
       const errorText =
         await response.text();
+
+      console.error(
+        "Supabase HTTP Error:",
+        response.status,
+        errorText
+      );
 
 
       throw new Error(
@@ -308,19 +190,23 @@ async function loadPosts() {
     }
 
 
-    /* =====================================================
-       JSON
-    ====================================================== */
+    /*
+      GET JSON
+    */
 
     const data =
       await response.json();
 
 
     console.log(
-      "Supabase posts:",
+      "Supabase data:",
       data
     );
 
+
+    /*
+      Make sure response is array
+    */
 
     if (
       !Array.isArray(data)
@@ -333,16 +219,16 @@ async function loadPosts() {
     }
 
 
-    /* =====================================================
-       CLEAR OLD DATA
-    ====================================================== */
+    /*
+      Clear old videos
+    */
 
     videos.length = 0;
 
 
-    /* =====================================================
-       ADD POSTS
-    ====================================================== */
+    /*
+      Convert database rows
+    */
 
     data.forEach(
       post => {
@@ -378,16 +264,45 @@ async function loadPosts() {
     );
 
 
-    /* =====================================================
-       RENDER
-    ====================================================== */
+    /*
+      Sort newest first.
 
-    render("All");
+      This is done in JavaScript
+      instead of using order=created_at.desc
+      so that the query doesn't fail if
+      created_at has a problem.
+    */
+
+    videos.sort(
+      (a, b) => {
+
+        const dateA =
+          new Date(
+            a.createdAt || 0
+          ).getTime();
+
+        const dateB =
+          new Date(
+            b.createdAt || 0
+          ).getTime();
+
+        return dateB - dateA;
+
+      }
+    );
 
 
     console.log(
-      `Loaded ${videos.length} videos.`
+      "Videos loaded:",
+      videos.length
     );
+
+
+    /*
+      Render videos
+    */
+
+    render("All");
 
 
   } catch (error) {
@@ -396,27 +311,6 @@ async function loadPosts() {
       "Failed to load posts:",
       error
     );
-
-
-    /*
-       Better error message
-       instead of only "Failed to fetch".
-    */
-
-    let message =
-      error.message ||
-      "Unknown error";
-
-
-    if (
-      error.name ===
-      "TypeError"
-    ) {
-
-      message =
-        "Network connection failed. Please check your Supabase Project URL, Publishable Key, and RLS SELECT policy.";
-
-    }
 
 
     videoGrid.innerHTML = `
@@ -429,13 +323,38 @@ async function loadPosts() {
 
         <p>
           ${escapeHTML(
-            message
+            error.message ||
+            "Failed to fetch"
           )}
         </p>
+
+        <button
+          id="retryBtn"
+          type="button"
+          class="open-btn"
+          style="margin-top:15px;">
+          🔄 Retry
+        </button>
 
       </div>
 
     `;
+
+
+    const retryBtn =
+      document.getElementById(
+        "retryBtn"
+      );
+
+
+    if (retryBtn) {
+
+      retryBtn.addEventListener(
+        "click",
+        loadPosts
+      );
+
+    }
 
   }
 
@@ -459,21 +378,22 @@ function render(
       ? videos
 
       : videos.filter(
-          video =>
+          video => {
 
-            String(
+            return String(
               video.category
-            ).toLowerCase() ===
-
+            )
+              .trim()
+              .toLowerCase() ===
             String(
               category
-            ).toLowerCase()
+            )
+              .trim()
+              .toLowerCase();
+
+          }
         );
 
-
-  /* =======================================================
-     NO VIDEO
-  ====================================================== */
 
   if (
     !filteredVideos.length
@@ -482,7 +402,9 @@ function render(
     videoGrid.innerHTML = `
 
       <div class="loading">
+
         No videos found.
+
       </div>
 
     `;
@@ -492,13 +414,8 @@ function render(
   }
 
 
-  /* =======================================================
-     CREATE CARDS
-  ====================================================== */
-
   filteredVideos.forEach(
     video => {
-
 
       const card =
         document.createElement(
@@ -510,9 +427,9 @@ function render(
         "video-card";
 
 
-      /* ===================================================
+      /* =================================================
          THUMBNAIL
-      ================================================== */
+      ================================================= */
 
       let thumbnailHTML;
 
@@ -531,6 +448,10 @@ function render(
               video.title
             )}"
             loading="lazy"
+            onerror="
+              this.style.display='none';
+              this.parentElement.classList.add('thumb-error');
+            "
           >
 
         `;
@@ -539,9 +460,7 @@ function render(
 
         thumbnailHTML = `
 
-          <div
-            class="thumb-placeholder"
-          >
+          <div class="thumb-placeholder">
             🎬
           </div>
 
@@ -550,9 +469,9 @@ function render(
       }
 
 
-      /* ===================================================
-         CARD HTML
-      ================================================== */
+      /* =================================================
+         CARD
+      ================================================= */
 
       card.innerHTML = `
 
@@ -583,9 +502,10 @@ function render(
 
           <button
             class="open-btn"
-            type="button"
-          >
+            type="button">
+
             🔒 Watch Ad
+
           </button>
 
         </div>
@@ -593,9 +513,9 @@ function render(
       `;
 
 
-      /* ===================================================
-         WATCH BUTTON
-      ================================================== */
+      /* =================================================
+         OPEN BUTTON
+      ================================================= */
 
       const openBtn =
         card.querySelector(
@@ -609,17 +529,15 @@ function render(
 
           event.stopPropagation();
 
-          openVideo(
-            video
-          );
+          openVideo(video);
 
         }
       );
 
 
-      /* ===================================================
+      /* =================================================
          THUMBNAIL CLICK
-      ================================================== */
+      ================================================= */
 
       const thumb =
         card.querySelector(
@@ -633,9 +551,7 @@ function render(
           "click",
           () => {
 
-            openVideo(
-              video
-            );
+            openVideo(video);
 
           }
         );
@@ -654,7 +570,7 @@ function render(
 
 
 /* =========================================================
-   OPEN VIDEO
+   OPEN VIDEO MODAL
 ========================================================= */
 
 function openVideo(
@@ -678,23 +594,13 @@ function openVideo(
     "Video";
 
 
-  /*
-     IMPORTANT:
-
-     No error message here.
-
-     The X/close message will only appear
-     when an actual rewarded ad is closed
-     before completion.
-  */
-
   modalText.textContent =
     "Watch 3 ads to unlock this video.";
 
 
-  /* =======================================================
+  /* =================================================
      PREVIEW
-  ====================================================== */
+  ================================================= */
 
   if (
     video.thumbnail
@@ -723,19 +629,16 @@ function openVideo(
           align-items:center;
           justify-content:center;
           font-size:50px;
-        "
-      >
+        ">
+
         🎬
+
       </div>
 
     `;
 
   }
 
-
-  /* =======================================================
-     SHOW MODAL
-  ====================================================== */
 
   modal.classList.remove(
     "hidden"
@@ -765,10 +668,6 @@ function openVideo(
 
 function updateUnlockUI() {
 
-  /* =======================================================
-     COUNTER
-  ====================================================== */
-
   watchAdBtn.textContent =
     `▶ Watch Ad (${adsWatched}/${requiredAds})`;
 
@@ -776,10 +675,6 @@ function updateUnlockUI() {
   adCount.textContent =
     `${adsWatched} / ${requiredAds} Ads Completed`;
 
-
-  /* =======================================================
-     PROGRESS
-  ====================================================== */
 
   const percent =
     (
@@ -792,9 +687,9 @@ function updateUnlockUI() {
     `${percent}%`;
 
 
-  /* =======================================================
+  /* =================================================
      UNLOCKED
-  ====================================================== */
+  ================================================= */
 
   if (
     adsWatched >=
@@ -810,12 +705,13 @@ function updateUnlockUI() {
 
 
     /*
-       After 3 completed ads:
-       NO warning/error message.
+      Important:
+
+      No error message here.
     */
 
     modalText.textContent =
-      "";
+      "🎉 All ads completed! Your video is unlocked.";
 
 
     watchAdBtn.disabled =
@@ -831,9 +727,9 @@ function updateUnlockUI() {
   }
 
 
-  /* =======================================================
+  /* =================================================
      LOCKED
-  ====================================================== */
+  ================================================= */
 
   videoBtn.disabled =
     true;
@@ -850,7 +746,7 @@ function updateUnlockUI() {
 
 
 /* =========================================================
-   REWARDED AD
+   MONETAG REWARDED AD
 ========================================================= */
 
 async function showRewardedAd() {
@@ -886,25 +782,15 @@ async function showRewardedAd() {
     "⏳ Loading Ad...";
 
 
-  /*
-     Save current count.
-
-     If user closes the ad,
-     the count will NOT increase.
-  */
-
-  const previousCount =
-    adsWatched;
-
-
   try {
 
-    /* =====================================================
-       SDK CHECK
-    ====================================================== */
+    /* =================================================
+       CHECK SDK
+    ================================================= */
 
     if (
-      !monetagReady()
+      typeof window.show_11571866 !==
+      "function"
     ) {
 
       throw new Error(
@@ -914,56 +800,31 @@ async function showRewardedAd() {
     }
 
 
-    console.log(
-      "Starting Monetag Rewarded Ad..."
-    );
+    /*
+      IMPORTANT:
 
-
-    /* =====================================================
-       REWARDED AD
-    ====================================================== */
+      Counter is increased ONLY
+      after the Monetag promise resolves.
+    */
 
     const result =
       await window.show_11571866();
 
 
     console.log(
-      "Rewarded ad result:",
+      "Monetag rewarded result:",
       result
     );
 
 
     /*
-       Only after the SDK promise resolves
-       do we count the ad.
-
-       X / close / failed ad:
-       NO COUNT.
+      Ad completed
     */
 
-    adsWatched =
-      previousCount + 1;
+    adsWatched++;
 
 
     updateUnlockUI();
-
-
-    /*
-       IMPORTANT:
-
-       If completed:
-       do NOT show the X warning.
-    */
-
-    if (
-      adsWatched <
-      requiredAds
-    ) {
-
-      modalText.textContent =
-        "";
-
-    }
 
 
   } catch (
@@ -971,39 +832,42 @@ async function showRewardedAd() {
   ) {
 
     console.error(
-      "Rewarded ad failed or closed:",
+      "Monetag ad error:",
       error
     );
 
 
     /*
-       COUNT DOES NOT CHANGE.
-    */
+      IMPORTANT:
 
-    adsWatched =
-      previousCount;
+      Do NOT increase adsWatched
+      if ad was closed / failed.
+    */
 
 
     /*
-       X / close / failed:
-       show bilingual message.
+      Only show error if the user
+      has not completed all required ads.
     */
 
-    modalText.innerHTML = `
+    if (
+      adsWatched <
+      requiredAds
+    ) {
 
-      <strong>
-        ⚠️ Ad was not completed
-      </strong>
-      <br>
-      আপনি বিজ্ঞাপনটি সম্পূর্ণ না করে বাইরে চলে গেছেন।
-      <br>
-      You left the ad before completing it.
-      <br><br>
-      দয়া করে <b>Continue</b> চাপুন এবং বিজ্ঞাপনটি সম্পূর্ণ করুন।
-      <br>
-      Please tap <b>Continue</b> and complete the ad.
+      modalText.innerHTML = `
+        <span>
+          বিজ্ঞাপনটি সম্পূর্ণ হয়নি।
+          <br>
+          Ad was not completed.
+          <br><br>
+          আবার চেষ্টা করুন।
+          <br>
+          Please try again.
+        </span>
+      `;
 
-    `;
+    }
 
 
     watchAdBtn.textContent =
@@ -1034,7 +898,7 @@ watchAdBtn.addEventListener(
 
 
 /* =========================================================
-   WATCH VIDEO BUTTON
+   WATCH VIDEO
 ========================================================= */
 
 videoBtn.addEventListener(
@@ -1054,6 +918,19 @@ videoBtn.addEventListener(
       adsWatched <
       requiredAds
     ) {
+
+      return;
+
+    }
+
+
+    if (
+      !selectedVideo.id
+    ) {
+
+      alert(
+        "Video ID is missing."
+      );
 
       return;
 
@@ -1090,7 +967,7 @@ closeModal.addEventListener(
 
 
 /* =========================================================
-   CLICK OUTSIDE MODAL
+   OUTSIDE MODAL
 ========================================================= */
 
 modal.addEventListener(
@@ -1098,8 +975,7 @@ modal.addEventListener(
   event => {
 
     if (
-      event.target ===
-      modal
+      event.target === modal
     ) {
 
       modal.classList.add(
@@ -1236,27 +1112,22 @@ function escapeHTML(
   return String(
     value
   )
-
     .replace(
       /&/g,
       "&amp;"
     )
-
     .replace(
       /</g,
       "&lt;"
     )
-
     .replace(
       />/g,
       "&gt;"
     )
-
     .replace(
       /"/g,
       "&quot;"
     )
-
     .replace(
       /'/g,
       "&#039;"
@@ -1270,21 +1141,3 @@ function escapeHTML(
 ========================================================= */
 
 loadPosts();
-
-
-/* =========================================================
-   START SEPARATE IN-APP INTERSTITIAL
-========================================================= */
-
-/*
-   Wait a little so that the page can load first.
-*/
-
-setTimeout(
-  () => {
-
-    startInAppInterstitial();
-
-  },
-  5000
-);
