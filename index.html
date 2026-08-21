@@ -14,23 +14,28 @@
 
 
   <!-- =====================================================
-       TELEGRAM
+       TELEGRAM WEB APP
   ====================================================== -->
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 
   <!-- =====================================================
-       MONETAG IN-APP INTERSTITIAL
-       
-       IMPORTANT:
-       This is SEPARATE from the 3 rewarded ads.
+       MONETAG SDK
 
-       2 ads
-       0.1 hour = 6 minutes
-       30 seconds interval
-       5 seconds first delay
-       session preserved
+       Zone:
+       11571866
+
+       In-App Interstitial:
+       - Maximum 2 ads
+       - Within 0.1 hours = 6 minutes
+       - 30 seconds between ads
+       - 5 seconds before first ad
+       - Session continues between pages
+
+       IMPORTANT:
+       In-App Interstitial is completely separate
+       from the 3 rewarded ads.
   ====================================================== -->
 
   <script
@@ -42,7 +47,7 @@
 
 
   <!-- =====================================================
-       CSS
+       YOUR CSS
   ====================================================== -->
 
   <link
@@ -214,7 +219,7 @@
         </button>
 
 
-        <!-- THUMBNAIL -->
+        <!-- PREVIEW -->
 
         <div
           id="preview"
@@ -266,7 +271,7 @@
         </div>
 
 
-        <!-- REWARDED AD BUTTON -->
+        <!-- WATCH AD -->
 
         <button
           id="watchAdBtn"
@@ -277,7 +282,7 @@
         </button>
 
 
-        <!-- VIDEO BUTTON -->
+        <!-- VIDEO -->
 
         <button
           id="videoBtn"
@@ -299,18 +304,15 @@
 
     <nav class="bottom-nav">
 
-
       <button
         class="bottom-active"
         type="button"
         data-bottom-category="All"
       >
         🏠
-
         <span>
           All
         </span>
-
       </button>
 
 
@@ -319,11 +321,9 @@
         data-bottom-category="Trending"
       >
         🔥
-
         <span>
           Trending
         </span>
-
       </button>
 
 
@@ -332,15 +332,13 @@
         data-bottom-category="Popular"
       >
         ⭐
-
         <span>
           Popular
         </span>
-
       </button>
 
-
     </nav>
+
 
   </div>
 
