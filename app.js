@@ -8,8 +8,8 @@ if (tg) {
   try {
     tg.ready();
     tg.expand();
-  } catch (e) {
-    console.warn("Telegram error:", e);
+  } catch (error) {
+    console.warn("Telegram error:", error);
   }
 }
 
@@ -21,6 +21,9 @@ if (tg) {
 const SUPABASE_URL =
   "https://mshoftgubfbkvynndtnu.supabase.co";
 
+/*
+  আপনার Supabase project-এর public/anon key
+*/
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmxlIiwicmVmIjoibXNob2Z0Z3Via3ZueW5uZHRudSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2NjQ5MDk0LCJleHAiOjIxMDIyMjUwOTR9.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
@@ -102,12 +105,16 @@ if (tgUser) {
 
 
 /* =========================================================
-   LOAD POSTS
+   LOAD POSTS FROM SUPABASE
 ========================================================= */
 
 async function loadPosts() {
 
-  if (!videoGrid) return;
+  if (!videoGrid) {
+    console.error("videoGrid not found");
+    return;
+  }
+
 
   videoGrid.innerHTML = `
     <div class="loading">
@@ -115,86 +122,211 @@ async function loadPosts() {
     </div>
   `;
 
+
   try {
+
+    /*
+      IMPORTANT:
+
+      এখানে created_at ব্যবহার করছি না।
+      তাই created_at column না থাকলেও
+      query fail করবে না।
+    */
+
+    const url =
+      `${POSTS_API}?select=*`;
+
+
+    console.log(
+      "Supabase URL:",
+      url
+    );
+
 
     const response =
       await fetch(
-        `${POSTS_API}?select=*&order=created_at.desc`,
+        url,
         {
           method: "GET",
 
           headers: {
-            apikey:
+
+            "apikey":
               SUPABASE_ANON_KEY,
 
-            Authorization:
+            "Authorization":
               `Bearer ${SUPABASE_ANON_KEY}`,
 
-            Accept:
+            "Accept":
+              "application/json",
+
+            "Content-Type":
               "application/json"
+
           }
+
         }
       );
 
 
-    const text =
+    const responseText =
       await response.text();
+
+
+    console.log(
+      "Supabase status:",
+      response.status
+    );
+
+
+    console.log(
+      "Supabase response:",
+      responseText
+    );
 
 
     if (!response.ok) {
 
       throw new Error(
-        `Supabase ${response.status}: ${text}`
+        `Supabase ${response.status}: ${responseText}`
       );
 
     }
 
 
-    const data =
-      JSON.parse(text);
+    let data;
 
+
+    try {
+
+      data =
+        JSON.parse(
+          responseText
+        );
+
+    } catch (error) {
+
+      throw new Error(
+        "Supabase returned invalid JSON."
+      );
+
+    }
+
+
+    if (!Array.isArray(data)) {
+
+      throw new Error(
+        "Supabase response is not an array."
+      );
+
+    }
+
+
+    /*
+      Clear old videos
+    */
 
     videos.length = 0;
 
 
-    if (Array.isArray(data)) {
+    /*
+      Convert Supabase rows
+      into our app format.
+    */
 
-      data.forEach(post => {
+    data.forEach(
+      post => {
 
-        if (!post) return;
+        if (!post) {
+          return;
+        }
+
+
+        /*
+          ID
+        */
+
+        const id =
+          post.id ??
+          post.post_id ??
+          post.ID ??
+          "";
+
+
+        /*
+          TITLE
+        */
+
+        const title =
+          post.title ??
+          post.name ??
+          post.video_title ??
+          post.caption ??
+          "Untitled Video";
+
+
+        /*
+          CATEGORY
+        */
+
+        const category =
+          post.category ??
+          post.categories ??
+          "Trending";
+
+
+        /*
+          THUMBNAIL
+
+          Multiple possible column names
+          are supported.
+        */
+
+        const thumbnail =
+          post.thumbnail_url ??
+          post.thumbnail ??
+          post.thumbnailUrl ??
+          post.image_url ??
+          post.image ??
+          post.poster_url ??
+          post.poster ??
+          "";
+
+
+        /*
+          VIDEO URL
+
+          Multiple possible column names
+          are supported.
+        */
+
+        const videoUrl =
+          post.video_url ??
+          post.video ??
+          post.videoUrl ??
+          post.video_link ??
+          post.videoLink ??
+          post.url ??
+          post.link ??
+          "";
 
 
         videos.push({
 
           id:
-            post.id ??
-            post.post_id ??
-            "",
+            id,
 
           title:
-            post.title ??
-            post.name ??
-            "Untitled Video",
+            title,
 
           category:
-            post.category ??
-            "Trending",
+            category,
 
           thumbnail:
-            post.thumbnail_url ??
-            post.thumbnail ??
-            post.image_url ??
-            post.image ??
-            post.poster_url ??
-            "",
+            thumbnail,
 
           videoUrl:
-            post.video_url ??
-            post.video ??
-            post.video_link ??
-            post.url ??
-            post.link ??
-            "",
+            videoUrl,
 
           createdAt:
             post.created_at ??
@@ -202,16 +334,43 @@ async function loadPosts() {
 
         });
 
-      });
+      }
+    );
+
+
+    console.log(
+      "Total posts:",
+      data.length
+    );
+
+
+    console.log(
+      "Videos converted:",
+      videos.length
+    );
+
+
+    /*
+      If database contains rows
+      but no usable data.
+    */
+
+    if (!videos.length) {
+
+      videoGrid.innerHTML = `
+        <div class="loading">
+          No videos found.
+        </div>
+      `;
+
+      return;
 
     }
 
 
-    console.log(
-      "Videos loaded:",
-      videos.length
-    );
-
+    /*
+      Render videos
+    */
 
     render("All");
 
@@ -219,10 +378,15 @@ async function loadPosts() {
   } catch (error) {
 
     console.error(
-      "Video loading error:",
+      "VIDEO LOADING ERROR:",
       error
     );
 
+
+    /*
+      Show a simple message to users.
+      Full error stays in console.
+    */
 
     videoGrid.innerHTML = `
       <div class="error-box">
@@ -256,7 +420,11 @@ async function loadPosts() {
 
       retry.addEventListener(
         "click",
-        loadPosts
+        () => {
+
+          loadPosts();
+
+        }
       );
 
     }
@@ -267,38 +435,45 @@ async function loadPosts() {
 
 
 /* =========================================================
-   RENDER
+   RENDER VIDEOS
 ========================================================= */
 
 function render(
   category = "All"
 ) {
 
-  if (!videoGrid) return;
+  if (!videoGrid) {
+    return;
+  }
 
 
   videoGrid.innerHTML = "";
 
 
-  const filtered =
+  const filteredVideos =
     category === "All"
       ? videos
       : videos.filter(
-          video =>
-            String(
+          video => {
+
+            return String(
               video.category
             )
               .trim()
               .toLowerCase() ===
-            String(
-              category
-            )
-              .trim()
-              .toLowerCase()
+              String(
+                category
+              )
+                .trim()
+                .toLowerCase();
+
+          }
         );
 
 
-  if (!filtered.length) {
+  if (
+    filteredVideos.length === 0
+  ) {
 
     videoGrid.innerHTML = `
       <div class="loading">
@@ -311,140 +486,174 @@ function render(
   }
 
 
-  filtered.forEach(video => {
+  filteredVideos.forEach(
+    video => {
 
-    const card =
-      document.createElement(
-        "article"
-      );
-
-
-    card.className =
-      "video-card";
+      const card =
+        document.createElement(
+          "article"
+        );
 
 
-    let thumbnailHTML;
+      card.className =
+        "video-card";
 
 
-    if (
-      video.thumbnail &&
-      isValidUrl(video.thumbnail)
-    ) {
+      /*
+        Thumbnail
+      */
 
-      thumbnailHTML = `
-        <img
-          src="${escapeHTML(
-            video.thumbnail
-          )}"
-          alt="${escapeHTML(
-            video.title
-          )}"
-          loading="lazy"
-        >
-      `;
-
-    } else {
-
-      thumbnailHTML = `
-        <div class="thumb-placeholder">
-          🎬
-        </div>
-      `;
-
-    }
+      let thumbnailHTML =
+        `
+          <div class="thumb-placeholder">
+            🎬
+          </div>
+        `;
 
 
-    card.innerHTML = `
+      if (
+        video.thumbnail &&
+        isValidUrl(
+          video.thumbnail
+        )
+      ) {
 
-      <div class="thumb">
-        ${thumbnailHTML}
-      </div>
+        thumbnailHTML = `
+          <img
+            src="${escapeHTML(
+              video.thumbnail
+            )}"
+            alt="${escapeHTML(
+              video.title
+            )}"
+            loading="lazy"
+            onerror="this.style.display='none';"
+          >
+        `;
 
-      <div class="card-body">
+      }
 
-        <h3>
-          ${escapeHTML(
-            video.title
-          )}
-        </h3>
 
-        <div class="meta">
-          ${escapeHTML(
-            video.category
-          )}
+      /*
+        Card
+      */
+
+      card.innerHTML = `
+
+        <div class="thumb">
+
+          ${thumbnailHTML}
+
         </div>
 
-        <button
-          class="open-btn"
-          type="button"
-        >
-          🔒 Watch Ad
-        </button>
 
-      </div>
+        <div class="card-body">
 
-    `;
+          <h3>
+            ${escapeHTML(
+              video.title
+            )}
+          </h3>
 
 
-    const openBtn =
-      card.querySelector(
-        ".open-btn"
-      );
+          <div class="meta">
+            ${escapeHTML(
+              video.category
+            )}
+          </div>
 
 
-    if (openBtn) {
+          <button
+            class="open-btn"
+            type="button"
+          >
+            🔒 Watch Ad
+          </button>
 
-      openBtn.addEventListener(
-        "click",
-        event => {
+        </div>
 
-          event.stopPropagation();
+      `;
 
-          openVideo(video);
 
-        }
+      /*
+        Open button
+      */
+
+      const openBtn =
+        card.querySelector(
+          ".open-btn"
+        );
+
+
+      if (openBtn) {
+
+        openBtn.addEventListener(
+          "click",
+          event => {
+
+            event.stopPropagation();
+
+            openVideo(
+              video
+            );
+
+          }
+        );
+
+      }
+
+
+      /*
+        Thumbnail click
+      */
+
+      const thumb =
+        card.querySelector(
+          ".thumb"
+        );
+
+
+      if (thumb) {
+
+        thumb.addEventListener(
+          "click",
+          () => {
+
+            openVideo(
+              video
+            );
+
+          }
+        );
+
+      }
+
+
+      videoGrid.appendChild(
+        card
       );
 
     }
-
-
-    const thumb =
-      card.querySelector(
-        ".thumb"
-      );
-
-
-    if (thumb) {
-
-      thumb.addEventListener(
-        "click",
-        () => {
-
-          openVideo(video);
-
-        }
-      );
-
-    }
-
-
-    videoGrid.appendChild(
-      card
-    );
-
-  });
+  );
 
 }
 
 
 /* =========================================================
-   OPEN VIDEO
+   OPEN VIDEO MODAL
 ========================================================= */
 
-function openVideo(video) {
+function openVideo(
+  video
+) {
 
   selectedVideo =
     video;
+
+
+  /*
+    Reset only for new video
+  */
 
   adsWatched =
     0;
@@ -452,6 +661,10 @@ function openVideo(video) {
   adLoading =
     false;
 
+
+  /*
+    Title
+  */
 
   if (modalTitle) {
 
@@ -462,6 +675,10 @@ function openVideo(video) {
   }
 
 
+  /*
+    Default message
+  */
+
   if (modalText) {
 
     modalText.textContent =
@@ -470,10 +687,16 @@ function openVideo(video) {
   }
 
 
+  /*
+    Preview
+  */
+
   if (
     preview &&
     video.thumbnail &&
-    isValidUrl(video.thumbnail)
+    isValidUrl(
+      video.thumbnail
+    )
   ) {
 
     preview.innerHTML = `
@@ -505,6 +728,10 @@ function openVideo(video) {
   }
 
 
+  /*
+    Show modal
+  */
+
   if (modal) {
 
     modal.classList.remove(
@@ -514,24 +741,24 @@ function openVideo(video) {
   }
 
 
+  /*
+    Reset UI
+  */
+
   updateUnlockUI();
 
 }
 
 
 /* =========================================================
-   UPDATE UI
+   UPDATE UNLOCK UI
 ========================================================= */
 
 function updateUnlockUI() {
 
-  if (watchAdBtn) {
-
-    watchAdBtn.textContent =
-      `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-
-  }
-
+  /*
+    Counter
+  */
 
   if (adCount) {
 
@@ -541,28 +768,47 @@ function updateUnlockUI() {
   }
 
 
+  /*
+    Progress
+  */
+
   if (progressBar) {
 
-    const percent =
+    const percentage =
       Math.min(
-        (adsWatched / requiredAds) * 100,
-        100
+        100,
+        (
+          adsWatched /
+          requiredAds
+        ) * 100
       );
 
+
     progressBar.style.width =
-      `${percent}%`;
+      `${percentage}%`;
 
   }
 
 
   /*
-    ONLY 3/3 = UNLOCKED
+    3/3 = UNLOCKED
   */
 
   if (
-    adsWatched ===
+    adsWatched >=
     requiredAds
   ) {
+
+    if (watchAdBtn) {
+
+      watchAdBtn.disabled =
+        true;
+
+      watchAdBtn.textContent =
+        "✓ Ads Completed";
+
+    }
+
 
     if (videoBtn) {
 
@@ -583,16 +829,6 @@ function updateUnlockUI() {
     }
 
 
-    if (watchAdBtn) {
-
-      watchAdBtn.disabled =
-        true;
-
-      watchAdBtn.textContent =
-        "✓ Ads Completed";
-
-    }
-
     return;
 
   }
@@ -600,8 +836,20 @@ function updateUnlockUI() {
 
   /*
     0/3, 1/3, 2/3
-    No completion message.
+
+    এখানে কোনো X message নেই।
   */
+
+  if (watchAdBtn) {
+
+    watchAdBtn.disabled =
+      false;
+
+    watchAdBtn.textContent =
+      `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+
+  }
+
 
   if (videoBtn) {
 
@@ -613,53 +861,6 @@ function updateUnlockUI() {
 
   }
 
-
-  if (watchAdBtn) {
-
-    watchAdBtn.disabled =
-      false;
-
-  }
-
-}
-
-
-/* =========================================================
-   AD NOT COMPLETED MESSAGE
-========================================================= */
-
-function showAdNotCompletedMessage() {
-
-  if (!modalText) return;
-
-
-  modalText.innerHTML = `
-
-    <strong>
-      ⚠️ বিজ্ঞাপনটি সম্পূর্ণ হয়নি
-    </strong>
-
-    <br><br>
-
-    বিজ্ঞাপনের ভিতরের
-    <b>Continue</b>
-    বাটনে ক্লিক করে বিজ্ঞাপনটি সম্পূর্ণ করুন।
-
-    <br><br>
-
-    <strong>
-      ⚠️ Ad Not Completed
-    </strong>
-
-    <br><br>
-
-    Please click the
-    <b>Continue</b>
-    button inside the ad
-    to complete the advertisement.
-
-  `;
-
 }
 
 
@@ -669,10 +870,18 @@ function showAdNotCompletedMessage() {
 
 async function showRewardedAd() {
 
+  /*
+    Prevent double click
+  */
+
   if (adLoading) {
     return;
   }
 
+
+  /*
+    Already completed
+  */
 
   if (
     adsWatched >=
@@ -717,11 +926,14 @@ async function showRewardedAd() {
     }
 
 
-    /*
-      IMPORTANT
+    console.log(
+      "Opening Monetag rewarded ad..."
+    );
 
-      Counter is NOT increased
-      before the ad call finishes.
+
+    /*
+      DO NOT increase counter
+      before this finishes.
     */
 
     const result =
@@ -729,15 +941,13 @@ async function showRewardedAd() {
 
 
     console.log(
-      "Monetag result:",
+      "Monetag ad result:",
       result
     );
 
 
     /*
-      SDK promise completed.
-
-      Increase only here.
+      Successful SDK completion
     */
 
     if (
@@ -751,8 +961,7 @@ async function showRewardedAd() {
 
 
     /*
-      1/3 or 2/3:
-      no completion message.
+      Update UI
     */
 
     updateUnlockUI();
@@ -761,33 +970,26 @@ async function showRewardedAd() {
   } catch (error) {
 
     console.error(
-      "Monetag ad error:",
+      "Monetag rewarded ad error:",
       error
     );
 
 
     /*
-      X / closed / unavailable
+      X / close / unavailable:
+
+      No warning text.
+      No counter increase.
     */
 
-    showAdNotCompletedMessage();
+    updateUnlockUI();
 
+  } finally {
 
-    if (watchAdBtn) {
-
-      watchAdBtn.textContent =
-        `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-
-      watchAdBtn.disabled =
-        false;
-
-    }
+    adLoading =
+      false;
 
   }
-
-
-  adLoading =
-    false;
 
 }
 
@@ -807,7 +1009,7 @@ if (watchAdBtn) {
 
 
 /* =========================================================
-   WATCH VIDEO
+   WATCH VIDEO BUTTON
 ========================================================= */
 
 if (videoBtn) {
@@ -816,13 +1018,21 @@ if (videoBtn) {
     "click",
     () => {
 
+      /*
+        No selected video
+      */
+
       if (!selectedVideo) {
         return;
       }
 
 
+      /*
+        Must complete 3 ads
+      */
+
       if (
-        adsWatched !==
+        adsWatched <
         requiredAds
       ) {
 
@@ -831,11 +1041,19 @@ if (videoBtn) {
       }
 
 
+      /*
+        Video ID
+      */
+
       const videoId =
         encodeURIComponent(
           selectedVideo.id
         );
 
+
+      /*
+        Go to video.html
+      */
 
       window.location.href =
         `video.html?id=${videoId}`;
@@ -856,6 +1074,13 @@ if (closeModal) {
     "click",
     () => {
 
+      /*
+        X চাপলে শুধু modal বন্ধ হবে।
+
+        কোনো message দেখাবে না।
+        Counter বাড়বে না।
+      */
+
       if (modal) {
 
         modal.classList.add(
@@ -871,7 +1096,7 @@ if (closeModal) {
 
 
 /* =========================================================
-   OUTSIDE MODAL
+   OUTSIDE MODAL CLICK
 ========================================================= */
 
 if (modal) {
@@ -883,6 +1108,10 @@ if (modal) {
       if (
         event.target === modal
       ) {
+
+        /*
+          বাইরে চাপলেও শুধু বন্ধ হবে।
+        */
 
         modal.classList.add(
           "hidden"
@@ -904,38 +1133,50 @@ document
   .querySelectorAll(
     ".category-btn"
   )
-  .forEach(button => {
+  .forEach(
+    button => {
 
-    button.addEventListener(
-      "click",
-      () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-        document
-          .querySelectorAll(
-            ".category-btn"
-          )
-          .forEach(btn => {
+          /*
+            Active category
+          */
 
-            btn.classList.remove(
-              "active"
+          document
+            .querySelectorAll(
+              ".category-btn"
+            )
+            .forEach(
+              btn => {
+
+                btn.classList.remove(
+                  "active"
+                );
+
+              }
             );
 
-          });
+
+          button.classList.add(
+            "active"
+          );
 
 
-        button.classList.add(
-          "active"
-        );
+          /*
+            Render category
+          */
 
+          render(
+            button.dataset.category
+          );
 
-        render(
-          button.dataset.category
-        );
+        }
+      );
 
-      }
-    );
-
-  });
+    }
+  );
 
 
 /* =========================================================
@@ -946,64 +1187,84 @@ document
   .querySelectorAll(
     ".bottom-nav button"
   )
-  .forEach(button => {
+  .forEach(
+    button => {
 
-    button.addEventListener(
-      "click",
-      () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-        const category =
-          button.dataset.bottomCategory;
+          const category =
+            button.dataset.bottomCategory;
 
 
-        document
-          .querySelectorAll(
-            ".bottom-nav button"
-          )
-          .forEach(btn => {
+          /*
+            Bottom active
+          */
 
-            btn.classList.remove(
-              "bottom-active"
+          document
+            .querySelectorAll(
+              ".bottom-nav button"
+            )
+            .forEach(
+              btn => {
+
+                btn.classList.remove(
+                  "bottom-active"
+                );
+
+              }
             );
 
-          });
+
+          button.classList.add(
+            "bottom-active"
+          );
 
 
-        button.classList.add(
-          "bottom-active"
-        );
+          /*
+            Sync top category
+          */
 
+          document
+            .querySelectorAll(
+              ".category-btn"
+            )
+            .forEach(
+              btn => {
 
-        document
-          .querySelectorAll(
-            ".category-btn"
-          )
-          .forEach(btn => {
+                btn.classList.toggle(
+                  "active",
+                  btn.dataset.category ===
+                  category
+                );
 
-            btn.classList.toggle(
-              "active",
-              btn.dataset.category ===
-              category
+              }
             );
 
-          });
 
+          /*
+            Render
+          */
 
-        render(
-          category
-        );
+          render(
+            category
+          );
 
-      }
-    );
+        }
+      );
 
-  });
+    }
+  );
 
 
 /* =========================================================
    URL VALIDATION
 ========================================================= */
 
-function isValidUrl(value) {
+function isValidUrl(
+  value
+) {
 
   if (!value) {
     return false;
@@ -1012,11 +1273,16 @@ function isValidUrl(value) {
 
   try {
 
-    new URL(value);
+    const url =
+      new URL(value);
 
-    return true;
 
-  } catch (e) {
+    return (
+      url.protocol === "http:" ||
+      url.protocol === "https:"
+    );
+
+  } catch (error) {
 
     return false;
 
@@ -1029,7 +1295,9 @@ function isValidUrl(value) {
    HTML ESCAPE
 ========================================================= */
 
-function escapeHTML(value) {
+function escapeHTML(
+  value
+) {
 
   return String(
     value ?? ""
@@ -1059,7 +1327,7 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   START
+   START APP
 ========================================================= */
 
 loadPosts();
