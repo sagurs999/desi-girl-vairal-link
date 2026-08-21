@@ -1,10 +1,4 @@
 /* =========================================================
-   DESI GIRL VAIRAL LINK
-   APP.JS
-========================================================= */
-
-
-/* =========================================================
    TELEGRAM
 ========================================================= */
 
@@ -12,24 +6,9 @@ const tg =
   window.Telegram &&
   window.Telegram.WebApp;
 
-
 if (tg) {
-
-  try {
-
-    tg.ready();
-
-    tg.expand();
-
-  } catch (error) {
-
-    console.warn(
-      "Telegram initialization error:",
-      error
-    );
-
-  }
-
+  tg.ready();
+  tg.expand();
 }
 
 
@@ -38,47 +17,13 @@ if (tg) {
 ========================================================= */
 
 const SUPABASE_URL =
-  "https://mshoftgubfbkvynndtnu.supabase.co";
-
-
-/*
-   IMPORTANT
-
-   This is a Supabase PUBLISHABLE key.
-
-   It must be sent through:
-   apikey
-
-   NOT:
-   Authorization: Bearer publishable-key
-*/
+  "https://mshoftgubfbkvynndtn.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_2L716MuF36gsDT5fGu_k9Q_LzGLqTk0";
 
-
 const POSTS_API =
   `${SUPABASE_URL}/rest/v1/posts`;
-
-
-/* =========================================================
-   MONETAG
-========================================================= */
-
-const MONETAG_ZONE =
-  "11571866";
-
-
-const MONETAG_FUNCTION =
-  "show_11571866";
-
-
-/* =========================================================
-   SETTINGS
-========================================================= */
-
-const REQUIRED_ADS =
-  3;
 
 
 /* =========================================================
@@ -87,29 +32,13 @@ const REQUIRED_ADS =
 
 const videos = [];
 
+let selectedVideo = null;
 
-let selectedVideo =
-  null;
+let adsWatched = 0;
 
+const requiredAds = 3;
 
-let adsWatched =
-  0;
-
-
-let adLoading =
-  false;
-
-
-/*
-   This remembers that an ad was started
-   but was not successfully completed.
-
-   It helps us show the warning when the
-   user returns after leaving the ad/app.
-*/
-
-const PENDING_AD_KEY =
-  "desi_girl_pending_rewarded_ad";
+let adLoading = false;
 
 
 /* =========================================================
@@ -117,69 +46,37 @@ const PENDING_AD_KEY =
 ========================================================= */
 
 const videoGrid =
-  document.getElementById(
-    "videoGrid"
-  );
-
+  document.getElementById("videoGrid");
 
 const modal =
-  document.getElementById(
-    "modal"
-  );
-
+  document.getElementById("modal");
 
 const modalTitle =
-  document.getElementById(
-    "modalTitle"
-  );
-
+  document.getElementById("modalTitle");
 
 const modalText =
-  document.getElementById(
-    "modalText"
-  );
-
+  document.getElementById("modalText");
 
 const preview =
-  document.getElementById(
-    "preview"
-  );
-
+  document.getElementById("preview");
 
 const watchAdBtn =
-  document.getElementById(
-    "watchAdBtn"
-  );
-
+  document.getElementById("watchAdBtn");
 
 const videoBtn =
-  document.getElementById(
-    "videoBtn"
-  );
-
+  document.getElementById("videoBtn");
 
 const progressBar =
-  document.getElementById(
-    "progressBar"
-  );
-
+  document.getElementById("progressBar");
 
 const adCount =
-  document.getElementById(
-    "adCount"
-  );
-
+  document.getElementById("adCount");
 
 const closeModal =
-  document.getElementById(
-    "closeModal"
-  );
-
+  document.getElementById("closeModal");
 
 const tgUser =
-  document.getElementById(
-    "tgUser"
-  );
+  document.getElementById("tgUser");
 
 
 /* =========================================================
@@ -195,51 +92,9 @@ if (
   const user =
     tg.initDataUnsafe.user;
 
-
   tgUser.textContent =
     user.first_name ||
     "Telegram User";
-
-}
-
-
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
-function escapeHTML(
-  value
-) {
-
-  return String(
-    value ?? ""
-  )
-
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-
-    .replace(
-      /</g,
-      "&lt;"
-    )
-
-    .replace(
-      />/g,
-      "&gt;"
-    )
-
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-
 }
 
 
@@ -258,120 +113,120 @@ async function loadPosts() {
 
   try {
 
-    /*
-       IMPORTANT:
+    const url =
+      `${POSTS_API}?select=id,title,category,thumbnail_url,video_url,created_at&order=created_at.desc`;
 
-       Only apikey is sent.
 
-       We DO NOT send:
+    console.log(
+      "Loading Supabase posts..."
+    );
 
-       Authorization:
-       Bearer sb_publishable_...
-
-       because publishable keys are API keys,
-       not user JWT tokens.
-    */
 
     const response =
       await fetch(
-        `${POSTS_API}?select=id,title,category,thumbnail_url,video_url,created_at&order=created_at.desc`,
+        url,
         {
-
           method: "GET",
 
           headers: {
-
             "apikey":
               SUPABASE_PUBLISHABLE_KEY,
 
             "Content-Type":
               "application/json"
-
           }
-
         }
       );
 
+
+    /* =====================================================
+       SUPABASE ERROR
+    ===================================================== */
 
     if (!response.ok) {
 
       const errorText =
         await response.text();
 
-
       throw new Error(
         `Supabase ${response.status}: ${errorText}`
       );
-
     }
 
+
+    /* =====================================================
+       GET DATA
+    ===================================================== */
 
     const data =
       await response.json();
 
 
+    console.log(
+      "Supabase posts:",
+      data
+    );
+
+
+    /* =====================================================
+       CLEAR OLD DATA
+    ===================================================== */
+
+    videos.length = 0;
+
+
+    /* =====================================================
+       ADD POSTS
+    ===================================================== */
+
     if (
-      !Array.isArray(data)
+      Array.isArray(data)
     ) {
 
-      throw new Error(
-        "Supabase returned invalid data."
+      data.forEach(
+        post => {
+
+          videos.push({
+
+            id:
+              post.id,
+
+            title:
+              post.title ||
+              "Untitled Video",
+
+            category:
+              post.category ||
+              "Trending",
+
+            thumbnail:
+              post.thumbnail_url ||
+              "",
+
+            videoUrl:
+              post.video_url ||
+              "",
+
+            createdAt:
+              post.created_at ||
+              ""
+
+          });
+
+        }
       );
 
     }
 
 
-    videos.length =
-      0;
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
+    render("All");
 
 
-    data.forEach(
-      post => {
-
-        videos.push({
-
-          id:
-            post.id,
-
-          title:
-            post.title ||
-            "Untitled Video",
-
-          category:
-            post.category ||
-            "Trending",
-
-          thumbnail:
-            post.thumbnail_url ||
-            "",
-
-          videoUrl:
-            post.video_url ||
-            "",
-
-          createdAt:
-            post.created_at ||
-            ""
-
-        });
-
-      }
-    );
-
-
-    console.log(
-      `Loaded ${videos.length} videos from Supabase.`
-    );
-
-
-    render(
-      "All"
-    );
-
-
-  } catch (
-    error
-  ) {
+  } catch (error) {
 
     console.error(
       "Failed to load posts:",
@@ -380,7 +235,6 @@ async function loadPosts() {
 
 
     videoGrid.innerHTML = `
-
       <div class="error-box">
 
         <h3>
@@ -393,33 +247,8 @@ async function loadPosts() {
           )}
         </p>
 
-        <button
-          type="button"
-          id="retryLoadBtn"
-          class="open-btn"
-        >
-          🔄 Retry
-        </button>
-
       </div>
-
     `;
-
-
-    const retryButton =
-      document.getElementById(
-        "retryLoadBtn"
-      );
-
-
-    if (retryButton) {
-
-      retryButton.addEventListener(
-        "click",
-        loadPosts
-      );
-
-    }
 
   }
 
@@ -434,18 +263,11 @@ function render(
   category = "All"
 ) {
 
-  videoGrid.innerHTML =
-    "";
-
-
-  const selectedCategory =
-    String(
-      category
-    ).toLowerCase();
+  videoGrid.innerHTML = "";
 
 
   const filteredVideos =
-    selectedCategory === "all"
+    category === "All"
 
       ? videos
 
@@ -453,28 +275,36 @@ function render(
           video =>
             String(
               video.category
-            )
-            .toLowerCase() ===
-            selectedCategory
+            ).trim().toLowerCase() ===
+
+            String(
+              category
+            ).trim().toLowerCase()
         );
 
+
+  /* =======================================================
+     NO VIDEOS
+  ======================================================= */
 
   if (
     !filteredVideos.length
   ) {
 
     videoGrid.innerHTML = `
-
       <div class="loading">
         No videos found.
       </div>
-
     `;
 
     return;
 
   }
 
+
+  /* =======================================================
+     CREATE CARDS
+  ======================================================= */
 
   filteredVideos.forEach(
     video => {
@@ -489,6 +319,10 @@ function render(
         "video-card";
 
 
+      /* ===================================================
+         THUMBNAIL
+      =================================================== */
+
       let thumbnailHTML;
 
 
@@ -497,7 +331,6 @@ function render(
       ) {
 
         thumbnailHTML = `
-
           <img
             src="${escapeHTML(
               video.thumbnail
@@ -507,30 +340,28 @@ function render(
             )}"
             loading="lazy"
           >
-
         `;
 
       } else {
 
         thumbnailHTML = `
-
           <div class="thumb-placeholder">
             🎬
           </div>
-
         `;
 
       }
 
 
+      /* ===================================================
+         CARD HTML
+      =================================================== */
+
       card.innerHTML = `
 
         <div class="thumb">
-
           ${thumbnailHTML}
-
         </div>
-
 
         <div class="card-body">
 
@@ -540,13 +371,11 @@ function render(
             )}
           </h3>
 
-
           <div class="meta">
             ${escapeHTML(
               video.category
             )}
           </div>
-
 
           <button
             class="open-btn"
@@ -560,25 +389,35 @@ function render(
       `;
 
 
+      /* ===================================================
+         WATCH BUTTON
+      =================================================== */
+
       const openBtn =
         card.querySelector(
           ".open-btn"
         );
 
 
-      openBtn.addEventListener(
-        "click",
-        event => {
+      if (openBtn) {
 
-          event.stopPropagation();
+        openBtn.addEventListener(
+          "click",
+          event => {
 
-          openVideo(
-            video
-          );
+            event.stopPropagation();
 
-        }
-      );
+            openVideo(video);
 
+          }
+        );
+
+      }
+
+
+      /* ===================================================
+         THUMBNAIL CLICK
+      =================================================== */
 
       const thumb =
         card.querySelector(
@@ -586,17 +425,13 @@ function render(
         );
 
 
-      if (
-        thumb
-      ) {
+      if (thumb) {
 
         thumb.addEventListener(
           "click",
           () => {
 
-            openVideo(
-              video
-            );
+            openVideo(video);
 
           }
         );
@@ -626,25 +461,29 @@ function openVideo(
     video;
 
 
+  /* =======================================================
+     RESET ONLY FOR NEW VIDEO
+  ======================================================= */
+
   adsWatched =
     0;
-
 
   adLoading =
     false;
 
 
-  /*
-     New video = new ad session
-  */
-
-  clearPendingAd();
-
+  /* =======================================================
+     TITLE
+  ======================================================= */
 
   modalTitle.textContent =
     video.title ||
     "Video";
 
+
+  /* =======================================================
+     DEFAULT TEXT
+  ======================================================= */
 
   modalText.textContent =
     "Watch 3 ads to unlock this video.";
@@ -652,27 +491,24 @@ function openVideo(
 
   /* =======================================================
      PREVIEW
-  ======================================================== */
+  ======================================================= */
 
   if (
     video.thumbnail
   ) {
 
     preview.innerHTML = `
-
       <img
         src="${escapeHTML(
           video.thumbnail
         )}"
         alt=""
       >
-
     `;
 
   } else {
 
     preview.innerHTML = `
-
       <div
         style="
           width:100%;
@@ -685,11 +521,14 @@ function openVideo(
       >
         🎬
       </div>
-
     `;
 
   }
 
+
+  /* =======================================================
+     SHOW MODAL
+  ======================================================= */
 
   modal.classList.remove(
     "hidden"
@@ -698,7 +537,6 @@ function openVideo(
 
   videoBtn.disabled =
     true;
-
 
   videoBtn.textContent =
     "🔒 Video Locked";
@@ -719,40 +557,47 @@ function openVideo(
 
 function updateUnlockUI() {
 
+  /* =======================================================
+     COUNTER
+  ======================================================= */
+
   watchAdBtn.textContent =
-    `▶ Watch Ad (${adsWatched}/${REQUIRED_ADS})`;
+    `▶ Watch Ad (${adsWatched}/${requiredAds})`;
 
 
   adCount.textContent =
-    `${adsWatched} / ${REQUIRED_ADS} Ads Completed`;
+    `${adsWatched} / ${requiredAds} Ads Completed`;
 
+
+  /* =======================================================
+     PROGRESS
+  ======================================================= */
 
   const percent =
-    (
-      adsWatched /
-      REQUIRED_ADS
-    ) * 100;
+    Math.min(
+      100,
+      (
+        adsWatched /
+        requiredAds
+      ) * 100
+    );
 
 
   progressBar.style.width =
-    `${Math.min(
-      percent,
-      100
-    )}%`;
+    `${percent}%`;
 
 
   /* =======================================================
      UNLOCKED
-  ======================================================== */
+  ======================================================= */
 
   if (
     adsWatched >=
-    REQUIRED_ADS
+    requiredAds
   ) {
 
     videoBtn.disabled =
       false;
-
 
     videoBtn.textContent =
       "▶ Watch Video";
@@ -765,18 +610,9 @@ function updateUnlockUI() {
     watchAdBtn.disabled =
       true;
 
-
     watchAdBtn.textContent =
       "✓ Ads Completed";
 
-
-    /*
-       Important:
-       Successful completion means
-       there is no pending warning.
-    */
-
-    clearPendingAd();
 
     return;
 
@@ -785,240 +621,26 @@ function updateUnlockUI() {
 
   /* =======================================================
      LOCKED
-  ======================================================== */
+  ======================================================= */
 
   videoBtn.disabled =
     true;
 
-
   videoBtn.textContent =
     "🔒 Video Locked";
 
-
-  watchAdBtn.disabled =
-    false;
-
 }
 
 
 /* =========================================================
-   PENDING AD STORAGE
-========================================================= */
-
-function savePendingAd() {
-
-  try {
-
-    const data = {
-
-      videoId:
-        selectedVideo
-          ? selectedVideo.id
-          : null,
-
-      adsWatched:
-        adsWatched,
-
-      time:
-        Date.now()
-
-    };
-
-
-    localStorage.setItem(
-      PENDING_AD_KEY,
-      JSON.stringify(
-        data
-      )
-    );
-
-  } catch (
-    error
-  ) {
-
-    console.warn(
-      "Could not save pending ad:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   CLEAR PENDING AD
-========================================================= */
-
-function clearPendingAd() {
-
-  try {
-
-    localStorage.removeItem(
-      PENDING_AD_KEY
-    );
-
-  } catch (
-    error
-  ) {
-
-    console.warn(
-      "Could not clear pending ad:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   SHOW INCOMPLETE AD MESSAGE
-========================================================= */
-
-function showIncompleteAdMessage() {
-
-  /*
-     IMPORTANT:
-
-     This message is shown ONLY when
-     an ad attempt did not complete.
-
-     It does NOT appear after 1/3 or 2/3
-     just because the user watched normally.
-
-     It also does NOT appear at 3/3.
-  */
-
-  if (
-    adsWatched >=
-    REQUIRED_ADS
-  ) {
-
-    return;
-
-  }
-
-
-  modalText.innerHTML = `
-
-    <strong>
-      ⚠️ বিজ্ঞাপন সম্পূর্ণ হয়নি
-    </strong>
-    <br><br>
-
-    আপনি যদি <b>×</b> চাপ দিয়ে বিজ্ঞাপন থেকে বের হয়ে যান,
-    তাহলে এই বিজ্ঞাপনটি গণনা হবে না।
-    <br><br>
-
-    <strong>
-      ⚠️ Ad Not Completed
-    </strong>
-    <br><br>
-
-    If you press <b>×</b> and leave the ad,
-    this ad will not be counted.
-    <br><br>
-
-    <b>
-      অনুগ্রহ করে Continue চাপ দিয়ে বিজ্ঞাপনটি সম্পূর্ণ করুন।
-    </b>
-    <br>
-
-    Please tap <b>Continue</b> to complete the ad.
-
-  `;
-
-
-  watchAdBtn.disabled =
-    false;
-
-
-  watchAdBtn.textContent =
-    `▶ Watch Ad (${adsWatched}/${REQUIRED_ADS})`;
-
-}
-
-
-/* =========================================================
-   MONETAG SDK CHECK
-========================================================= */
-
-function getMonetagFunction() {
-
-  const adFunction =
-    window[
-      MONETAG_FUNCTION
-    ];
-
-
-  if (
-    typeof adFunction !==
-    "function"
-  ) {
-
-    return null;
-
-  }
-
-
-  return adFunction;
-
-}
-
-
-/* =========================================================
-   WAIT FOR MONETAG SDK
-========================================================= */
-
-async function waitForMonetag(
-  maxWait = 10000
-) {
-
-  const start =
-    Date.now();
-
-
-  while (
-    Date.now() -
-    start <
-    maxWait
-  ) {
-
-    const adFunction =
-      getMonetagFunction();
-
-
-    if (
-      adFunction
-    ) {
-
-      return adFunction;
-
-    }
-
-
-    await new Promise(
-      resolve =>
-        setTimeout(
-          resolve,
-          250
-        )
-    );
-
-  }
-
-
-  return null;
-
-}
-
-
-/* =========================================================
-   SHOW REWARDED AD
+   MONETAG REWARDED AD
 ========================================================= */
 
 async function showRewardedAd() {
+
+  /* =======================================================
+     PREVENT DOUBLE CLICK
+  ======================================================= */
 
   if (
     adLoading
@@ -1029,9 +651,13 @@ async function showRewardedAd() {
   }
 
 
+  /* =======================================================
+     ALREADY COMPLETE
+  ======================================================= */
+
   if (
     adsWatched >=
-    REQUIRED_ADS
+    requiredAds
   ) {
 
     return;
@@ -1039,47 +665,29 @@ async function showRewardedAd() {
   }
 
 
-  if (
-    !selectedVideo
-  ) {
-
-    return;
-
-  }
-
+  /* =======================================================
+     START LOADING
+  ======================================================= */
 
   adLoading =
     true;
 
-
   watchAdBtn.disabled =
     true;
-
 
   watchAdBtn.textContent =
     "⏳ Loading Ad...";
 
 
-  /*
-     Save pending attempt BEFORE opening ad.
-
-     If user leaves the ad/app before completion,
-     this attempt will not be counted.
-  */
-
-  savePendingAd();
-
-
   try {
 
-    const showAd =
-      await waitForMonetag(
-        10000
-      );
-
+    /* =====================================================
+       CHECK MONETAG SDK
+    ===================================================== */
 
     if (
-      !showAd
+      typeof window.show_11571866 !==
+      "function"
     ) {
 
       throw new Error(
@@ -1090,124 +698,82 @@ async function showRewardedAd() {
 
 
     console.log(
-      "Starting Monetag Rewarded Interstitial..."
+      "Starting Monetag Rewarded Ad..."
     );
 
 
-    /*
+    /* =====================================================
+       SHOW REWARDED AD
+
        IMPORTANT:
+       Counter is NOT increased here.
 
-       type "end" means the Promise
-       resolves after the rewarded ad
-       has completed/closed successfully.
+       It increases only after the SDK
+       promise successfully resolves.
+    ===================================================== */
 
-       ONLY AFTER resolve do we increase
-       adsWatched.
-    */
-
-    await showAd({
-
-      type:
-        "end",
-
-      requestVar:
-        "video_unlock",
-
-      ymid:
-        getTelegramUserId()
-
-    });
-
-
-    /*
-       SUCCESS
-
-       The ad Promise completed.
-
-       Now and ONLY now:
-       increase counter.
-    */
-
-    adsWatched =
-      Math.min(
-        adsWatched + 1,
-        REQUIRED_ADS
-      );
+    const result =
+      await window.show_11571866({
+        type: "rewarded"
+      });
 
 
     console.log(
-      `Rewarded ad completed: ${adsWatched}/${REQUIRED_ADS}`
+      "Monetag Rewarded result:",
+      result
     );
 
 
-    /*
-       Successful ad = remove pending state.
-    */
+    /* =====================================================
+       AD COMPLETED
+    ===================================================== */
 
-    clearPendingAd();
+    adsWatched =
+      Math.min(
+        requiredAds,
+        adsWatched + 1
+      );
 
 
-    /*
-       IMPORTANT:
-
-       If this is 1/3 or 2/3,
-       do NOT show any warning.
-
-       If 3/3,
-       do NOT show warning.
-    */
-
-    if (
-      adsWatched <
-      REQUIRED_ADS
-    ) {
-
-      modalText.textContent =
-        `Ad completed successfully. ${adsWatched}/${REQUIRED_ADS} ads completed.`;
-
-    }
-
+    /* =====================================================
+       UPDATE UI
+    ===================================================== */
 
     updateUnlockUI();
 
 
-  } catch (
-    error
-  ) {
+  } catch (error) {
 
     console.error(
-      "Rewarded ad failed or was not completed:",
+      "Monetag Rewarded Ad Error:",
       error
     );
 
 
     /*
-       DO NOT increase adsWatched.
+      IMPORTANT:
+
+      DO NOT increase adsWatched.
+
+      User must watch/complete the ad.
     */
 
 
-    showIncompleteAdMessage();
+    modalText.textContent =
+      "Ad is not available right now. Please try again.";
 
+
+    watchAdBtn.textContent =
+      `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+
+
+    watchAdBtn.disabled =
+      false;
 
   } finally {
 
     adLoading =
       false;
-
-
-    /*
-       If not completed, allow retry.
-    */
-
-    if (
-      adsWatched <
-      REQUIRED_ADS
-    ) {
-
-      watchAdBtn.disabled =
-        false;
-
-    }
 
   }
 
@@ -1253,7 +819,7 @@ if (
 
       if (
         adsWatched <
-        REQUIRED_ADS
+        requiredAds
       ) {
 
         return;
@@ -1261,19 +827,19 @@ if (
       }
 
 
+      /* ===================================================
+         VIDEO ID
+      =================================================== */
+
       const videoId =
         encodeURIComponent(
           selectedVideo.id
         );
 
 
-      /*
-         Successful 3/3:
-         no warning.
-      */
-
-      clearPendingAd();
-
+      /* ===================================================
+         OPEN VIDEO PAGE
+      =================================================== */
 
       window.location.href =
         `video.html?id=${videoId}`;
@@ -1319,8 +885,7 @@ if (
     event => {
 
       if (
-        event.target ===
-        modal
+        event.target === modal
       ) {
 
         modal.classList.add(
@@ -1397,9 +962,12 @@ document
         () => {
 
           const category =
-            button.dataset
-              .bottomCategory;
+            button.dataset.bottomCategory;
 
+
+          /* ===============================================
+             ACTIVE BOTTOM BUTTON
+          =============================================== */
 
           document
             .querySelectorAll(
@@ -1420,6 +988,10 @@ document
             "bottom-active"
           );
 
+
+          /* ===============================================
+             ACTIVE CATEGORY
+          =============================================== */
 
           document
             .querySelectorAll(
@@ -1450,204 +1022,42 @@ document
 
 
 /* =========================================================
-   TELEGRAM USER ID
+   HTML ESCAPE
 ========================================================= */
 
-function getTelegramUserId() {
+function escapeHTML(
+  value
+) {
 
-  try {
-
-    if (
-      tg &&
-      tg.initDataUnsafe &&
-      tg.initDataUnsafe.user &&
-      tg.initDataUnsafe.user.id
-    ) {
-
-      return String(
-        tg.initDataUnsafe.user.id
-      );
-
-    }
-
-  } catch (
-    error
-  ) {
-
-    console.warn(
-      "Telegram user ID unavailable:",
-      error
+  return String(
+    value
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
     );
-
-  }
-
-
-  /*
-     Fallback for users outside Telegram.
-  */
-
-  return (
-    "guest_" +
-    Date.now()
-  );
 
 }
 
 
 /* =========================================================
-   HANDLE RETURN AFTER INCOMPLETE AD
-========================================================= */
-
-function checkPendingAd() {
-
-  try {
-
-    const raw =
-      localStorage.getItem(
-        PENDING_AD_KEY
-      );
-
-
-    if (
-      !raw
-    ) {
-
-      return;
-
-    }
-
-
-    const pending =
-      JSON.parse(
-        raw
-      );
-
-
-    /*
-       Only consider a recent attempt.
-
-       30 minutes maximum.
-    */
-
-    const age =
-      Date.now() -
-      Number(
-        pending.time || 0
-      );
-
-
-    if (
-      age >
-      30 * 60 * 1000
-    ) {
-
-      clearPendingAd();
-
-      return;
-
-    }
-
-
-    /*
-       We don't automatically increase
-       the counter.
-
-       The ad was pending but not confirmed.
-    */
-
-    console.log(
-      "Previous rewarded ad was not confirmed."
-    );
-
-
-    /*
-       If modal is already open,
-       show warning.
-    */
-
-    if (
-      modal &&
-      !modal.classList.contains(
-        "hidden"
-      ) &&
-      adsWatched <
-        REQUIRED_ADS
-    ) {
-
-      showIncompleteAdMessage();
-
-    }
-
-
-    /*
-       Remove it after handling so the
-       same warning isn't repeated forever.
-    */
-
-    clearPendingAd();
-
-
-  } catch (
-    error
-  ) {
-
-    console.warn(
-      "Pending ad check failed:",
-      error
-    );
-
-
-    clearPendingAd();
-
-  }
-
-}
-
-
-/* =========================================================
-   PAGE VISIBILITY
-========================================================= */
-
-document.addEventListener(
-  "visibilitychange",
-  () => {
-
-    /*
-       When user returns to the Mini App,
-       don't increase counter automatically.
-
-       The Monetag Promise is the only
-       success confirmation.
-    */
-
-    if (
-      document.visibilityState ===
-      "visible"
-    ) {
-
-      console.log(
-        "User returned to Mini App."
-      );
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   PAGE START
+   START APP
 ========================================================= */
 
 loadPosts();
-
-
-/*
-   Check old unfinished attempt
-   after app UI has loaded.
-*/
-
-setTimeout(
-  checkPendingAd,
-  700
-);
