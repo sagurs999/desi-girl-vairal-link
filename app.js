@@ -2,15 +2,25 @@
    TELEGRAM
 ========================================================= */
 
-const tg = window.Telegram?.WebApp || null;
+const tg =
+  window.Telegram?.WebApp || null;
 
 if (tg) {
+
   try {
+
     tg.ready();
     tg.expand();
+
   } catch (error) {
-    console.warn("Telegram initialization error:", error);
+
+    console.warn(
+      "Telegram initialization error:",
+      error
+    );
+
   }
+
 }
 
 
@@ -21,11 +31,14 @@ if (tg) {
 const SUPABASE_URL =
   "https://mshoftgubfbkvynndtnu.supabase.co";
 
+
 /*
   Supabase Publishable Key
 */
+
 const SUPABASE_ANON_KEY =
   "sb_publishable_2L716MuF36gsDT5fGu_k9Q_LzGLqTk0";
+
 
 const POSTS_API =
   `${SUPABASE_URL}/rest/v1/posts`;
@@ -35,14 +48,15 @@ const POSTS_API =
    MONETAG
 ========================================================= */
 
-const MONETAG_ZONE = "11571866";
+const MONETAG_ZONE =
+  "11571866";
 
 const MONETAG_FUNCTION =
   `show_${MONETAG_ZONE}`;
 
 
 /* =========================================================
-   STATE
+   APP STATE
 ========================================================= */
 
 const videos = [];
@@ -61,37 +75,59 @@ let adLoading = false;
 ========================================================= */
 
 const videoGrid =
-  document.getElementById("videoGrid");
+  document.getElementById(
+    "videoGrid"
+  );
 
 const modal =
-  document.getElementById("modal");
+  document.getElementById(
+    "modal"
+  );
 
 const modalTitle =
-  document.getElementById("modalTitle");
+  document.getElementById(
+    "modalTitle"
+  );
 
 const modalText =
-  document.getElementById("modalText");
+  document.getElementById(
+    "modalText"
+  );
 
 const preview =
-  document.getElementById("preview");
+  document.getElementById(
+    "preview"
+  );
 
 const watchAdBtn =
-  document.getElementById("watchAdBtn");
+  document.getElementById(
+    "watchAdBtn"
+  );
 
 const videoBtn =
-  document.getElementById("videoBtn");
+  document.getElementById(
+    "videoBtn"
+  );
 
 const progressBar =
-  document.getElementById("progressBar");
+  document.getElementById(
+    "progressBar"
+  );
 
 const adCount =
-  document.getElementById("adCount");
+  document.getElementById(
+    "adCount"
+  );
 
 const closeModal =
-  document.getElementById("closeModal");
+  document.getElementById(
+    "closeModal"
+  );
 
 const tgUser =
-  document.getElementById("tgUser");
+  document.getElementById(
+    "tgUser"
+  );
 
 
 /* =========================================================
@@ -102,6 +138,7 @@ if (tgUser) {
 
   const user =
     tg?.initDataUnsafe?.user || null;
+
 
   if (user) {
 
@@ -120,48 +157,42 @@ if (tgUser) {
 
 
 /* =========================================================
-   SUPABASE FETCH
+   LOAD POSTS FROM SUPABASE
 ========================================================= */
 
 async function loadPosts() {
 
   if (!videoGrid) {
+
     console.error(
-      "videoGrid element not found."
+      "videoGrid not found."
     );
 
     return;
+
   }
 
 
   videoGrid.innerHTML = `
+
     <div class="loading">
       Loading videos...
     </div>
+
   `;
 
 
   try {
 
-    /*
-      Cache-busting prevents an old
-      response from being reused.
-    */
-
     const url =
-      `${POSTS_API}?select=*&order=created_at.desc&_t=${Date.now()}`;
+      `${POSTS_API}?select=*&order=created_at.desc`;
 
 
     console.log(
-      "Loading posts from:",
+      "Supabase URL:",
       url
     );
 
-
-    /*
-      IMPORTANT:
-      Send apikey explicitly.
-    */
 
     const response =
       await fetch(
@@ -180,9 +211,6 @@ async function loadPosts() {
               `Bearer ${SUPABASE_ANON_KEY}`,
 
             "Accept":
-              "application/json",
-
-            "Content-Type":
               "application/json"
 
           }
@@ -218,6 +246,7 @@ async function loadPosts() {
 
     let data;
 
+
     try {
 
       data =
@@ -225,7 +254,7 @@ async function loadPosts() {
           responseText
         );
 
-    } catch (parseError) {
+    } catch (error) {
 
       throw new Error(
         "Supabase returned invalid JSON."
@@ -237,22 +266,18 @@ async function loadPosts() {
     if (!Array.isArray(data)) {
 
       throw new Error(
-        "Supabase did not return a posts array."
+        "Supabase response is not an array."
       );
 
     }
 
 
-    /*
-      Clear old videos.
-    */
-
     videos.length = 0;
 
 
     /*
-      Convert Supabase rows
-      into app video objects.
+      Convert database rows
+      into app videos.
     */
 
     data.forEach(
@@ -314,8 +339,7 @@ async function loadPosts() {
 
 
         /*
-          Only add rows that have
-          at least an ID or video URL.
+          Keep valid rows.
         */
 
         if (
@@ -334,16 +358,14 @@ async function loadPosts() {
 
 
     console.log(
-      "Videos loaded:",
+      "Total videos:",
       videos.length
     );
 
 
-    /*
-      Render all videos.
-    */
-
-    render("All");
+    render(
+      "All"
+    );
 
 
   } catch (error) {
@@ -399,7 +421,7 @@ async function loadPosts() {
 
 
 /* =========================================================
-   RENDER VIDEOS
+   RENDER
 ========================================================= */
 
 function render(
@@ -448,9 +470,7 @@ function render(
     videoGrid.innerHTML = `
 
       <div class="loading">
-
         No videos found.
-
       </div>
 
     `;
@@ -473,16 +493,13 @@ function render(
         "video-card";
 
 
-      /*
-        Thumbnail
-      */
+      let thumbnailHTML = `
 
-      let thumbnailHTML =
-        `
-          <div class="thumb-placeholder">
-            🎬
-          </div>
-        `;
+        <div class="thumb-placeholder">
+          🎬
+        </div>
+
+      `;
 
 
       if (
@@ -528,9 +545,11 @@ function render(
 
 
           <div class="meta">
+
             ${escapeHTML(
               video.category
             )}
+
           </div>
 
 
@@ -545,10 +564,6 @@ function render(
 
       `;
 
-
-      /*
-        Watch button
-      */
 
       const openBtn =
         card.querySelector(
@@ -573,10 +588,6 @@ function render(
 
       }
 
-
-      /*
-        Thumbnail click
-      */
 
       const thumb =
         card.querySelector(
@@ -622,11 +633,6 @@ function openVideo(
     video;
 
 
-  /*
-    Every new video starts
-    from 0/3.
-  */
-
   adsWatched =
     0;
 
@@ -645,7 +651,7 @@ function openVideo(
 
 
   /*
-    Do not show any X message.
+    Default text only.
   */
 
   if (modalText) {
@@ -657,7 +663,7 @@ function openVideo(
 
 
   /*
-    Preview
+    Thumbnail preview.
   */
 
   if (
@@ -701,10 +707,6 @@ function openVideo(
   }
 
 
-  /*
-    Show modal
-  */
-
   if (modal) {
 
     modal.classList.remove(
@@ -725,10 +727,6 @@ function openVideo(
 
 function updateUnlockUI() {
 
-  /*
-    Counter
-  */
-
   if (adCount) {
 
     adCount.textContent =
@@ -736,10 +734,6 @@ function updateUnlockUI() {
 
   }
 
-
-  /*
-    Progress
-  */
 
   if (progressBar) {
 
@@ -760,7 +754,7 @@ function updateUnlockUI() {
 
 
   /*
-    3/3 = UNLOCKED
+    3/3 ONLY
   */
 
   if (
@@ -805,6 +799,8 @@ function updateUnlockUI() {
 
   /*
     0/3, 1/3, 2/3
+
+    No completion message.
   */
 
   if (videoBtn) {
@@ -827,22 +823,6 @@ function updateUnlockUI() {
       `▶ Watch Ad (${adsWatched}/${requiredAds})`;
 
   }
-
-}
-
-
-/* =========================================================
-   AD FAILED / CLOSED
-========================================================= */
-
-function adFailed() {
-
-  /*
-    IMPORTANT:
-    Counter does NOT increase.
-  */
-
-  updateUnlockUI();
 
 }
 
@@ -886,7 +866,7 @@ async function showRewardedAd() {
   try {
 
     /*
-      Find Monetag function
+      Monetag function
     */
 
     const showAd =
@@ -908,15 +888,14 @@ async function showRewardedAd() {
 
 
     console.log(
-      "Starting Monetag rewarded ad..."
+      "Opening rewarded ad..."
     );
 
 
     /*
       IMPORTANT:
-
-      Do NOT increase adsWatched
-      before the SDK finishes.
+      Do not increment before
+      the SDK promise completes.
     */
 
     const result =
@@ -924,14 +903,13 @@ async function showRewardedAd() {
 
 
     console.log(
-      "Monetag ad finished:",
+      "Rewarded ad result:",
       result
     );
 
 
     /*
-      Ad completed according
-      to SDK promise.
+      Completed ad.
     */
 
     if (
@@ -944,34 +922,27 @@ async function showRewardedAd() {
     }
 
 
-    /*
-      1/3 and 2/3:
-      no special message.
-
-      3/3:
-      unlock message appears.
-    */
-
     updateUnlockUI();
 
 
   } catch (error) {
 
     console.error(
-      "Monetag rewarded ad error:",
+      "Rewarded ad error:",
       error
     );
 
 
     /*
-      X / close / failed ad:
+      If user closes the ad
+      or the ad fails:
 
       Counter stays unchanged.
 
-      No X-related message.
+      No X message is shown.
     */
 
-    adFailed();
+    updateUnlockUI();
 
   } finally {
 
@@ -1013,7 +984,7 @@ if (watchAdBtn) {
 
 
 /* =========================================================
-   WATCH VIDEO BUTTON
+   VIDEO BUTTON
 ========================================================= */
 
 if (videoBtn) {
@@ -1038,7 +1009,7 @@ if (videoBtn) {
 
 
       /*
-        Prefer ID.
+        Open video.html using ID.
       */
 
       if (
@@ -1061,9 +1032,7 @@ if (videoBtn) {
 
 
       /*
-        Fallback:
-        If there is no ID but
-        video URL exists, open it.
+        Fallback if ID doesn't exist.
       */
 
       if (
@@ -1322,14 +1291,7 @@ function escapeHTML(
 
 
 /* =========================================================
-   START APP
+   START
 ========================================================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-
-    loadPosts();
-
-  }
-);
+loadPosts();
