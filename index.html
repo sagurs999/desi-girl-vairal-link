@@ -12,15 +12,43 @@
 
   <title>Desi Girl Vairal Link</title>
 
-  <!-- Telegram -->
+
+  <!-- =====================================================
+       TELEGRAM WEB APP
+  ====================================================== -->
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Monetag SDK -->
+
+  <!-- =====================================================
+       MONETAG SDK
+
+       Zone:
+       11571866
+
+       In-App Interstitial:
+       - Maximum 2 ads
+       - Within 0.1 hours = 6 minutes
+       - 30 seconds between ads
+       - 5 seconds before first ad
+       - Session continues between pages
+
+       IMPORTANT:
+       In-App Interstitial is completely separate
+       from the 3 rewarded ads.
+  ====================================================== -->
+
   <script
     src="https://libtl.com/sdk.js"
     data-zone="11571866"
-    data-sdk="show_11571866">
+    data-sdk="show_11571866"
+    data-auto="2/0.1/30/5/0">
   </script>
+
+
+  <!-- =====================================================
+       YOUR CSS
+  ====================================================== -->
 
   <link
     rel="stylesheet"
@@ -35,7 +63,9 @@
   <div class="app">
 
 
-    <!-- ================= HEADER ================= -->
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
 
     <header class="top-header">
 
@@ -62,13 +92,16 @@
     </header>
 
 
-    <!-- ================= HERO ================= -->
+    <!-- ===================================================
+         HERO
+    ==================================================== -->
 
     <section class="hero">
 
       <div class="hero-icon">
         🔓
       </div>
+
 
       <div>
 
@@ -85,7 +118,9 @@
     </section>
 
 
-    <!-- ================= CATEGORY ================= -->
+    <!-- ===================================================
+         CATEGORY
+    ==================================================== -->
 
     <div class="category-bar">
 
@@ -127,7 +162,9 @@
     </div>
 
 
-    <!-- ================= SECTION TITLE ================= -->
+    <!-- ===================================================
+         SECTION TITLE
+    ==================================================== -->
 
     <div class="section-title">
 
@@ -142,7 +179,9 @@
     </div>
 
 
-    <!-- ================= VIDEO GRID ================= -->
+    <!-- ===================================================
+         VIDEO GRID
+    ==================================================== -->
 
     <main
       id="videoGrid"
@@ -156,7 +195,9 @@
     </main>
 
 
-    <!-- ================= VIDEO UNLOCK MODAL ================= -->
+    <!-- ===================================================
+         VIDEO UNLOCK MODAL
+    ==================================================== -->
 
     <div
       id="modal"
@@ -166,7 +207,7 @@
       <div class="modal-box">
 
 
-        <!-- Close -->
+        <!-- CLOSE -->
 
         <button
           id="closeModal"
@@ -178,7 +219,7 @@
         </button>
 
 
-        <!-- Thumbnail Preview -->
+        <!-- PREVIEW -->
 
         <div
           id="preview"
@@ -188,7 +229,7 @@
         </div>
 
 
-        <!-- Title -->
+        <!-- TITLE -->
 
         <h2
           id="modalTitle"
@@ -198,7 +239,7 @@
         </h2>
 
 
-        <!-- Description -->
+        <!-- MESSAGE -->
 
         <p
           id="modalText"
@@ -208,7 +249,7 @@
         </p>
 
 
-        <!-- Progress -->
+        <!-- PROGRESS -->
 
         <div class="ad-progress">
 
@@ -220,7 +261,7 @@
         </div>
 
 
-        <!-- Counter -->
+        <!-- COUNTER -->
 
         <div
           id="adCount"
@@ -230,7 +271,7 @@
         </div>
 
 
-        <!-- Watch Ad -->
+        <!-- WATCH AD -->
 
         <button
           id="watchAdBtn"
@@ -241,7 +282,7 @@
         </button>
 
 
-        <!-- Video Button -->
+        <!-- VIDEO -->
 
         <button
           id="videoBtn"
@@ -257,7 +298,9 @@
     </div>
 
 
-    <!-- ================= BOTTOM NAV ================= -->
+    <!-- ===================================================
+         BOTTOM NAV
+    ==================================================== -->
 
     <nav class="bottom-nav">
 
@@ -266,13 +309,10 @@
         type="button"
         data-bottom-category="All"
       >
-
         🏠
-
         <span>
           All
         </span>
-
       </button>
 
 
@@ -280,13 +320,10 @@
         type="button"
         data-bottom-category="Trending"
       >
-
         🔥
-
         <span>
           Trending
         </span>
-
       </button>
 
 
@@ -294,13 +331,10 @@
         type="button"
         data-bottom-category="Popular"
       >
-
         ⭐
-
         <span>
           Popular
         </span>
-
       </button>
 
     </nav>
@@ -309,7 +343,9 @@
   </div>
 
 
-  <!-- APP JS -->
+  <!-- =====================================================
+       APP JS
+  ====================================================== -->
 
   <script src="app.js"></script>
 
