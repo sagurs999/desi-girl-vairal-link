@@ -9,7 +9,7 @@ if (tg) {
     tg.ready();
     tg.expand();
   } catch (e) {
-    console.warn("Telegram WebApp error:", e);
+    console.warn("Telegram error:", e);
   }
 }
 
@@ -21,9 +21,6 @@ if (tg) {
 const SUPABASE_URL =
   "https://mshoftgubfbkvynndtnu.supabase.co";
 
-/*
-  আপনার Supabase anon key
-*/
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmxlIiwicmVmIjoibXNob2Z0Z3Via3ZueW5uZHRudSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2NjQ5MDk0LCJleHAiOjIxMDIyMjUwOTR9.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
@@ -105,16 +102,12 @@ if (tgUser) {
 
 
 /* =========================================================
-   LOAD POSTS FROM SUPABASE
+   LOAD POSTS
 ========================================================= */
 
 async function loadPosts() {
 
-  if (!videoGrid) {
-    console.error("videoGrid not found");
-    return;
-  }
-
+  if (!videoGrid) return;
 
   videoGrid.innerHTML = `
     <div class="loading">
@@ -122,32 +115,15 @@ async function loadPosts() {
     </div>
   `;
 
-
   try {
-
-    console.log("Loading Supabase posts...");
-
-
-    /*
-      IMPORTANT:
-
-      select=* ব্যবহার করছি যাতে
-      posts table-এর column mismatch-এর কারণে
-      ভিডিও loading বন্ধ না হয়।
-    */
-
-    const url =
-      `${POSTS_API}?select=*&order=created_at.desc`;
-
 
     const response =
       await fetch(
-        url,
+        `${POSTS_API}?select=*&order=created_at.desc`,
         {
           method: "GET",
 
           headers: {
-
             apikey:
               SUPABASE_ANON_KEY,
 
@@ -156,201 +132,86 @@ async function loadPosts() {
 
             Accept:
               "application/json"
-
           }
-
         }
       );
 
 
-    const responseText =
+    const text =
       await response.text();
-
-
-    console.log(
-      "Supabase status:",
-      response.status
-    );
 
 
     if (!response.ok) {
 
-      console.error(
-        "Supabase response:",
-        responseText
-      );
-
       throw new Error(
-        `Supabase Error ${response.status}`
+        `Supabase ${response.status}: ${text}`
       );
 
     }
 
 
-    let data;
-
-
-    try {
-
-      data =
-        JSON.parse(
-          responseText
-        );
-
-    } catch (e) {
-
-      throw new Error(
-        "Supabase returned invalid JSON."
-      );
-
-    }
-
-
-    console.log(
-      "Supabase posts:",
-      data
-    );
-
-
-    if (!Array.isArray(data)) {
-
-      throw new Error(
-        "Supabase data is not an array."
-      );
-
-    }
+    const data =
+      JSON.parse(text);
 
 
     videos.length = 0;
 
 
-    /*
-      Convert Supabase rows
-      into the app format.
-    */
+    if (Array.isArray(data)) {
 
-    data.forEach(
-      post => {
+      data.forEach(post => {
 
         if (!post) return;
 
 
-        /*
-          ID
-        */
-
-        const id =
-          post.id ??
-          post.ID ??
-          post.post_id ??
-          "";
-
-
-        /*
-          TITLE
-        */
-
-        const title =
-          post.title ??
-          post.name ??
-          post.video_title ??
-          "Untitled Video";
-
-
-        /*
-          CATEGORY
-        */
-
-        const category =
-          post.category ??
-          post.categories ??
-          "Trending";
-
-
-        /*
-          THUMBNAIL
-
-          Supports:
-          thumbnail_url
-          thumbnail
-          image_url
-          image
-          poster_url
-        */
-
-        const thumbnail =
-          post.thumbnail_url ??
-          post.thumbnail ??
-          post.image_url ??
-          post.image ??
-          post.poster_url ??
-          "";
-
-
-        /*
-          VIDEO
-
-          Supports:
-          video_url
-          video
-          video_link
-          url
-          link
-        */
-
-        const videoUrl =
-          post.video_url ??
-          post.video ??
-          post.video_link ??
-          post.url ??
-          post.link ??
-          "";
-
-
-        /*
-          CREATED DATE
-        */
-
-        const createdAt =
-          post.created_at ??
-          post.createdAt ??
-          "";
-
-
         videos.push({
 
-          id: id,
+          id:
+            post.id ??
+            post.post_id ??
+            "",
 
           title:
-            String(title),
+            post.title ??
+            post.name ??
+            "Untitled Video",
 
           category:
-            String(category),
+            post.category ??
+            "Trending",
 
           thumbnail:
-            String(thumbnail),
+            post.thumbnail_url ??
+            post.thumbnail ??
+            post.image_url ??
+            post.image ??
+            post.poster_url ??
+            "",
 
           videoUrl:
-            String(videoUrl),
+            post.video_url ??
+            post.video ??
+            post.video_link ??
+            post.url ??
+            post.link ??
+            "",
 
           createdAt:
-            createdAt
+            post.created_at ??
+            ""
 
         });
 
-      }
-    );
+      });
+
+    }
 
 
     console.log(
-      "Converted videos:",
-      videos
+      "Videos loaded:",
+      videos.length
     );
 
-
-    /*
-      Render ALL
-    */
 
     render("All");
 
@@ -358,13 +219,12 @@ async function loadPosts() {
   } catch (error) {
 
     console.error(
-      "FAILED TO LOAD VIDEOS:",
+      "Video loading error:",
       error
     );
 
 
     videoGrid.innerHTML = `
-
       <div class="error-box">
 
         <h3>
@@ -372,25 +232,17 @@ async function loadPosts() {
         </h3>
 
         <p>
-          Please refresh the app and try again.
+          Please refresh the app.
         </p>
 
         <button
-          type="button"
           id="retryVideos"
-          style="
-            margin-top:12px;
-            padding:12px 18px;
-            border:0;
-            border-radius:10px;
-            cursor:pointer;
-          "
+          type="button"
         >
           🔄 Retry
         </button>
 
       </div>
-
     `;
 
 
@@ -415,7 +267,7 @@ async function loadPosts() {
 
 
 /* =========================================================
-   RENDER VIDEOS
+   RENDER
 ========================================================= */
 
 function render(
@@ -428,50 +280,30 @@ function render(
   videoGrid.innerHTML = "";
 
 
-  /*
-    All = সব ভিডিও
-  */
-
-  const filteredVideos =
+  const filtered =
     category === "All"
       ? videos
       : videos.filter(
-          video => {
-
-            return (
-              String(
-                video.category
-              )
-                .trim()
-                .toLowerCase()
-              ===
-              String(
-                category
-              )
-                .trim()
-                .toLowerCase()
-            );
-
-          }
+          video =>
+            String(
+              video.category
+            )
+              .trim()
+              .toLowerCase() ===
+            String(
+              category
+            )
+              .trim()
+              .toLowerCase()
         );
 
 
-  /*
-    No videos
-  */
-
-  if (
-    filteredVideos.length === 0
-  ) {
+  if (!filtered.length) {
 
     videoGrid.innerHTML = `
-
       <div class="loading">
-
         No videos found.
-
       </div>
-
     `;
 
     return;
@@ -479,177 +311,137 @@ function render(
   }
 
 
-  /*
-    Create cards
-  */
+  filtered.forEach(video => {
 
-  filteredVideos.forEach(
-    video => {
-
-      const card =
-        document.createElement(
-          "article"
-        );
+    const card =
+      document.createElement(
+        "article"
+      );
 
 
-      card.className =
-        "video-card";
+    card.className =
+      "video-card";
 
 
-      /* =====================================================
-         THUMBNAIL
-      ===================================================== */
-
-      let thumbnailHTML;
+    let thumbnailHTML;
 
 
-      if (
-        video.thumbnail &&
-        isValidUrl(
-          video.thumbnail
-        )
-      ) {
+    if (
+      video.thumbnail &&
+      isValidUrl(video.thumbnail)
+    ) {
 
-        thumbnailHTML = `
-
-          <img
-            src="${escapeHTML(
-              video.thumbnail
-            )}"
-            alt="${escapeHTML(
-              video.title
-            )}"
-            loading="lazy"
-            onerror="this.style.display='none';this.parentElement.classList.add('thumb-error');"
-          >
-
-        `;
-
-      } else {
-
-        thumbnailHTML = `
-
-          <div class="thumb-placeholder">
-            🎬
-          </div>
-
-        `;
-
-      }
-
-
-      /* =====================================================
-         CARD
-      ===================================================== */
-
-      card.innerHTML = `
-
-        <div class="thumb">
-
-          ${thumbnailHTML}
-
-        </div>
-
-
-        <div class="card-body">
-
-          <h3>
-            ${escapeHTML(
-              video.title
-            )}
-          </h3>
-
-
-          <div class="meta">
-            ${escapeHTML(
-              video.category
-            )}
-          </div>
-
-
-          <button
-            class="open-btn"
-            type="button"
-          >
-            🔒 Watch Ad
-          </button>
-
-        </div>
-
+      thumbnailHTML = `
+        <img
+          src="${escapeHTML(
+            video.thumbnail
+          )}"
+          alt="${escapeHTML(
+            video.title
+          )}"
+          loading="lazy"
+        >
       `;
 
+    } else {
 
-      /* =====================================================
-         WATCH BUTTON
-      ===================================================== */
+      thumbnailHTML = `
+        <div class="thumb-placeholder">
+          🎬
+        </div>
+      `;
 
-      const openBtn =
-        card.querySelector(
-          ".open-btn"
-        );
-
-
-      if (openBtn) {
-
-        openBtn.addEventListener(
-          "click",
-          event => {
-
-            event.stopPropagation();
-
-            openVideo(
-              video
-            );
-
-          }
-        );
-
-      }
+    }
 
 
-      /* =====================================================
-         THUMBNAIL CLICK
-      ===================================================== */
+    card.innerHTML = `
 
-      const thumb =
-        card.querySelector(
-          ".thumb"
-        );
+      <div class="thumb">
+        ${thumbnailHTML}
+      </div>
+
+      <div class="card-body">
+
+        <h3>
+          ${escapeHTML(
+            video.title
+          )}
+        </h3>
+
+        <div class="meta">
+          ${escapeHTML(
+            video.category
+          )}
+        </div>
+
+        <button
+          class="open-btn"
+          type="button"
+        >
+          🔒 Watch Ad
+        </button>
+
+      </div>
+
+    `;
 
 
-      if (thumb) {
-
-        thumb.addEventListener(
-          "click",
-          () => {
-
-            openVideo(
-              video
-            );
-
-          }
-        );
-
-      }
+    const openBtn =
+      card.querySelector(
+        ".open-btn"
+      );
 
 
-      videoGrid.appendChild(
-        card
+    if (openBtn) {
+
+      openBtn.addEventListener(
+        "click",
+        event => {
+
+          event.stopPropagation();
+
+          openVideo(video);
+
+        }
       );
 
     }
-  );
+
+
+    const thumb =
+      card.querySelector(
+        ".thumb"
+      );
+
+
+    if (thumb) {
+
+      thumb.addEventListener(
+        "click",
+        () => {
+
+          openVideo(video);
+
+        }
+      );
+
+    }
+
+
+    videoGrid.appendChild(
+      card
+    );
+
+  });
 
 }
 
 
 /* =========================================================
-   OPEN VIDEO MODAL
+   OPEN VIDEO
 ========================================================= */
 
-function openVideo(
-  video
-) {
+function openVideo(video) {
 
   selectedVideo =
     video;
@@ -678,36 +470,24 @@ function openVideo(
   }
 
 
-  /* =====================================================
-     PREVIEW
-  ===================================================== */
-
   if (
     preview &&
     video.thumbnail &&
-    isValidUrl(
-      video.thumbnail
-    )
+    isValidUrl(video.thumbnail)
   ) {
 
     preview.innerHTML = `
-
       <img
         src="${escapeHTML(
           video.thumbnail
         )}"
         alt=""
-        onerror="this.style.display='none';"
       >
-
     `;
 
-  }
-
-  else if (preview) {
+  } else if (preview) {
 
     preview.innerHTML = `
-
       <div
         style="
           width:100%;
@@ -720,7 +500,6 @@ function openVideo(
       >
         🎬
       </div>
-
     `;
 
   }
@@ -741,16 +520,17 @@ function openVideo(
 
 
 /* =========================================================
-   UPDATE UNLOCK UI
+   UPDATE UI
 ========================================================= */
 
 function updateUnlockUI() {
 
-  if (!watchAdBtn) return;
+  if (watchAdBtn) {
 
+    watchAdBtn.textContent =
+      `▶ Watch Ad (${adsWatched}/${requiredAds})`;
 
-  watchAdBtn.textContent =
-    `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+  }
 
 
   if (adCount) {
@@ -765,13 +545,9 @@ function updateUnlockUI() {
 
     const percent =
       Math.min(
-        (
-          adsWatched /
-          requiredAds
-        ) * 100,
+        (adsWatched / requiredAds) * 100,
         100
       );
-
 
     progressBar.style.width =
       `${percent}%`;
@@ -780,11 +556,11 @@ function updateUnlockUI() {
 
 
   /*
-    UNLOCKED
+    ONLY 3/3 = UNLOCKED
   */
 
   if (
-    adsWatched >=
+    adsWatched ===
     requiredAds
   ) {
 
@@ -807,37 +583,82 @@ function updateUnlockUI() {
     }
 
 
-    watchAdBtn.disabled =
-      true;
+    if (watchAdBtn) {
 
+      watchAdBtn.disabled =
+        true;
 
-    watchAdBtn.textContent =
-      "✓ Ads Completed";
+      watchAdBtn.textContent =
+        "✓ Ads Completed";
+
+    }
+
+    return;
 
   }
 
 
   /*
-    LOCKED
+    0/3, 1/3, 2/3
+    No completion message.
   */
 
-  else {
+  if (videoBtn) {
 
-    if (videoBtn) {
+    videoBtn.disabled =
+      true;
 
-      videoBtn.disabled =
-        true;
+    videoBtn.textContent =
+      "🔒 Video Locked";
 
-      videoBtn.textContent =
-        "🔒 Video Locked";
+  }
 
-    }
 
+  if (watchAdBtn) {
 
     watchAdBtn.disabled =
       false;
 
   }
+
+}
+
+
+/* =========================================================
+   AD NOT COMPLETED MESSAGE
+========================================================= */
+
+function showAdNotCompletedMessage() {
+
+  if (!modalText) return;
+
+
+  modalText.innerHTML = `
+
+    <strong>
+      ⚠️ বিজ্ঞাপনটি সম্পূর্ণ হয়নি
+    </strong>
+
+    <br><br>
+
+    বিজ্ঞাপনের ভিতরের
+    <b>Continue</b>
+    বাটনে ক্লিক করে বিজ্ঞাপনটি সম্পূর্ণ করুন।
+
+    <br><br>
+
+    <strong>
+      ⚠️ Ad Not Completed
+    </strong>
+
+    <br><br>
+
+    Please click the
+    <b>Continue</b>
+    button inside the ad
+    to complete the advertisement.
+
+  `;
 
 }
 
@@ -849,9 +670,7 @@ function updateUnlockUI() {
 async function showRewardedAd() {
 
   if (adLoading) {
-
     return;
-
   }
 
 
@@ -869,12 +688,15 @@ async function showRewardedAd() {
     true;
 
 
-  watchAdBtn.disabled =
-    true;
+  if (watchAdBtn) {
 
+    watchAdBtn.disabled =
+      true;
 
-  watchAdBtn.textContent =
-    "⏳ Loading Ad...";
+    watchAdBtn.textContent =
+      "⏳ Loading Ad...";
+
+  }
 
 
   try {
@@ -896,10 +718,10 @@ async function showRewardedAd() {
 
 
     /*
-      IMPORTANT:
+      IMPORTANT
 
-      Counter increases ONLY
-      after SDK promise finishes.
+      Counter is NOT increased
+      before the ad call finishes.
     */
 
     const result =
@@ -907,13 +729,15 @@ async function showRewardedAd() {
 
 
     console.log(
-      "Monetag completed:",
+      "Monetag result:",
       result
     );
 
 
     /*
-      Ad completed
+      SDK promise completed.
+
+      Increase only here.
     */
 
     if (
@@ -926,6 +750,11 @@ async function showRewardedAd() {
     }
 
 
+    /*
+      1/3 or 2/3:
+      no completion message.
+    */
+
     updateUnlockUI();
 
 
@@ -937,20 +766,22 @@ async function showRewardedAd() {
     );
 
 
-    if (modalText) {
+    /*
+      X / closed / unavailable
+    */
 
-      modalText.textContent =
-        "Ad is not available right now. Please try again.";
+    showAdNotCompletedMessage();
+
+
+    if (watchAdBtn) {
+
+      watchAdBtn.textContent =
+        `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+
+      watchAdBtn.disabled =
+        false;
 
     }
-
-
-    watchAdBtn.textContent =
-      `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-
-
-    watchAdBtn.disabled =
-      false;
 
   }
 
@@ -976,7 +807,7 @@ if (watchAdBtn) {
 
 
 /* =========================================================
-   VIDEO BUTTON
+   WATCH VIDEO
 ========================================================= */
 
 if (videoBtn) {
@@ -986,14 +817,12 @@ if (videoBtn) {
     () => {
 
       if (!selectedVideo) {
-
         return;
-
       }
 
 
       if (
-        adsWatched <
+        adsWatched !==
         requiredAds
       ) {
 
@@ -1001,13 +830,6 @@ if (videoBtn) {
 
       }
 
-
-      /*
-        Use the post ID.
-
-        video.html will load the
-        corresponding Supabase post.
-      */
 
       const videoId =
         encodeURIComponent(
@@ -1049,7 +871,7 @@ if (closeModal) {
 
 
 /* =========================================================
-   CLICK OUTSIDE MODAL
+   OUTSIDE MODAL
 ========================================================= */
 
 if (modal) {
@@ -1082,42 +904,38 @@ document
   .querySelectorAll(
     ".category-btn"
   )
-  .forEach(
-    button => {
+  .forEach(button => {
 
-      button.addEventListener(
-        "click",
-        () => {
+    button.addEventListener(
+      "click",
+      () => {
 
-          document
-            .querySelectorAll(
-              ".category-btn"
-            )
-            .forEach(
-              btn => {
+        document
+          .querySelectorAll(
+            ".category-btn"
+          )
+          .forEach(btn => {
 
-                btn.classList.remove(
-                  "active"
-                );
-
-              }
+            btn.classList.remove(
+              "active"
             );
 
-
-          button.classList.add(
-            "active"
-          );
+          });
 
 
-          render(
-            button.dataset.category
-          );
+        button.classList.add(
+          "active"
+        );
 
-        }
-      );
 
-    }
-  );
+        render(
+          button.dataset.category
+        );
+
+      }
+    );
+
+  });
 
 
 /* =========================================================
@@ -1128,72 +946,64 @@ document
   .querySelectorAll(
     ".bottom-nav button"
   )
-  .forEach(
-    button => {
+  .forEach(button => {
 
-      button.addEventListener(
-        "click",
-        () => {
+    button.addEventListener(
+      "click",
+      () => {
 
-          const category =
-            button.dataset.bottomCategory;
+        const category =
+          button.dataset.bottomCategory;
 
 
-          document
-            .querySelectorAll(
-              ".bottom-nav button"
-            )
-            .forEach(
-              btn => {
+        document
+          .querySelectorAll(
+            ".bottom-nav button"
+          )
+          .forEach(btn => {
 
-                btn.classList.remove(
-                  "bottom-active"
-                );
-
-              }
+            btn.classList.remove(
+              "bottom-active"
             );
 
-
-          button.classList.add(
-            "bottom-active"
-          );
+          });
 
 
-          document
-            .querySelectorAll(
-              ".category-btn"
-            )
-            .forEach(
-              btn => {
+        button.classList.add(
+          "bottom-active"
+        );
 
-                btn.classList.toggle(
-                  "active",
-                  btn.dataset.category ===
-                  category
-                );
 
-              }
+        document
+          .querySelectorAll(
+            ".category-btn"
+          )
+          .forEach(btn => {
+
+            btn.classList.toggle(
+              "active",
+              btn.dataset.category ===
+              category
             );
 
+          });
 
-          render(
-            category
-          );
 
-        }
-      );
+        render(
+          category
+        );
 
-    }
-  );
+      }
+    );
+
+  });
 
 
 /* =========================================================
-   URL CHECK
+   URL VALIDATION
 ========================================================= */
 
-function isValidUrl(
-  value
-) {
+function isValidUrl(value) {
 
   if (!value) {
     return false;
@@ -1202,9 +1012,7 @@ function isValidUrl(
 
   try {
 
-    new URL(
-      value
-    );
+    new URL(value);
 
     return true;
 
@@ -1221,9 +1029,7 @@ function isValidUrl(
    HTML ESCAPE
 ========================================================= */
 
-function escapeHTML(
-  value
-) {
+function escapeHTML(value) {
 
   return String(
     value ?? ""
@@ -1253,7 +1059,7 @@ function escapeHTML(
 
 
 /* =========================================================
-   START APP
+   START
 ========================================================= */
 
 loadPosts();
