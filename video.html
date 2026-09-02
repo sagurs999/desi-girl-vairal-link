@@ -12,7 +12,15 @@
 
   <title>Watch Video</title>
 
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+
+  <!-- =====================================================
+       APPWRITE SDK
+  ====================================================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@latest"></script>
 
 
   <style>
@@ -297,23 +305,60 @@
 
     if (tg) {
 
-      tg.ready();
+      try {
 
-      tg.expand();
+        tg.ready();
+
+        tg.expand();
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+
+      }
 
     }
 
 
     /* =====================================================
-       SUPABASE
+       APPWRITE
     ===================================================== */
 
-    const SUPABASE_URL =
-      "https://mshoftgubfbkvynndtnu.supabase.co";
+    const APPWRITE_ENDPOINT =
+      "https://cloud.appwrite.io/v1";
 
 
-    const SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
+    const APPWRITE_PROJECT_ID =
+      "6a953702002468f915bf";
+
+
+    const APPWRITE_DATABASE_ID =
+      "6a97f8710010ad20905d";
+
+
+    const APPWRITE_TABLE_ID =
+      "6a97fa98002d5e65d0f4";
+
+
+    const client =
+      new Appwrite.Client();
+
+
+    client
+      .setEndpoint(
+        APPWRITE_ENDPOINT
+      )
+      .setProject(
+        APPWRITE_PROJECT_ID
+      );
+
+
+    const tablesDB =
+      new Appwrite.TablesDB(
+        client
+      );
 
 
     /* =====================================================
@@ -327,7 +372,9 @@
 
 
     const postId =
-      params.get("id");
+      params.get(
+        "id"
+      );
 
 
     /* =====================================================
@@ -367,64 +414,21 @@
       try {
 
 
-        /*
-          IMPORTANT:
-
-          Only request columns that
-          actually exist in posts.
-
-          video_url is used.
-          NOT video.
-        */
-
-        const url =
-          `${SUPABASE_URL}/rest/v1/posts` +
-          `?id=eq.${encodeURIComponent(postId)}` +
-          `&select=id,title,video_url`;
+        console.log(
+          "Loading video from Appwrite:",
+          postId
+        );
 
 
-        const response =
-          await fetch(
-            url,
-            {
-
-              method:
-                "GET",
-
-              headers:
-                {
-
-                  apikey:
-                    SUPABASE_ANON_KEY,
-
-                  Authorization:
-                    `Bearer ${SUPABASE_ANON_KEY}`
-
-                }
-
-            }
+        const post =
+          await tablesDB.getRow(
+            APPWRITE_DATABASE_ID,
+            APPWRITE_TABLE_ID,
+            postId
           );
 
 
-        if (!response.ok) {
-
-          const errorText =
-            await response.text();
-
-          throw new Error(
-            `Supabase ${response.status}: ${errorText}`
-          );
-
-        }
-
-
-        const posts =
-          await response.json();
-
-
-        if (
-          !posts.length
-        ) {
+        if (!post) {
 
           showError(
             "Video post not found."
@@ -433,10 +437,6 @@
           return;
 
         }
-
-
-        const post =
-          posts[0];
 
 
         /* =================================================
@@ -496,9 +496,13 @@
         );
 
 
-        video.setAttribute(
-          "oncontextmenu",
-          "return false;"
+        video.addEventListener(
+          "contextmenu",
+          event => {
+
+            event.preventDefault();
+
+          }
         );
 
 
@@ -521,7 +525,8 @@
         );
 
 
-        playerArea.innerHTML = "";
+        playerArea.innerHTML =
+          "";
 
 
         const success =
@@ -564,9 +569,7 @@
         );
 
 
-      } catch (
-        error
-      ) {
+      } catch (error) {
 
         console.error(
           "Video loading error:",
@@ -615,24 +618,29 @@
     ) {
 
       return String(
-        value
+        value ?? ""
       )
+
         .replace(
           /&/g,
           "&amp;"
         )
+
         .replace(
           /</g,
           "&lt;"
         )
+
         .replace(
           />/g,
           "&gt;"
         )
+
         .replace(
           /"/g,
           "&quot;"
         )
+
         .replace(
           /'/g,
           "&#039;"
