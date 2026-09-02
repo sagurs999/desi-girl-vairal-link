@@ -21,18 +21,14 @@
 
 
   <!-- =====================================================
+       APPWRITE SDK
+  ====================================================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@latest"></script>
+
+
+  <!-- =====================================================
        MONETAG SDK
-
-       Zone: 11571866
-
-       In-App Interstitial:
-       2 ads / 6 minutes
-       30 seconds interval
-       5 seconds first delay
-       Session continues between pages
-
-       NOTE:
-       This is separate from the 3-ad unlock system.
   ====================================================== -->
 
   <script
@@ -204,8 +200,6 @@
       <div class="modal-box">
 
 
-        <!-- CLOSE -->
-
         <button
           id="closeModal"
           class="modal-close"
@@ -216,8 +210,6 @@
         </button>
 
 
-        <!-- PREVIEW -->
-
         <div
           id="preview"
           class="modal-preview"
@@ -225,8 +217,6 @@
           🎬
         </div>
 
-
-        <!-- TITLE -->
 
         <h2
           id="modalTitle"
@@ -236,8 +226,6 @@
         </h2>
 
 
-        <!-- MESSAGE -->
-
         <p
           id="modalText"
           class="modal-description"
@@ -245,8 +233,6 @@
           Watch 3 ads to unlock this video.
         </p>
 
-
-        <!-- PROGRESS -->
 
         <div class="ad-progress">
 
@@ -258,8 +244,6 @@
         </div>
 
 
-        <!-- COUNTER -->
-
         <div
           id="adCount"
           class="ad-count"
@@ -267,8 +251,6 @@
           0 / 3 Ads Completed
         </div>
 
-
-        <!-- WATCH REWARDED AD -->
 
         <button
           id="watchAdBtn"
@@ -278,8 +260,6 @@
           ▶ Watch Ad (0/3)
         </button>
 
-
-        <!-- VIDEO BUTTON -->
 
         <button
           id="videoBtn"
@@ -342,8 +322,6 @@
 
   <!-- =====================================================
        APP JS
-
-       Load ONLY ONCE
   ====================================================== -->
 
   <script src="app.js"></script>
