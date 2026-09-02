@@ -1,280 +1,423 @@
 /* =========================================================
-   TELEGRAM
-========================================================= */
+   VIDEO APP - APPWRITE + MONETAG
+   3 ADS -> VIDEO UNLOCK
+   ========================================================= */
 
-const tg =
-  window.Telegram?.WebApp || null;
+document.addEventListener("DOMContentLoaded", () => {
 
-if (tg) {
+  /* =========================================================
+     TELEGRAM
+     ========================================================= */
 
-  try {
+  const tg = window.Telegram?.WebApp || null;
 
+  if (tg) {
     tg.ready();
     tg.expand();
-
-  } catch (error) {
-
-    console.warn(
-      "Telegram initialization error:",
-      error
-    );
-
   }
 
-}
 
+  /* =========================================================
+     APPWRITE CONFIG
+     ========================================================= */
 
-/* =========================================================
-   APPWRITE
-========================================================= */
+  const APPWRITE_ENDPOINT = "https://cloud.appwrite.io/v1";
 
-const APPWRITE_ENDPOINT =
-  "https://cloud.appwrite.io/v1";
+  const APPWRITE_PROJECT_ID = "6a953702002468f915bf";
 
+  const APPWRITE_DATABASE_ID = "6a97f8710010ad20905d";
 
-const APPWRITE_PROJECT_ID =
-  "6a953702002468f915bf";
+  const APPWRITE_TABLE_ID = "6a97fa98002d5e65d0f4";
 
+  const APPWRITE_BUCKET_ID = "6a9539820022110c710";
 
-const APPWRITE_DATABASE_ID =
-  "6a97f8710010ad20905d";
 
+  /* =========================================================
+     MONETAG
+     ========================================================= */
 
-const APPWRITE_TABLE_ID =
-  "6a97fa98002d5e65d0f4";
+  const MONETAG_ZONE = "11571866";
 
+  const MONETAG_FUNCTION = `show_${MONETAG_ZONE}`;
 
-const client =
-  new Appwrite.Client();
 
+  /* =========================================================
+     ADS
+     ========================================================= */
 
-client
-  .setEndpoint(
-    APPWRITE_ENDPOINT
-  )
-  .setProject(
-    APPWRITE_PROJECT_ID
-  );
+  const requiredAds = 3;
 
+  let adsWatched = 0;
 
-const tablesDB =
-  new Appwrite.TablesDB(
-    client
-  );
+  let adLoading = false;
 
 
-/* =========================================================
-   MONETAG
-========================================================= */
+  /* =========================================================
+     APPWRITE INITIALIZE
+     ========================================================= */
 
-const MONETAG_ZONE =
-  "11571866";
-
-
-const MONETAG_FUNCTION =
-  `show_${MONETAG_ZONE}`;
-
-
-/* =========================================================
-   APP STATE
-========================================================= */
-
-const videos = [];
-
-
-let selectedVideo =
-  null;
-
-
-let adsWatched =
-  0;
-
-
-const requiredAds =
-  3;
-
-
-let adLoading =
-  false;
-
-
-/* =========================================================
-   DOM
-========================================================= */
-
-const videoGrid =
-  document.getElementById(
-    "videoGrid"
-  );
-
-
-const modal =
-  document.getElementById(
-    "modal"
-  );
-
-
-const modalTitle =
-  document.getElementById(
-    "modalTitle"
-  );
-
-
-const modalText =
-  document.getElementById(
-    "modalText"
-  );
-
-
-const preview =
-  document.getElementById(
-    "preview"
-  );
-
-
-const watchAdBtn =
-  document.getElementById(
-    "watchAdBtn"
-  );
-
-
-const videoBtn =
-  document.getElementById(
-    "videoBtn"
-  );
-
-
-const progressBar =
-  document.getElementById(
-    "progressBar"
-  );
-
-
-const adCount =
-  document.getElementById(
-    "adCount"
-  );
-
-
-const closeModal =
-  document.getElementById(
-    "closeModal"
-  );
-
-
-const tgUser =
-  document.getElementById(
-    "tgUser"
-  );
-
-
-/* =========================================================
-   TELEGRAM USER
-========================================================= */
-
-if (tgUser) {
-
-  const user =
-    tg?.initDataUnsafe?.user || null;
-
-
-  if (user) {
-
-    tgUser.textContent =
-      user.first_name ||
-      "Telegram User";
-
-  } else {
-
-    tgUser.textContent =
-      "Guest";
-
-  }
-
-}
-
-
-/* =========================================================
-   LOAD POSTS FROM APPWRITE
-========================================================= */
-
-async function loadPosts() {
-
-  if (!videoGrid) {
-
-    console.error(
-      "videoGrid not found."
-    );
-
+  if (!window.Appwrite) {
+    console.error("Appwrite SDK is not loaded.");
     return;
+  }
+
+  const client = new Appwrite.Client();
+
+  client
+    .setEndpoint(APPWRITE_ENDPOINT)
+    .setProject(APPWRITE_PROJECT_ID);
+
+
+  const tablesDB = new Appwrite.TablesDB(client);
+
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+
+  const videos = [];
+
+  let selectedVideo = null;
+
+
+  /* =========================================================
+     DOM HELPERS
+     ========================================================= */
+
+  function findElement(...selectors) {
+
+    for (const selector of selectors) {
+
+      const element = document.querySelector(selector);
+
+      if (element) {
+        return element;
+      }
+
+    }
+
+    return null;
+  }
+
+
+  /* =========================================================
+     DOM ELEMENTS
+     ========================================================= */
+
+  const videoList = findElement(
+    "#videoList",
+    "#videos",
+    "#videoGrid",
+    ".video-grid",
+    ".videos"
+  );
+
+  const modal = findElement(
+    "#videoModal",
+    "#modal",
+    ".video-modal"
+  );
+
+  const modalTitle = findElement(
+    "#modalTitle",
+    "#videoTitle",
+    ".modal-title"
+  );
+
+  const modalText = findElement(
+    "#modalText",
+    "#videoText",
+    ".modal-text"
+  );
+
+  const modalThumbnail = findElement(
+    "#modalThumbnail",
+    "#videoThumbnail",
+    ".modal-thumbnail"
+  );
+
+  const adBtn = findElement(
+    "#adBtn",
+    "#watchAdBtn",
+    "#watchAd",
+    ".watch-ad-btn"
+  );
+
+  const videoBtn = findElement(
+    "#videoBtn",
+    "#watchVideoBtn",
+    "#playVideoBtn",
+    ".watch-video-btn"
+  );
+
+  const closeModal = findElement(
+    "#closeModal",
+    "#modalClose",
+    ".modal-close"
+  );
+
+
+  /* =========================================================
+     ERROR MESSAGE
+     ========================================================= */
+
+  function showError(message) {
+
+    console.error(message);
+
+    if (videoList) {
+
+      videoList.innerHTML = `
+        <div style="
+          padding:25px;
+          text-align:center;
+          color:#ff6b6b;
+          background:rgba(255,0,0,.08);
+          border-radius:15px;
+          margin:15px 0;
+        ">
+          <div style="font-size:35px;margin-bottom:10px;">
+            ⚠️
+          </div>
+
+          <div style="font-size:16px;font-weight:600;">
+            ${escapeHTML(message)}
+          </div>
+        </div>
+      `;
+
+    }
 
   }
 
 
-  videoGrid.innerHTML = `
+  /* =========================================================
+     HTML ESCAPE
+     ========================================================= */
 
-    <div class="loading">
-      Loading videos...
-    </div>
+  function escapeHTML(value) {
 
-  `;
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  }
 
 
-  try {
+  /* =========================================================
+     APPWRITE VIEW URL
+     ========================================================= */
 
-    console.log(
-      "Loading videos from Appwrite..."
+  function buildAppwriteViewUrl(fileId) {
+
+    if (!fileId) {
+      return "";
+    }
+
+    return (
+      `${APPWRITE_ENDPOINT}` +
+      `/storage/buckets/${encodeURIComponent(APPWRITE_BUCKET_ID)}` +
+      `/files/${encodeURIComponent(fileId)}` +
+      `/view?project=${encodeURIComponent(APPWRITE_PROJECT_ID)}`
     );
 
-
-    const response =
-      await tablesDB.listRows(
-        APPWRITE_DATABASE_ID,
-        APPWRITE_TABLE_ID,
-        [
-          Appwrite.Query.orderDesc(
-            "$createdAt"
-          )
-        ]
-      );
+  }
 
 
-    console.log(
-      "Appwrite response:",
-      response
-    );
+  /* =========================================================
+     NORMALIZE FILE URL
+     ========================================================= */
+
+  function normalizeFileUrl(value) {
+
+    if (!value) {
+      return "";
+    }
+
+    const raw = String(value).trim();
+
+    if (!raw) {
+      return "";
+    }
 
 
-    const rows =
-      response.rows ||
-      response.documents ||
-      [];
-
+    /* -----------------------------------------
+       যদি শুধু File ID দেওয়া থাকে
+       ----------------------------------------- */
 
     if (
-      !Array.isArray(
-        rows
-      )
+      !raw.startsWith("http://") &&
+      !raw.startsWith("https://")
     ) {
 
-      throw new Error(
-        "Appwrite response is invalid."
-      );
+      return buildAppwriteViewUrl(raw);
 
     }
 
 
-    videos.length =
-      0;
+    /* -----------------------------------------
+       Full URL
+       ----------------------------------------- */
+
+    try {
+
+      const url = new URL(raw);
+
+      /*
+       admin mode frontend-এ ব্যবহার করব না
+      */
+
+      url.searchParams.delete("mode");
+
+      /*
+       project ID না থাকলে যোগ করব
+      */
+
+      if (!url.searchParams.get("project")) {
+
+        url.searchParams.set(
+          "project",
+          APPWRITE_PROJECT_ID
+        );
+
+      }
+
+      return url.toString();
+
+    } catch (error) {
+
+      console.warn(
+        "Could not parse file URL:",
+        raw
+      );
+
+      return raw;
+
+    }
+
+  }
 
 
-    rows.forEach(
-      post => {
+  /* =========================================================
+     SESSION UNLOCK KEY
+     ========================================================= */
 
-        if (!post) {
-          return;
-        }
+  function getUnlockKey(videoId) {
 
+    return `video_unlocked_${videoId}`;
+
+  }
+
+
+  /* =========================================================
+     CHECK UNLOCK
+     ========================================================= */
+
+  function isVideoUnlocked(videoId) {
+
+    if (!videoId) {
+      return false;
+    }
+
+    return (
+      sessionStorage.getItem(
+        getUnlockKey(videoId)
+      ) === "true"
+    );
+
+  }
+
+
+  /* =========================================================
+     SAVE UNLOCK
+     ========================================================= */
+
+  function unlockVideo(videoId) {
+
+    if (!videoId) {
+      return;
+    }
+
+    sessionStorage.setItem(
+      getUnlockKey(videoId),
+      "true"
+    );
+
+  }
+
+
+  /* =========================================================
+     LOAD POSTS FROM APPWRITE
+     ========================================================= */
+
+  async function loadPosts() {
+
+    if (!videoList) {
+
+      console.error(
+        "Video list container was not found."
+      );
+
+      return;
+
+    }
+
+
+    videoList.innerHTML = `
+      <div style="
+        padding:30px;
+        text-align:center;
+        opacity:.8;
+      ">
+        Loading videos...
+      </div>
+    `;
+
+
+    try {
+
+      /*
+       * Current Appwrite TablesDB syntax
+       */
+
+      const response = await tablesDB.listRows({
+
+        databaseId: APPWRITE_DATABASE_ID,
+
+        tableId: APPWRITE_TABLE_ID,
+
+        queries: [
+
+          Appwrite.Query.orderDesc("$createdAt")
+
+        ]
+
+      });
+
+
+      console.log(
+        "Appwrite rows:",
+        response.rows
+      );
+
+
+      videos.length = 0;
+
+
+      for (const post of response.rows || []) {
+
+        /*
+         * IMPORTANT:
+         *
+         * Appwrite screenshot:
+         * thumbnail
+         * videoUrl
+         *
+         * তাই আমরা দুটো নামই support করছি।
+         */
 
         const video = {
 
@@ -283,26 +426,23 @@ async function loadPosts() {
             post.id ??
             "",
 
-
           title:
             post.title ??
             "Untitled Video",
-
 
           category:
             post.category ??
             "Trending",
 
-
           thumbnail:
+            post.thumbnail ??
             post.thumbnail_url ??
             "",
 
-
           videoUrl:
+            post.videoUrl ??
             post.video_url ??
             "",
-
 
           createdAt:
             post.$createdAt ??
@@ -311,226 +451,130 @@ async function loadPosts() {
         };
 
 
-        if (
-          video.id !== "" ||
-          video.videoUrl !== ""
-        ) {
+        /*
+         * Video URL clean করা
+         */
 
-          videos.push(
-            video
+        video.videoUrl =
+          normalizeFileUrl(
+            video.videoUrl
           );
 
-        }
+
+        /*
+         * Thumbnail URL clean করা
+         */
+
+        video.thumbnail =
+          normalizeFileUrl(
+            video.thumbnail
+          );
+
+
+        videos.push(video);
 
       }
-    );
 
 
-    console.log(
-      "Total videos:",
-      videos.length
-    );
+      render();
 
 
-    render(
-      "All"
-    );
+    } catch (error) {
 
-
-  } catch (error) {
-
-    console.error(
-      "VIDEO LOADING ERROR:",
-      error
-    );
-
-
-    videoGrid.innerHTML = `
-
-      <div class="error-box">
-
-        <h3>
-          Unable to load videos
-        </h3>
-
-        <p>
-          ভিডিও লোড করা যাচ্ছে না।
-        </p>
-
-        <p style="margin-top:10px;font-size:11px;">
-          ${escapeHTML(
-            error.message
-          )}
-        </p>
-
-        <button
-          id="retryVideos"
-          type="button"
-        >
-          🔄 Retry
-        </button>
-
-      </div>
-
-    `;
-
-
-    const retry =
-      document.getElementById(
-        "retryVideos"
+      console.error(
+        "Appwrite load error:",
+        error
       );
 
-
-    if (retry) {
-
-      retry.addEventListener(
-        "click",
-        loadPosts
+      showError(
+        "ভিডিও লোড করা যাচ্ছে না। Appwrite Table permission চেক করুন।"
       );
 
     }
 
   }
 
-}
+
+  /* =========================================================
+     RENDER VIDEOS
+     ========================================================= */
+
+  function render() {
+
+    if (!videoList) {
+      return;
+    }
 
 
-/* =========================================================
-   RENDER
-========================================================= */
+    if (!videos.length) {
 
-function render(
-  category = "All"
-) {
-
-  if (!videoGrid) {
-    return;
-  }
-
-
-  videoGrid.innerHTML =
-    "";
-
-
-  const selectedCategory =
-    String(
-      category
-    )
-      .trim()
-      .toLowerCase();
-
-
-  const filteredVideos =
-    selectedCategory === "all"
-
-      ? videos
-
-      : videos.filter(
-          video => {
-
-            return String(
-              video.category
-            )
-              .trim()
-              .toLowerCase() ===
-              selectedCategory;
-
-          }
-        );
-
-
-  if (
-    filteredVideos.length === 0
-  ) {
-
-    videoGrid.innerHTML = `
-
-      <div class="loading">
-        No videos found.
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  filteredVideos.forEach(
-    video => {
-
-      const card =
-        document.createElement(
-          "article"
-        );
-
-
-      card.className =
-        "video-card";
-
-
-      let thumbnailHTML = `
-
-        <div class="thumb-placeholder">
-          🎬
+      videoList.innerHTML = `
+        <div style="
+          padding:30px;
+          text-align:center;
+          opacity:.8;
+        ">
+          No videos found.
         </div>
-
       `;
 
+      return;
 
-      if (
-        video.thumbnail &&
-        isValidUrl(
-          video.thumbnail
-        )
-      ) {
+    }
 
-        thumbnailHTML = `
 
-          <img
-            src="${escapeHTML(
-              video.thumbnail
-            )}"
-            alt="${escapeHTML(
-              video.title
-            )}"
-            loading="lazy"
-          >
+    videoList.innerHTML = "";
 
-        `;
 
-      }
+    videos.forEach((video, index) => {
+
+      const card = document.createElement("div");
+
+      card.className = "video-card";
+
+
+      const thumbnailHTML =
+        video.thumbnail
+          ? `
+            <img
+              src="${escapeHTML(video.thumbnail)}"
+              alt="${escapeHTML(video.title)}"
+              class="video-thumbnail"
+              loading="lazy"
+              onerror="this.style.display='none'"
+            >
+          `
+          : `
+            <div class="video-thumbnail-placeholder">
+              ▶
+            </div>
+          `;
 
 
       card.innerHTML = `
 
-        <div class="thumb">
+        <div class="video-card-media">
 
           ${thumbnailHTML}
 
-        </div>
-
-
-        <div class="card-body">
-
-          <h3>
-            ${escapeHTML(
-              video.title
-            )}
-          </h3>
-
-
-          <div class="meta">
-
-            ${escapeHTML(
-              video.category
-            )}
-
+          <div class="play-overlay">
+            ▶
           </div>
 
+        </div>
+
+        <div class="video-card-content">
+
+          <div class="video-category">
+            ${escapeHTML(video.category)}
+          </div>
+
+          <h3 class="video-card-title">
+            ${escapeHTML(video.title)}
+          </h3>
 
           <button
-            class="open-btn"
+            class="watch-ad-card-btn"
             type="button"
           >
             🔒 Watch Ad
@@ -541,209 +585,83 @@ function render(
       `;
 
 
-      const openBtn =
+      const button =
         card.querySelector(
-          ".open-btn"
+          ".watch-ad-card-btn"
         );
 
 
-      if (openBtn) {
+      if (button) {
 
-        openBtn.addEventListener(
+        button.addEventListener(
           "click",
-          event => {
-
-            event.stopPropagation();
-
-            openVideo(
-              video
-            );
-
-          }
+          () => openVideo(video)
         );
 
       }
 
 
-      const thumb =
-        card.querySelector(
-          ".thumb"
-        );
+      /*
+       * Card click
+       */
 
+      card.addEventListener(
+        "click",
+        (event) => {
 
-      if (thumb) {
-
-        thumb.addEventListener(
-          "click",
-          () => {
-
-            openVideo(
-              video
-            );
-
+          if (
+            event.target.closest(
+              ".watch-ad-card-btn"
+            )
+          ) {
+            return;
           }
-        );
 
-      }
+          openVideo(video);
 
-
-      videoGrid.appendChild(
-        card
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   OPEN VIDEO MODAL
-========================================================= */
-
-function openVideo(
-  video
-) {
-
-  selectedVideo =
-    video;
-
-
-  adsWatched =
-    0;
-
-
-  adLoading =
-    false;
-
-
-  if (modalTitle) {
-
-    modalTitle.textContent =
-      video.title ||
-      "Video";
-
-  }
-
-
-  if (modalText) {
-
-    modalText.textContent =
-      "Watch 3 ads to unlock this video.";
-
-  }
-
-
-  if (
-    preview &&
-    video.thumbnail &&
-    isValidUrl(
-      video.thumbnail
-    )
-  ) {
-
-    preview.innerHTML = `
-
-      <img
-        src="${escapeHTML(
-          video.thumbnail
-        )}"
-        alt=""
-      >
-
-    `;
-
-  } else if (preview) {
-
-    preview.innerHTML = `
-
-      <div
-        style="
-          width:100%;
-          height:100%;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font-size:50px;
-        "
-      >
-        🎬
-      </div>
-
-    `;
-
-  }
-
-
-  if (modal) {
-
-    modal.classList.remove(
-      "hidden"
-    );
-
-  }
-
-
-  updateUnlockUI();
-
-}
-
-
-/* =========================================================
-   UPDATE UNLOCK UI
-========================================================= */
-
-function updateUnlockUI() {
-
-  if (adCount) {
-
-    adCount.textContent =
-      `${adsWatched} / ${requiredAds} Ads Completed`;
-
-  }
-
-
-  if (progressBar) {
-
-    const percent =
-      Math.min(
-        (
-          adsWatched /
-          requiredAds
-        ) * 100,
-        100
+        }
       );
 
 
-    progressBar.style.width =
-      `${percent}%`;
+      videoList.appendChild(card);
+
+    });
 
   }
 
 
-  if (
-    adsWatched >=
-    requiredAds
-  ) {
+  /* =========================================================
+     OPEN VIDEO MODAL
+     ========================================================= */
 
-    if (videoBtn) {
+  function openVideo(video) {
 
-      videoBtn.disabled =
-        false;
+    selectedVideo = video;
 
-      videoBtn.textContent =
-        "▶ Watch Video";
+    /*
+     * প্রতিবার নতুন করে 3 ads
+     */
+
+    adsWatched = 0;
+
+
+    /*
+     * আগের unlock সরিয়ে দেওয়া
+     */
+
+    if (video.id) {
+
+      sessionStorage.removeItem(
+        getUnlockKey(video.id)
+      );
 
     }
 
 
-    if (watchAdBtn) {
+    if (modalTitle) {
 
-      watchAdBtn.disabled =
-        true;
-
-      watchAdBtn.textContent =
-        "✓ Ads Completed";
+      modalTitle.textContent =
+        video.title || "Video";
 
     }
 
@@ -751,197 +669,358 @@ function updateUnlockUI() {
     if (modalText) {
 
       modalText.textContent =
-        "🎉 All ads completed! Your video is unlocked.";
+        `Watch ${requiredAds} ads to unlock this video.`;
 
     }
 
 
-    return;
+    if (modalThumbnail) {
+
+      if (video.thumbnail) {
+
+        modalThumbnail.src =
+          video.thumbnail;
+
+        modalThumbnail.style.display =
+          "block";
+
+      } else {
+
+        modalThumbnail.style.display =
+          "none";
+
+      }
+
+    }
+
+
+    updateUnlockUI();
+
+
+    if (modal) {
+
+      modal.style.display = "flex";
+
+    }
 
   }
 
 
-  if (videoBtn) {
+  /* =========================================================
+     CLOSE MODAL
+     ========================================================= */
 
-    videoBtn.disabled =
-      true;
+  function closeVideoModal() {
 
-    videoBtn.textContent =
-      "🔒 Video Locked";
+    if (modal) {
 
-  }
+      modal.style.display = "none";
 
+    }
 
-  if (watchAdBtn) {
+    selectedVideo = null;
 
-    watchAdBtn.disabled =
-      false;
+    adsWatched = 0;
 
-    watchAdBtn.textContent =
-      `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-
-  }
-
-}
-
-
-/* =========================================================
-   MONETAG REWARDED AD
-========================================================= */
-
-async function showRewardedAd() {
-
-  if (adLoading) {
-    return;
-  }
-
-
-  if (
-    adsWatched >=
-    requiredAds
-  ) {
-
-    return;
+    adLoading = false;
 
   }
 
 
-  adLoading =
-    true;
+  if (closeModal) {
 
-
-  if (watchAdBtn) {
-
-    watchAdBtn.disabled =
-      true;
-
-    watchAdBtn.textContent =
-      "⏳ Loading Ad...";
+    closeModal.addEventListener(
+      "click",
+      closeVideoModal
+    );
 
   }
 
 
-  try {
+  /* =========================================================
+     UPDATE UNLOCK UI
+     ========================================================= */
 
-    const showAd =
-      window[
-        MONETAG_FUNCTION
-      ];
+  function updateUnlockUI() {
 
+    const unlocked =
+      adsWatched >= requiredAds;
+
+
+    if (videoBtn) {
+
+      videoBtn.disabled =
+        !unlocked;
+
+      videoBtn.style.opacity =
+        unlocked ? "1" : ".5";
+
+      videoBtn.style.cursor =
+        unlocked
+          ? "pointer"
+          : "not-allowed";
+
+
+      videoBtn.textContent =
+        unlocked
+          ? "▶ Watch Video"
+          : `🔒 Watch Video (${adsWatched}/${requiredAds})`;
+
+    }
+
+
+    if (adBtn) {
+
+      adBtn.disabled =
+        unlocked || adLoading;
+
+      adBtn.textContent =
+        unlocked
+          ? "✓ Ads Completed"
+          : adLoading
+            ? "⏳ Loading Ad..."
+            : `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+
+    }
+
+
+    if (modalText) {
+
+      if (unlocked) {
+
+        modalText.textContent =
+          "✅ Video unlocked. You can watch it now.";
+
+      } else {
+
+        modalText.textContent =
+          `Watch ${requiredAds - adsWatched} more ad(s) to unlock the video.`;
+
+      }
+
+    }
+
+
+    /*
+     * 3 ads completed
+     */
 
     if (
-      typeof showAd !==
-      "function"
+      unlocked &&
+      selectedVideo &&
+      selectedVideo.id
     ) {
 
-      throw new Error(
-        "Monetag SDK is not loaded."
+      unlockVideo(
+        selectedVideo.id
       );
 
     }
 
-
-    const result =
-      await showAd();
+  }
 
 
-    console.log(
-      "Rewarded ad result:",
-      result
-    );
+  /* =========================================================
+     SHOW MONETAG REWARDED AD
+     ========================================================= */
 
+  async function showRewardedAd() {
 
-    if (
-      adsWatched <
-      requiredAds
-    ) {
-
-      adsWatched += 1;
-
+    if (!selectedVideo) {
+      return;
     }
 
 
+    if (adsWatched >= requiredAds) {
+      return;
+    }
+
+
+    if (adLoading) {
+      return;
+    }
+
+
+    adLoading = true;
+
     updateUnlockUI();
 
 
-  } catch (error) {
+    try {
 
-    console.error(
-      "Rewarded ad error:",
-      error
-    );
+      const showAd =
+        window[MONETAG_FUNCTION];
 
 
-    updateUnlockUI();
+      if (
+        typeof showAd !== "function"
+      ) {
 
-  } finally {
+        throw new Error(
+          "Monetag SDK is not loaded."
+        );
 
-    adLoading =
-      false;
+      }
 
 
-    if (
-      adsWatched <
-      requiredAds &&
-      watchAdBtn
-    ) {
+      console.log(
+        "Showing Monetag rewarded ad..."
+      );
 
-      watchAdBtn.disabled =
-        false;
 
-      watchAdBtn.textContent =
-        `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+      /*
+       * IMPORTANT:
+       *
+       * Ad Promise resolve হওয়ার পরেই
+       * reward +1 হবে।
+       */
+
+      const result =
+        await showAd();
+
+
+      console.log(
+        "Monetag result:",
+        result
+      );
+
+
+      /*
+       * Maximum 3
+       */
+
+      if (
+        adsWatched < requiredAds
+      ) {
+
+        adsWatched += 1;
+
+      }
+
+
+      console.log(
+        `Ads completed: ${adsWatched}/${requiredAds}`
+      );
+
+
+      /*
+       * 3 হলে unlock save হবে
+       */
+
+      if (
+        adsWatched >= requiredAds &&
+        selectedVideo?.id
+      ) {
+
+        unlockVideo(
+          selectedVideo.id
+        );
+
+      }
+
+
+      updateUnlockUI();
+
+
+    } catch (error) {
+
+      console.error(
+        "Monetag error:",
+        error
+      );
+
+
+      /*
+       * Error হলে reward দেওয়া হবে না।
+       */
+
+      if (modalText) {
+
+        modalText.textContent =
+          "❌ Ad complete হয়নি। আবার চেষ্টা করুন।";
+
+      }
+
+    } finally {
+
+      adLoading = false;
+
+      updateUnlockUI();
 
     }
 
   }
 
-}
+
+  /* =========================================================
+     AD BUTTON
+     ========================================================= */
+
+  if (adBtn) {
+
+    adBtn.addEventListener(
+      "click",
+      showRewardedAd
+    );
+
+  }
 
 
-/* =========================================================
-   WATCH AD BUTTON
-========================================================= */
+  /* =========================================================
+     VIDEO BUTTON
+     ========================================================= */
 
-if (watchAdBtn) {
+  if (videoBtn) {
 
-  watchAdBtn.addEventListener(
-    "click",
-    showRewardedAd
-  );
+    videoBtn.addEventListener(
+      "click",
+      () => {
 
-}
-
-
-/* =========================================================
-   VIDEO BUTTON
-========================================================= */
-
-if (videoBtn) {
-
-  videoBtn.addEventListener(
-    "click",
-    () => {
-
-      if (!selectedVideo) {
-        return;
-      }
+        if (!selectedVideo) {
+          return;
+        }
 
 
-      if (
-        adsWatched <
-        requiredAds
-      ) {
+        /*
+         * 3 ads ছাড়া কখনো যাবে না
+         */
 
-        return;
+        if (
+          adsWatched < requiredAds
+        ) {
 
-      }
+          return;
+
+        }
 
 
-      if (
-        selectedVideo.id !==
-        ""
-      ) {
+        /*
+         * Row ID লাগবে
+         */
+
+        if (!selectedVideo.id) {
+
+          console.error(
+            "Video row ID missing."
+          );
+
+          return;
+
+        }
+
+
+        /*
+         * Unlock নিশ্চিত করা
+         */
+
+        unlockVideo(
+          selectedVideo.id
+        );
+
+
+        /*
+         * video.html?id=ROW_ID
+         */
 
         const videoId =
           encodeURIComponent(
@@ -952,270 +1031,60 @@ if (videoBtn) {
         window.location.href =
           `video.html?id=${videoId}`;
 
-        return;
-
       }
+    );
 
-
-      if (
-        selectedVideo.videoUrl
-      ) {
-
-        window.location.href =
-          selectedVideo.videoUrl;
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   CLOSE MODAL
-========================================================= */
-
-if (closeModal) {
-
-  closeModal.addEventListener(
-    "click",
-    () => {
-
-      if (modal) {
-
-        modal.classList.add(
-          "hidden"
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   OUTSIDE MODAL
-========================================================= */
-
-if (modal) {
-
-  modal.addEventListener(
-    "click",
-    event => {
-
-      if (
-        event.target === modal
-      ) {
-
-        modal.classList.add(
-          "hidden"
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   CATEGORY BUTTONS
-========================================================= */
-
-document
-  .querySelectorAll(
-    ".category-btn"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          document
-            .querySelectorAll(
-              ".category-btn"
-            )
-            .forEach(
-              btn => {
-
-                btn.classList.remove(
-                  "active"
-                );
-
-              }
-            );
-
-
-          button.classList.add(
-            "active"
-          );
-
-
-          render(
-            button.dataset.category ||
-            "All"
-          );
-
-        }
-      );
-
-    }
-  );
-
-
-/* =========================================================
-   BOTTOM NAV
-========================================================= */
-
-document
-  .querySelectorAll(
-    ".bottom-nav button"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const category =
-            button.dataset.bottomCategory ||
-            "All";
-
-
-          document
-            .querySelectorAll(
-              ".bottom-nav button"
-            )
-            .forEach(
-              btn => {
-
-                btn.classList.remove(
-                  "bottom-active"
-                );
-
-              }
-            );
-
-
-          button.classList.add(
-            "bottom-active"
-          );
-
-
-          document
-            .querySelectorAll(
-              ".category-btn"
-            )
-            .forEach(
-              btn => {
-
-                btn.classList.toggle(
-                  "active",
-                  (
-                    btn.dataset.category ||
-                    ""
-                  ) === category
-                );
-
-              }
-            );
-
-
-          render(
-            category
-          );
-
-        }
-      );
-
-    }
-  );
-
-
-/* =========================================================
-   URL VALIDATION
-========================================================= */
-
-function isValidUrl(
-  value
-) {
-
-  if (!value) {
-    return false;
   }
 
 
-  try {
+  /* =========================================================
+     CLICK OUTSIDE MODAL
+     ========================================================= */
 
-    const url =
-      new URL(
-        value
-      );
+  if (modal) {
 
+    modal.addEventListener(
+      "click",
+      (event) => {
 
-    return (
-      url.protocol === "http:" ||
-      url.protocol === "https:"
+        if (
+          event.target === modal
+        ) {
+
+          closeVideoModal();
+
+        }
+
+      }
     );
-
-  } catch (error) {
-
-    return false;
 
   }
 
-}
+
+  /* =========================================================
+     ESC KEY
+     ========================================================= */
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+
+      if (
+        event.key === "Escape"
+      ) {
+
+        closeVideoModal();
+
+      }
+
+    }
+  );
 
 
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
+  /* =========================================================
+     START
+     ========================================================= */
 
-function escapeHTML(
-  value
-) {
+  loadPosts();
 
-  return String(
-    value ?? ""
-  )
-
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-
-    .replace(
-      /</g,
-      "&lt;"
-    )
-
-    .replace(
-      />/g,
-      "&gt;"
-    )
-
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-
-}
-
-
-/* =========================================================
-   START
-========================================================= */
-
-loadPosts();
+});
