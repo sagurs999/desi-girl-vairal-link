@@ -10,15 +10,20 @@
     content="width=device-width, initial-scale=1.0"
   >
 
+  <meta
+    name="theme-color"
+    content="#10131c"
+  >
+
   <title>Watch Video</title>
 
+
+  <!-- Telegram Mini App -->
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 
-  <!-- =====================================================
-       APPWRITE SDK
-  ====================================================== -->
+  <!-- Appwrite -->
 
   <script src="https://cdn.jsdelivr.net/npm/appwrite@latest"></script>
 
@@ -30,220 +35,319 @@
     }
 
 
+    html,
     body {
-
       margin: 0;
-
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
       background:
         linear-gradient(
           135deg,
-          #060817,
-          #10162d,
-          #061d28
+          #141e30,
+          #243b55,
+          #2c5364
         );
-
-      color: white;
-
-      font-family:
-        Arial,
-        sans-serif;
-
-      min-height:
-        100vh;
+      color: #ffffff;
     }
 
 
-    .page {
+    body {
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+
+    .container {
+      width: 100%;
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+
+    .back-btn {
+      border: 0;
+      outline: 0;
+      cursor: pointer;
+
+      padding: 11px 18px;
+
+      border-radius: 12px;
+
+      background:
+        rgba(255,255,255,.12);
+
+      color: #ffffff;
+
+      font-size: 15px;
+
+      backdrop-filter: blur(10px);
+    }
+
+
+    .page-title {
+      margin: 0;
+
+      font-size: 20px;
+
+      font-weight: 700;
+
+      text-align: center;
+
+      flex: 1;
+    }
+
+
+    .video-wrapper {
 
       width: 100%;
 
-      max-width: 800px;
+      background: #000000;
 
-      margin: auto;
+      border-radius: 20px;
 
-      padding: 18px;
-    }
-
-
-    .back {
-
-      border: 0;
-
-      background:
-        linear-gradient(
-          135deg,
-          #405cff,
-          #743cff
-        );
-
-      color: white;
-
-      padding:
-        12px 20px;
-
-      border-radius:
-        14px;
-
-      cursor:
-        pointer;
-
-      margin-bottom:
-        22px;
-
-      font-size:
-        15px;
-
-      font-weight:
-        800;
+      overflow: hidden;
 
       box-shadow:
-        0 8px 25px
-        rgba(80,70,255,.25);
-    }
-
-
-    .card {
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(31,37,62,.96),
-          rgba(16,24,45,.96)
-        );
-
-      border:
-        1px solid
-        rgba(255,255,255,.12);
-
-      border-radius:
-        28px;
-
-      padding:
-        18px;
-
-      box-shadow:
-        0 20px 60px
+        0 15px 45px
         rgba(0,0,0,.35);
 
-      backdrop-filter:
-        blur(15px);
     }
 
 
-    .badge {
+    #videoContainer {
+      width: 100%;
+      background: #000;
+    }
 
-      display:
-        inline-block;
 
-      padding:
-        8px 14px;
+    #videoContainer video {
 
-      border-radius:
-        20px;
+      display: block;
+
+      width: 100%;
+
+      height: auto;
+
+      max-height: 80vh;
+
+      background: #000;
+
+    }
+
+
+    .loading {
+
+      min-height: 280px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      flex-direction: column;
+
+      gap: 15px;
+
+      color: rgba(255,255,255,.8);
+
+    }
+
+
+    .spinner {
+
+      width: 45px;
+
+      height: 45px;
+
+      border: 4px solid
+        rgba(255,255,255,.15);
+
+      border-top-color:
+        #ffffff;
+
+      border-radius: 50%;
+
+      animation:
+        spin .8s linear infinite;
+
+    }
+
+
+    @keyframes spin {
+
+      to {
+        transform: rotate(360deg);
+      }
+
+    }
+
+
+    .error-box {
+
+      padding: 35px 20px;
+
+      text-align: center;
 
       background:
-        linear-gradient(
-          135deg,
-          #00d084,
-          #00c6c9
-        );
+        rgba(255,70,70,.08);
 
-      color:
-        #00261d;
+      color: #ffb3b3;
 
-      font-weight:
-        bold;
-
-      font-size:
-        13px;
-
-      margin-bottom:
-        14px;
     }
 
 
-    h1 {
+    .error-icon {
 
-      font-size:
-        24px;
+      font-size: 45px;
 
-      line-height:
-        1.3;
+      margin-bottom: 15px;
 
-      margin:
-        6px 0 18px;
     }
 
 
-    video {
+    .video-info {
 
-      width:
-        100%;
+      margin-top: 18px;
 
-      display:
-        block;
+      padding: 20px;
 
-      border-radius:
-        18px;
+      border-radius: 18px;
 
       background:
-        #000;
+        rgba(255,255,255,.09);
 
-      max-height:
-        75vh;
+      backdrop-filter: blur(12px);
+
     }
 
 
-    .status {
+    .video-info h1 {
 
-      text-align:
-        center;
+      margin: 0 0 10px;
 
-      padding:
-        35px 15px;
+      font-size: 23px;
 
-      color:
-        #aeb6cf;
+      line-height: 1.35;
 
-      line-height:
-        1.6;
     }
 
 
-    .error {
+    .video-info p {
+
+      margin: 0;
 
       color:
-        #ff8b9d;
+        rgba(255,255,255,.7);
+
+      line-height: 1.6;
+
+    }
+
+
+    .locked-box {
+
+      min-height: 300px;
+
+      padding: 30px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      text-align: center;
+
+      flex-direction: column;
+
+      gap: 15px;
+
+      background: #101010;
+
+    }
+
+
+    .locked-icon {
+
+      font-size: 55px;
+
+    }
+
+
+    .locked-title {
+
+      font-size: 22px;
+
+      font-weight: 700;
+
+    }
+
+
+    .locked-text {
+
+      max-width: 500px;
+
+      color:
+        rgba(255,255,255,.7);
+
+      line-height: 1.6;
+
+    }
+
+
+    .back-main {
+
+      margin-top: 18px;
+
+      display: inline-block;
+
+      text-decoration: none;
+
+      color: #ffffff;
+
+      padding: 12px 20px;
+
+      border-radius: 12px;
 
       background:
-        rgba(255,60,100,.08);
+        rgba(255,255,255,.12);
 
-      border:
-        1px solid
-        rgba(255,80,120,.15);
-
-      border-radius:
-        18px;
     }
 
 
-    .success {
+    @media (max-width: 600px) {
 
-      color:
-        #a9ffe3;
+      body {
+        padding: 10px;
+      }
 
-      background:
-        rgba(0,208,132,.08);
+      .video-wrapper {
+        border-radius: 14px;
+      }
 
-      border:
-        1px solid
-        rgba(0,208,132,.15);
+      .video-info {
+        padding: 15px;
+      }
 
-      border-radius:
-        18px;
+      .video-info h1 {
+        font-size: 19px;
+      }
 
-      margin-bottom:
-        15px;
     }
 
   </style>
@@ -253,78 +357,89 @@
 
 <body>
 
-  <div class="page">
+
+  <div class="container">
 
 
-    <button
-      class="back"
-      onclick="history.back()"
-      type="button"
-    >
-      ← Back
-    </button>
+    <div class="top-bar">
+
+      <button
+        class="back-btn"
+        id="backBtn"
+        type="button"
+      >
+        ← Back
+      </button>
 
 
-    <div class="card">
+      <h2
+        class="page-title"
+        id="topTitle"
+      >
+        Video
+      </h2>
+
+    </div>
 
 
-      <div class="badge">
-        🔓 VIDEO UNLOCKED
+    <div class="video-wrapper">
+
+      <div id="videoContainer">
+
+        <div class="loading">
+
+          <div class="spinner"></div>
+
+          <div>
+            Loading video...
+          </div>
+
+        </div>
+
       </div>
 
+    </div>
+
+
+    <div class="video-info">
 
       <h1 id="title">
         Loading...
       </h1>
 
-
-      <div id="playerArea">
-
-        <div class="status">
-          Loading video...
-        </div>
-
-      </div>
-
+      <p id="description">
+        Please wait...
+      </p>
 
     </div>
+
 
   </div>
 
 
   <script>
 
-    /* =====================================================
+    /* ======================================================
        TELEGRAM
-    ===================================================== */
+       ====================================================== */
 
     const tg =
-      window.Telegram &&
-      window.Telegram.WebApp;
+      window.Telegram?.WebApp ||
+      null;
 
 
     if (tg) {
 
-      try {
+      tg.ready();
 
-        tg.ready();
-
-        tg.expand();
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-      }
+      tg.expand();
 
     }
 
 
-    /* =====================================================
-       APPWRITE
-    ===================================================== */
+    /* ======================================================
+       APPWRITE CONFIG
+       ====================================================== */
 
     const APPWRITE_ENDPOINT =
       "https://cloud.appwrite.io/v1";
@@ -341,6 +456,14 @@
     const APPWRITE_TABLE_ID =
       "6a97fa98002d5e65d0f4";
 
+
+    const APPWRITE_BUCKET_ID =
+      "6a9539820022110c710";
+
+
+    /* ======================================================
+       APPWRITE
+       ====================================================== */
 
     const client =
       new Appwrite.Client();
@@ -361,9 +484,43 @@
       );
 
 
-    /* =====================================================
+    /* ======================================================
+       DOM
+       ====================================================== */
+
+    const videoContainer =
+      document.getElementById(
+        "videoContainer"
+      );
+
+
+    const title =
+      document.getElementById(
+        "title"
+      );
+
+
+    const topTitle =
+      document.getElementById(
+        "topTitle"
+      );
+
+
+    const description =
+      document.getElementById(
+        "description"
+      );
+
+
+    const backBtn =
+      document.getElementById(
+        "backBtn"
+      );
+
+
+    /* ======================================================
        URL PARAMETER
-    ===================================================== */
+       ====================================================== */
 
     const params =
       new URLSearchParams(
@@ -372,39 +529,296 @@
 
 
     const postId =
-      params.get(
-        "id"
+      params.get("id");
+
+
+    /* ======================================================
+       UNLOCK KEY
+       ====================================================== */
+
+    function getUnlockKey(
+      videoId
+    ) {
+
+      return `video_unlocked_${videoId}`;
+
+    }
+
+
+    /* ======================================================
+       CHECK 3-AD UNLOCK
+       ====================================================== */
+
+    function isUnlocked() {
+
+      if (!postId) {
+        return false;
+      }
+
+      return (
+        sessionStorage.getItem(
+          getUnlockKey(postId)
+        ) === "true"
       );
 
+    }
 
-    /* =====================================================
-       DOM
-    ===================================================== */
 
-    const title =
-      document.getElementById(
-        "title"
+    /* ======================================================
+       APPWRITE VIDEO URL
+       ====================================================== */
+
+    function buildAppwriteVideoUrl(
+      fileId
+    ) {
+
+      if (!fileId) {
+        return "";
+      }
+
+
+      return (
+        `${APPWRITE_ENDPOINT}` +
+        `/storage/buckets/` +
+        `${encodeURIComponent(APPWRITE_BUCKET_ID)}` +
+        `/files/` +
+        `${encodeURIComponent(fileId)}` +
+        `/view?project=` +
+        `${encodeURIComponent(APPWRITE_PROJECT_ID)}`
       );
 
-
-    const playerArea =
-      document.getElementById(
-        "playerArea"
-      );
+    }
 
 
-    /* =====================================================
+    /* ======================================================
+       NORMALIZE VIDEO URL
+       ====================================================== */
+
+    function normalizeVideoUrl(
+      value
+    ) {
+
+      if (!value) {
+        return "";
+      }
+
+
+      const raw =
+        String(value).trim();
+
+
+      if (!raw) {
+        return "";
+      }
+
+
+      /*
+       * যদি videoUrl-এ শুধু File ID থাকে
+       */
+
+      if (
+        !raw.startsWith("http://") &&
+        !raw.startsWith("https://")
+      ) {
+
+        return buildAppwriteVideoUrl(
+          raw
+        );
+
+      }
+
+
+      /*
+       * Full Appwrite URL
+       */
+
+      try {
+
+        const url =
+          new URL(raw);
+
+
+        /*
+         * admin parameter remove
+         */
+
+        url.searchParams.delete(
+          "mode"
+        );
+
+
+        /*
+         * project missing হলে add
+         */
+
+        if (
+          !url.searchParams.get(
+            "project"
+          )
+        ) {
+
+          url.searchParams.set(
+            "project",
+            APPWRITE_PROJECT_ID
+          );
+
+        }
+
+
+        return url.toString();
+
+      } catch (error) {
+
+        console.error(
+          "Invalid video URL:",
+          error
+        );
+
+        return raw;
+
+      }
+
+    }
+
+
+    /* ======================================================
+       SHOW ERROR
+       ====================================================== */
+
+    function showError(
+      message
+    ) {
+
+      videoContainer.innerHTML = `
+
+        <div class="error-box">
+
+          <div class="error-icon">
+            ⚠️
+          </div>
+
+          <div>
+            ${escapeHTML(message)}
+          </div>
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* ======================================================
+       HTML ESCAPE
+       ====================================================== */
+
+    function escapeHTML(
+      value
+    ) {
+
+      return String(value ?? "")
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+        .replace(
+          /</g,
+          "&lt;"
+        )
+        .replace(
+          />/g,
+          "&gt;"
+        )
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+
+    }
+
+
+    /* ======================================================
+       SHOW LOCKED
+       ====================================================== */
+
+    function showLocked() {
+
+      videoContainer.innerHTML = `
+
+        <div class="locked-box">
+
+          <div class="locked-icon">
+            🔒
+          </div>
+
+          <div class="locked-title">
+            Video Locked
+          </div>
+
+          <div class="locked-text">
+            এই ভিডিও দেখতে আগে মূল পেজে গিয়ে
+            ৩টি বিজ্ঞাপন সম্পূর্ণ করতে হবে।
+          </div>
+
+          <a
+            class="back-main"
+            href="index.html"
+          >
+            ← Go Back
+          </a>
+
+        </div>
+
+      `;
+
+
+      title.textContent =
+        "Video Locked";
+
+
+      topTitle.textContent =
+        "Locked";
+
+
+      description.textContent =
+        "Complete 3 ads to unlock this video.";
+
+    }
+
+
+    /* ======================================================
        LOAD VIDEO
-    ===================================================== */
+       ====================================================== */
 
     async function loadVideo() {
 
 
+      /*
+       * ID না থাকলে
+       */
+
       if (!postId) {
 
         showError(
-          "Video ID is missing."
+          "Video ID পাওয়া যায়নি।"
         );
+
+        return;
+
+      }
+
+
+      /*
+       * 3 ads completed কিনা
+       */
+
+      if (!isUnlocked()) {
+
+        showLocked();
 
         return;
 
@@ -413,54 +827,100 @@
 
       try {
 
-
         console.log(
-          "Loading video from Appwrite:",
+          "Loading row:",
           postId
         );
 
 
+        /*
+         * Appwrite row
+         */
+
         const post =
-          await tablesDB.getRow(
-            APPWRITE_DATABASE_ID,
-            APPWRITE_TABLE_ID,
-            postId
-          );
+          await tablesDB.getRow({
+
+            databaseId:
+              APPWRITE_DATABASE_ID,
+
+            tableId:
+              APPWRITE_TABLE_ID,
+
+            rowId:
+              postId
+
+          });
 
 
-        if (!post) {
-
-          showError(
-            "Video post not found."
-          );
-
-          return;
-
-        }
+        console.log(
+          "Appwrite post:",
+          post
+        );
 
 
-        /* =================================================
-           TITLE
-        ================================================= */
+        /*
+         * Title
+         */
 
-        title.textContent =
+        const videoTitle =
           post.title ||
           "Video";
 
 
-        /* =================================================
-           VIDEO URL
-        ================================================= */
+        title.textContent =
+          videoTitle;
 
-        const videoUrl =
-          post.video_url ||
+
+        topTitle.textContent =
+          videoTitle;
+
+
+        description.textContent =
+          "Now playing";
+
+
+        /*
+         * IMPORTANT:
+         *
+         * আপনার Appwrite field হলো videoUrl
+         */
+
+        let rawVideoUrl =
+          post.videoUrl ??
+          post.video_url ??
           "";
 
+
+        /*
+         * URL তৈরি/clean
+         */
+
+        const videoUrl =
+          normalizeVideoUrl(
+            rawVideoUrl
+          );
+
+
+        console.log(
+          "Raw video URL:",
+          rawVideoUrl
+        );
+
+
+        console.log(
+          "Final video URL:",
+          videoUrl
+        );
+
+
+        /*
+         * URL না থাকলে
+         */
 
         if (!videoUrl) {
 
           showError(
-            "Video URL not found in video_url column."
+            "এই পোস্টে videoUrl পাওয়া যায়নি।"
           );
 
           return;
@@ -468,9 +928,9 @@
         }
 
 
-        /* =================================================
-           CREATE PLAYER
-        ================================================= */
+        /*
+         * Video element
+         */
 
         const video =
           document.createElement(
@@ -496,15 +956,21 @@
         );
 
 
-        video.addEventListener(
-          "contextmenu",
-          event => {
+        video.style.width =
+          "100%";
 
-            event.preventDefault();
 
-          }
-        );
+        video.style.display =
+          "block";
 
+
+        video.style.background =
+          "#000";
+
+
+        /*
+         * Source
+         */
 
         const source =
           document.createElement(
@@ -525,48 +991,78 @@
         );
 
 
-        playerArea.innerHTML =
+        /*
+         * Clear loading
+         */
+
+        videoContainer.innerHTML =
           "";
 
 
-        const success =
-          document.createElement(
-            "div"
-          );
-
-
-        success.className =
-          "status success";
-
-
-        success.textContent =
-          "আপনি সফলভাবে ভিডিওটি আনলক করেছেন। নিচের player থেকে ভিডিওটি দেখতে পারবেন।";
-
-
-        playerArea.appendChild(
-          success
-        );
-
-
-        playerArea.appendChild(
+        videoContainer.appendChild(
           video
         );
 
 
-        /* =================================================
-           VIDEO ERROR
-        ================================================= */
+        /*
+         * Video error
+         */
 
         video.addEventListener(
           "error",
           () => {
 
+            console.error(
+              "HTML video error:",
+              video.error
+            );
+
+
             showError(
-              "ভিডিওটি চালানো যাচ্ছে না। video_url অথবা ভিডিও ফাইলটি পরীক্ষা করুন।"
+              "ভিডিওটি browser-এ load করা যাচ্ছে না। Appwrite Storage URL বা video format চেক করুন।"
             );
 
           }
         );
+
+
+        /*
+         * Can play
+         */
+
+        video.addEventListener(
+          "canplay",
+          () => {
+
+            console.log(
+              "Video can play."
+            );
+
+          }
+        );
+
+
+        /*
+         * Metadata
+         */
+
+        video.addEventListener(
+          "loadedmetadata",
+          () => {
+
+            console.log(
+              "Video metadata loaded."
+            );
+
+          }
+        );
+
+
+        /*
+         * Load
+         */
+
+        video.load();
 
 
       } catch (error) {
@@ -578,7 +1074,7 @@
 
 
         showError(
-          `Unable to load video: ${error.message}`
+          "Appwrite থেকে ভিডিও তথ্য পাওয়া যাচ্ছে না। Table Read permission চেক করুন।"
         );
 
       }
@@ -586,72 +1082,34 @@
     }
 
 
-    /* =====================================================
-       ERROR
-    ===================================================== */
+    /* ======================================================
+       BACK BUTTON
+       ====================================================== */
 
-    function showError(
-      message
-    ) {
+    backBtn.addEventListener(
+      "click",
+      () => {
 
-      playerArea.innerHTML = `
+        if (
+          window.history.length > 1
+        ) {
 
-        <div class="status error">
+          window.history.back();
 
-          ${escapeHTML(
-            message
-          )}
+        } else {
 
-        </div>
+          window.location.href =
+            "index.html";
 
-      `;
+        }
 
-    }
-
-
-    /* =====================================================
-       ESCAPE HTML
-    ===================================================== */
-
-    function escapeHTML(
-      value
-    ) {
-
-      return String(
-        value ?? ""
-      )
-
-        .replace(
-          /&/g,
-          "&amp;"
-        )
-
-        .replace(
-          /</g,
-          "&lt;"
-        )
-
-        .replace(
-          />/g,
-          "&gt;"
-        )
-
-        .replace(
-          /"/g,
-          "&quot;"
-        )
-
-        .replace(
-          /'/g,
-          "&#039;"
-        );
-
-    }
+      }
+    );
 
 
-    /* =====================================================
+    /* ======================================================
        START
-    ===================================================== */
+       ====================================================== */
 
     loadVideo();
 
