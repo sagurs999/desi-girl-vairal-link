@@ -25,23 +25,42 @@ if (tg) {
 
 
 /* =========================================================
-   SUPABASE
+   APPWRITE
 ========================================================= */
 
-const SUPABASE_URL =
-  "https://mshoftgubfbkvynndtnu.supabase.co";
+const APPWRITE_ENDPOINT =
+  "https://cloud.appwrite.io/v1";
 
 
-/*
-  Supabase Publishable Key
-*/
-
-const SUPABASE_ANON_KEY =
-  "sb_publishable_2L716MuF36gsDT5fGu_k9Q_LzGLqTk0";
+const APPWRITE_PROJECT_ID =
+  "6a953702002468f915bf";
 
 
-const POSTS_API =
-  `${SUPABASE_URL}/rest/v1/posts`;
+const APPWRITE_DATABASE_ID =
+  "6a97f8710010ad20905d";
+
+
+const APPWRITE_TABLE_ID =
+  "6a97fa98002d5e65d0f4";
+
+
+const client =
+  new Appwrite.Client();
+
+
+client
+  .setEndpoint(
+    APPWRITE_ENDPOINT
+  )
+  .setProject(
+    APPWRITE_PROJECT_ID
+  );
+
+
+const tablesDB =
+  new Appwrite.TablesDB(
+    client
+  );
 
 
 /* =========================================================
@@ -50,6 +69,7 @@ const POSTS_API =
 
 const MONETAG_ZONE =
   "11571866";
+
 
 const MONETAG_FUNCTION =
   `show_${MONETAG_ZONE}`;
@@ -61,13 +81,21 @@ const MONETAG_FUNCTION =
 
 const videos = [];
 
-let selectedVideo = null;
 
-let adsWatched = 0;
+let selectedVideo =
+  null;
 
-const requiredAds = 3;
 
-let adLoading = false;
+let adsWatched =
+  0;
+
+
+const requiredAds =
+  3;
+
+
+let adLoading =
+  false;
 
 
 /* =========================================================
@@ -79,50 +107,60 @@ const videoGrid =
     "videoGrid"
   );
 
+
 const modal =
   document.getElementById(
     "modal"
   );
+
 
 const modalTitle =
   document.getElementById(
     "modalTitle"
   );
 
+
 const modalText =
   document.getElementById(
     "modalText"
   );
+
 
 const preview =
   document.getElementById(
     "preview"
   );
 
+
 const watchAdBtn =
   document.getElementById(
     "watchAdBtn"
   );
+
 
 const videoBtn =
   document.getElementById(
     "videoBtn"
   );
 
+
 const progressBar =
   document.getElementById(
     "progressBar"
   );
+
 
 const adCount =
   document.getElementById(
     "adCount"
   );
 
+
 const closeModal =
   document.getElementById(
     "closeModal"
   );
+
 
 const tgUser =
   document.getElementById(
@@ -157,7 +195,7 @@ if (tgUser) {
 
 
 /* =========================================================
-   LOAD POSTS FROM SUPABASE
+   LOAD POSTS FROM APPWRITE
 ========================================================= */
 
 async function loadPosts() {
@@ -184,103 +222,53 @@ async function loadPosts() {
 
   try {
 
-    const url =
-      `${POSTS_API}?select=*&order=created_at.desc`;
-
-
     console.log(
-      "Supabase URL:",
-      url
+      "Loading videos from Appwrite..."
     );
 
 
     const response =
-      await fetch(
-        url,
-        {
-          method: "GET",
-
-          cache: "no-store",
-
-          headers: {
-
-            "apikey":
-              SUPABASE_ANON_KEY,
-
-            "Authorization":
-              `Bearer ${SUPABASE_ANON_KEY}`,
-
-            "Accept":
-              "application/json"
-
-          }
-
-        }
+      await tablesDB.listRows(
+        APPWRITE_DATABASE_ID,
+        APPWRITE_TABLE_ID,
+        [
+          Appwrite.Query.orderDesc(
+            "$createdAt"
+          )
+        ]
       );
-
-
-    const responseText =
-      await response.text();
 
 
     console.log(
-      "Supabase status:",
-      response.status
+      "Appwrite response:",
+      response
     );
 
 
-    console.log(
-      "Supabase response:",
-      responseText
-    );
+    const rows =
+      response.rows ||
+      response.documents ||
+      [];
 
 
-    if (!response.ok) {
+    if (
+      !Array.isArray(
+        rows
+      )
+    ) {
 
       throw new Error(
-        `Supabase ${response.status}: ${responseText}`
+        "Appwrite response is invalid."
       );
 
     }
 
 
-    let data;
+    videos.length =
+      0;
 
 
-    try {
-
-      data =
-        JSON.parse(
-          responseText
-        );
-
-    } catch (error) {
-
-      throw new Error(
-        "Supabase returned invalid JSON."
-      );
-
-    }
-
-
-    if (!Array.isArray(data)) {
-
-      throw new Error(
-        "Supabase response is not an array."
-      );
-
-    }
-
-
-    videos.length = 0;
-
-
-    /*
-      Convert database rows
-      into app videos.
-    */
-
-    data.forEach(
+    rows.forEach(
       post => {
 
         if (!post) {
@@ -291,56 +279,37 @@ async function loadPosts() {
         const video = {
 
           id:
+            post.$id ??
             post.id ??
-            post.post_id ??
-            post.uuid ??
             "",
 
 
           title:
             post.title ??
-            post.name ??
-            post.video_title ??
             "Untitled Video",
 
 
           category:
             post.category ??
-            post.type ??
             "Trending",
 
 
           thumbnail:
             post.thumbnail_url ??
-            post.thumbnail ??
-            post.image_url ??
-            post.image ??
-            post.poster_url ??
-            post.poster ??
             "",
 
 
           videoUrl:
             post.video_url ??
-            post.video ??
-            post.video_link ??
-            post.videoUrl ??
-            post.url ??
-            post.link ??
             "",
 
 
           createdAt:
-            post.created_at ??
-            post.createdAt ??
+            post.$createdAt ??
             ""
 
         };
 
-
-        /*
-          Keep valid rows.
-        */
 
         if (
           video.id !== "" ||
@@ -388,6 +357,12 @@ async function loadPosts() {
           ভিডিও লোড করা যাচ্ছে না।
         </p>
 
+        <p style="margin-top:10px;font-size:11px;">
+          ${escapeHTML(
+            error.message
+          )}
+        </p>
+
         <button
           id="retryVideos"
           type="button"
@@ -433,7 +408,8 @@ function render(
   }
 
 
-  videoGrid.innerHTML = "";
+  videoGrid.innerHTML =
+    "";
 
 
   const selectedCategory =
@@ -650,10 +626,6 @@ function openVideo(
   }
 
 
-  /*
-    Default text only.
-  */
-
   if (modalText) {
 
     modalText.textContent =
@@ -661,10 +633,6 @@ function openVideo(
 
   }
 
-
-  /*
-    Thumbnail preview.
-  */
 
   if (
     preview &&
@@ -753,10 +721,6 @@ function updateUnlockUI() {
   }
 
 
-  /*
-    3/3 ONLY
-  */
-
   if (
     adsWatched >=
     requiredAds
@@ -796,12 +760,6 @@ function updateUnlockUI() {
 
   }
 
-
-  /*
-    0/3, 1/3, 2/3
-
-    No completion message.
-  */
 
   if (videoBtn) {
 
@@ -865,10 +823,6 @@ async function showRewardedAd() {
 
   try {
 
-    /*
-      Monetag function
-    */
-
     const showAd =
       window[
         MONETAG_FUNCTION
@@ -887,17 +841,6 @@ async function showRewardedAd() {
     }
 
 
-    console.log(
-      "Opening rewarded ad..."
-    );
-
-
-    /*
-      IMPORTANT:
-      Do not increment before
-      the SDK promise completes.
-    */
-
     const result =
       await showAd();
 
@@ -907,10 +850,6 @@ async function showRewardedAd() {
       result
     );
 
-
-    /*
-      Completed ad.
-    */
 
     if (
       adsWatched <
@@ -932,15 +871,6 @@ async function showRewardedAd() {
       error
     );
 
-
-    /*
-      If user closes the ad
-      or the ad fails:
-
-      Counter stays unchanged.
-
-      No X message is shown.
-    */
 
     updateUnlockUI();
 
@@ -1008,10 +938,6 @@ if (videoBtn) {
       }
 
 
-      /*
-        Open video.html using ID.
-      */
-
       if (
         selectedVideo.id !==
         ""
@@ -1030,10 +956,6 @@ if (videoBtn) {
 
       }
 
-
-      /*
-        Fallback if ID doesn't exist.
-      */
 
       if (
         selectedVideo.videoUrl
@@ -1233,7 +1155,9 @@ function isValidUrl(
   try {
 
     const url =
-      new URL(value);
+      new URL(
+        value
+      );
 
 
     return (
