@@ -4,27 +4,17 @@
   padding: 0;
 }
 
-html,
-body {
+html, body {
   width: 100%;
   min-height: 100%;
 }
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(
-    180deg,
-    #080d1d 0%,
-    #10162c 45%,
-    #070b18 100%
-  );
+  background: linear-gradient(180deg, #080d1d 0%, #10162c 45%, #070b18 100%);
   color: #ffffff;
   padding-bottom: 100px;
 }
-
-/* =========================================================
-   APP
-========================================================= */
 
 .app {
   width: 100%;
@@ -33,20 +23,12 @@ body {
   min-height: 100vh;
 }
 
-/* =========================================================
-   HEADER
-========================================================= */
-
 .top-header {
   padding: 18px 18px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(
-    135deg,
-    #171d39,
-    #11162b
-  );
+  background: linear-gradient(135deg, #171d39, #11162b);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   position: sticky;
   top: 0;
@@ -78,10 +60,6 @@ body {
   white-space: nowrap;
 }
 
-/* =========================================================
-   HERO
-========================================================= */
-
 .hero {
   margin: 18px;
   padding: 22px;
@@ -89,12 +67,7 @@ body {
   display: flex;
   align-items: center;
   gap: 15px;
-  background: linear-gradient(
-    135deg,
-    #405cff,
-    #713cff 45%,
-    #10cbb8
-  );
+  background: linear-gradient(135deg, #405cff, #713cff 45%, #10cbb8);
   box-shadow: 0 15px 40px rgba(44, 61, 255, 0.25);
 }
 
@@ -110,19 +83,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.hero h1 {
-  font-size: 21px;
-  margin-bottom: 5px;
-}
-
-.hero p {
-  font-size: 14px;
-  color: #e9edff;
-}
-
-/* =========================================================
-   CATEGORY
-========================================================= */
+.hero h1 { font-size: 21px; margin-bottom: 5px; }
+.hero p { font-size: 14px; color: #e9edff; }
 
 .category-bar {
   display: flex;
@@ -132,9 +94,7 @@ body {
   scrollbar-width: none;
 }
 
-.category-bar::-webkit-scrollbar {
-  display: none;
-}
+.category-bar::-webkit-scrollbar { display: none; }
 
 .category-btn {
   flex-shrink: 0;
@@ -149,18 +109,10 @@ body {
 }
 
 .category-btn.active {
-  background: linear-gradient(
-    135deg,
-    #3f5cff,
-    #713dff
-  );
+  background: linear-gradient(135deg, #3f5cff, #713dff);
   color: #fff;
   box-shadow: 0 7px 20px rgba(74, 75, 255, 0.3);
 }
-
-/* =========================================================
-   SECTION
-========================================================= */
 
 .section-title {
   display: flex;
@@ -180,10 +132,6 @@ body {
   color: #ffbf43;
 }
 
-/* =========================================================
-   VIDEO GRID
-========================================================= */
-
 .video-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -191,40 +139,22 @@ body {
   padding: 0 14px 30px;
 }
 
-/* =========================================================
-   VIDEO CARD
-========================================================= */
-
 .video-card {
   overflow: hidden;
   border-radius: 19px;
-  background: linear-gradient(
-    180deg,
-    #1b2034,
-    #121627
-  );
+  background: linear-gradient(180deg, #1b2034, #121627);
   border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22);
   position: relative;
   transition: transform 0.2s ease;
 }
 
-.video-card:active {
-  transform: scale(0.98);
-}
-
-/* =========================================================
-   THUMBNAIL
-========================================================= */
+.video-card:active { transform: scale(0.98); }
 
 .thumb {
   width: 100%;
   aspect-ratio: 16 / 10;
-  background: linear-gradient(
-    135deg,
-    #252d50,
-    #101426
-  );
+  background: linear-gradient(135deg, #252d50, #101426);
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -235,34 +165,9 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.25s ease;
 }
 
-.thumb:active img {
-  transform: scale(1.03);
-}
-
-.thumb-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 38px;
-  background: linear-gradient(
-    135deg,
-    #3b4dff,
-    #8b3dff
-  );
-}
-
-/* =========================================================
-   CARD BODY
-========================================================= */
-
-.card-body {
-  padding: 12px;
-}
+.card-body { padding: 12px; }
 
 .card-body h3 {
   font-size: 15px;
@@ -284,21 +189,13 @@ body {
   text-overflow: ellipsis;
 }
 
-/* =========================================================
-   WATCH BUTTON
-========================================================= */
-
 .open-btn {
   width: 100%;
   border: 0;
   padding: 12px 8px;
   margin-top: 11px;
   border-radius: 13px;
-  background: linear-gradient(
-    135deg,
-    #3c5cf5,
-    #713eff
-  );
+  background: linear-gradient(135deg, #3c5cf5, #713eff);
   color: white;
   font-size: 13px;
   font-weight: 900;
@@ -306,20 +203,11 @@ body {
   box-shadow: 0 8px 20px rgba(67, 72, 255, 0.24);
 }
 
-.open-btn:active {
-  transform: scale(0.98);
-}
-
-/* =========================================================
-   LOADING & ERROR
-========================================================= */
-
 .loading {
   grid-column: 1 / -1;
   padding: 60px 20px;
   text-align: center;
   color: #8f99b8;
-  font-size: 14px;
 }
 
 .error-box {
@@ -330,12 +218,7 @@ body {
   border: 1px solid rgba(255, 80, 120, 0.15);
   color: #ffb4c5;
   text-align: center;
-  line-height: 1.6;
 }
-
-/* =========================================================
-   UNLOCK MODAL
-========================================================= */
 
 .modal {
   position: fixed;
@@ -347,41 +230,18 @@ body {
   padding: 18px;
   background: rgba(3, 5, 18, 0.82);
   backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
 }
 
-.modal.hidden {
-  display: none;
-}
+.modal.hidden { display: none; }
 
 .modal-box {
   width: 100%;
   max-width: 520px;
   padding: 18px;
   border-radius: 30px;
-  background: linear-gradient(
-    145deg,
-    #151a35 0%,
-    #24204c 48%,
-    #102f3d 100%
-  );
+  background: linear-gradient(145deg, #151a35 0%, #24204c 48%, #102f3d 100%);
   border: 1px solid rgba(124, 111, 255, 0.45);
-  box-shadow: 
-    0 25px 80px rgba(0, 0, 0, 0.65),
-    0 0 45px rgba(91, 72, 255, 0.18);
   position: relative;
-  animation: unlockModalIn 0.25s ease;
-}
-
-@keyframes unlockModalIn {
-  from {
-    opacity: 0;
-    transform: translateY(25px) scale(0.94);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 .modal-close {
@@ -396,7 +256,6 @@ body {
   color: white;
   font-size: 22px;
   cursor: pointer;
-  z-index: 5;
 }
 
 .modal-preview {
@@ -412,28 +271,15 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-.modal-title {
-  font-size: 23px;
-  font-weight: 900;
-  line-height: 1.3;
-  margin-bottom: 10px;
-}
-
-.modal-description {
-  color: #b9c0dc;
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 16px;
-}
+.modal-title { font-size: 23px; font-weight: 900; margin-bottom: 10px; }
+.modal-description { color: #b9c0dc; font-size: 14px; margin-bottom: 16px; }
 
 .ad-progress {
   height: 9px;
   width: 100%;
   border-radius: 20px;
-  overflow: hidden;
   background: rgba(255, 255, 255, 0.12);
   margin-bottom: 8px;
 }
@@ -442,76 +288,38 @@ body {
   width: 0%;
   height: 100%;
   border-radius: 20px;
-  background: linear-gradient(
-    90deg,
-    #00d4ff,
-    #7357ff,
-    #ff3cac
-  );
+  background: linear-gradient(90deg, #00d4ff, #7357ff, #ff3cac);
   transition: width 0.35s ease;
 }
 
-.ad-count {
-  text-align: center;
-  color: #aeb7d6;
-  font-size: 13px;
-  margin-bottom: 16px;
+.ad-count { text-align: center; color: #aeb7d6; font-size: 13px; margin-bottom: 16px; }
+
+.watch-ad-btn, .video-unlock-btn {
+  width: 100%;
+  border: 0;
+  padding: 15px;
+  border-radius: 17px;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .watch-ad-btn {
-  width: 100%;
-  border: 0;
-  padding: 15px;
-  border-radius: 17px;
-  background: linear-gradient(
-    135deg,
-    #00c6ff,
-    #635bff,
-    #9b3cff
-  );
+  background: linear-gradient(135deg, #00c6ff, #635bff, #9b3cff);
   color: white;
-  font-size: 15px;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 12px 30px rgba(88, 82, 255, 0.3);
-}
-
-.watch-ad-btn:active {
-  transform: scale(0.98);
-}
-
-.watch-ad-btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
 }
 
 .video-unlock-btn {
-  width: 100%;
-  border: 0;
-  padding: 15px;
   margin-top: 10px;
-  border-radius: 17px;
-  background: linear-gradient(
-    135deg,
-    #00d084,
-    #00b8a9
-  );
+  background: linear-gradient(135deg, #00d084, #00b8a9);
   color: white;
-  font-size: 15px;
-  font-weight: 900;
-  cursor: pointer;
 }
 
 .video-unlock-btn:disabled {
   background: #3b425c;
   color: #9299b5;
   cursor: not-allowed;
-  box-shadow: none;
 }
-
-/* =========================================================
-   BOTTOM NAV
-========================================================= */
 
 .bottom-nav {
   position: fixed;
@@ -528,7 +336,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 25px;
   z-index: 100;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
 }
 
 .bottom-nav button {
@@ -543,61 +350,7 @@ body {
   cursor: pointer;
 }
 
-.bottom-nav button span {
-  display: block;
-  margin-top: 3px;
-}
-
 .bottom-nav .bottom-active {
-  background: linear-gradient(
-    135deg,
-    #3e5eff,
-    #733dff
-  );
+  background: linear-gradient(135deg, #3e5eff, #733dff);
   color: white;
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (min-width: 700px) {
-  .video-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-}
-
-@media (max-width: 370px) {
-  .video-grid {
-    gap: 9px;
-    padding: 0 9px 25px;
-  }
-
-  .card-body {
-    padding: 9px;
-  }
-
-  .card-body h3 {
-    font-size: 13px;
-  }
-
-  .open-btn {
-    font-size: 11px;
-    padding: 10px 5px;
-  }
-
-  .modal {
-    padding: 10px;
-  }
-
-  .modal-box {
-    padding: 14px;
-    border-radius: 24px;
-  }
-
-  .modal-title {
-    font-size: 19px;
-  }
 }
