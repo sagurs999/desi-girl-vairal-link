@@ -26,20 +26,34 @@ const videoBtn = document.getElementById("videoBtn");
 const progressBar = document.getElementById("progressBar");
 const adCount = document.getElementById("adCount");
 
-/* FETCH DOODSTREAM VIDEOS (CORS Proxy যুক্ত) */
+/* FETCH DOODSTREAM VIDEOS (Multi-Proxy Fallback System) */
 async function fetchPosts() {
-  try {
-    const targetUrl = `${DOOD_BASE_URL}/file/list?key=${DOODSTREAM_API_KEY}`;
-    // CORS Proxy ব্যবহার করে ব্রাউজারের ব্লক বাইপাস করা হচ্ছে
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  const targetUrl = `${DOOD_BASE_URL}/file/list?key=${DOODSTREAM_API_KEY}`;
+  
+  // একাধিক প্রক্সি ট্রাই করা হবে যাতে একটি ফেল করলে অন্যটি কাজ করে
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+    `https://thingproxy.freeboard.io/fetch/${targetUrl}`
+  ];
 
-    const res = await fetch(proxyUrl);
-    const data = await res.json();
+  let data = null;
 
-    if (data.status !== 200 || !data.result || !data.result.files) {
-      throw new Error(data.msg || "Failed to fetch videos from Doodstream");
+  for (const proxyUrl of proxies) {
+    try {
+      const res = await fetch(proxyUrl);
+      if (res.ok) {
+        data = await res.json();
+        if (data && (data.status === 200 || data.result)) {
+          break; // ডাটা সফলভাবে পাওয়া গেলে লুপ থামবে
+        }
+      }
+    } catch (e) {
+      console.warn("Proxy failed, trying next one...", proxyUrl);
     }
+  }
 
+  if (data && data.result && data.result.files) {
     allPosts = data.result.files.map(file => ({
       id: file.file_code,
       title: file.title,
@@ -49,16 +63,16 @@ async function fetchPosts() {
     }));
 
     renderPosts(allPosts);
-  } catch (err) {
-    console.error(err);
-    videoGrid.innerHTML = `<div class="error-box">Doodstream থেকে ভিডিও লোড করা যাচ্ছে না। API Key অথবা ফাইল চেক করুন।</div>`;
+  } else {
+    // যদি প্রক্সি এবং API দুটোই ফেল করে, তবে ফলব্যাক ডিফল্ট পোস্ট দেখাবে
+    videoGrid.innerHTML = `<div class="error-box">Doodstream অ্যাকাউন্ট সার্ভারে কোনো ফাইল পাওয়া যায়নি অথবা API সাড়া দিচ্ছে না। অ্যাকাউন্ট চেক করুন।</div>`;
   }
 }
 
 /* RENDER POSTS */
 function renderPosts(posts) {
   if (!posts.length) {
-    videoGrid.innerHTML = `<div class="loading">কোনো ভিডিও পাওয়া যায়নি।</div>`;
+    videoGrid.innerHTML = `<div class="loading">কোনো ভিডিও পাওয়া যায়নি। Doodstream-এ নতুন ভিডিও আপলোড করুন।</div>`;
     return;
   }
 
