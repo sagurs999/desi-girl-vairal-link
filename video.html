@@ -340,4 +340,122 @@ function checkUnlock() {
 function loadVideo() {
 
     videoTitle.textContent =
-        "Desi Girl Vairal Video
+        "Desi Girl Vairal Video";
+
+
+    /*
+       DoodStream Embed
+    */
+
+    const embedUrl =
+        `https://dood.watch/e/${
+            encodeURIComponent(
+                fileCode
+            )
+        }`;
+
+
+    player.src =
+        embedUrl;
+
+
+    player.onload =
+        function () {
+
+            loading.classList.add(
+                "hidden"
+            );
+
+
+            playerContainer.classList.remove(
+                "hidden"
+            );
+
+        };
+
+
+    /*
+       কিছু browser iframe-এর
+       load event ঠিকমতো দেয় না।
+    */
+
+    setTimeout(
+        function () {
+
+            loading.classList.add(
+                "hidden"
+            );
+
+
+            playerContainer.classList.remove(
+                "hidden"
+            );
+
+        },
+        3000
+    );
+
+}
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+function showError(message) {
+
+    loading.classList.add(
+        "hidden"
+    );
+
+
+    playerContainer.classList.add(
+        "hidden"
+    );
+
+
+    errorBox.classList.remove(
+        "hidden"
+    );
+
+
+    errorText.textContent =
+        message;
+
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function goBack() {
+
+    if (
+        window.history.length > 1
+    ) {
+
+        window.history.back();
+
+    } else {
+
+        goHome();
+
+    }
+
+}
+
+
+function goHome() {
+
+    window.location.href =
+        "index.html";
+
+}
+
+</script>
+
+
+</body>
+
+</html>
