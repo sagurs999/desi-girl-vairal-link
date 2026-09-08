@@ -3,112 +3,191 @@
 
 <head>
 
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-  <title>Watch Video</title>
+    <title>Watch Video - Desi Girl Vairal Link</title>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Telegram -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 
 <body>
 
+
+<!-- ================= HEADER ================= -->
+
 <header class="header">
 
-  <button
-    class="back-btn"
-    onclick="goBack()"
-  >
-    ←
-  </button>
+    <button
+        class="back-btn"
+        onclick="goBack()">
+        ←
+    </button>
 
 
-  <div>
+    <div class="header-left">
 
-    <div class="brand">
-      🔐 Desi Girl Vairal Link
+        <div class="brand">
+            🔐 Desi Girl Vairal Link
+        </div>
+
+        <div class="subtitle">
+            Video Player
+        </div>
+
     </div>
 
-    <div class="subtitle">
-      Video Player
-    </div>
 
-  </div>
+    <div id="tgUser" class="tg-user">
+        Guest
+    </div>
 
 </header>
 
 
+
+<!-- ================= MAIN ================= -->
+
 <main class="watch-page">
 
 
-  <div id="videoLoading" class="loading">
+    <!-- Loading -->
 
-    <div class="spinner"></div>
+    <div
+        id="videoLoading"
+        class="loading">
 
-    <p>
-      Loading player...
-    </p>
+        <div class="spinner"></div>
 
-  </div>
+        <p>
+            Loading video...
+        </p>
 
-
-  <div
-    id="videoError"
-    class="error-box hidden"
-  >
-
-    <h3>
-      ⚠️ Video unavailable
-    </h3>
-
-    <p id="videoErrorText">
-      Unable to load video.
-    </p>
-
-  </div>
+    </div>
 
 
-  <div
-    id="playerContainer"
-    class="player-container hidden"
-  >
 
-    <iframe
-      id="doodPlayer"
-      allowfullscreen
-      frameborder="0"
-      scrolling="no"
-      allow="autoplay; fullscreen"
-    ></iframe>
+    <!-- Error -->
 
-  </div>
+    <div
+        id="videoError"
+        class="error-box hidden">
+
+        <div class="error-icon">
+            ⚠️
+        </div>
+
+        <h3>
+            Video unavailable
+        </h3>
+
+        <p id="videoErrorText">
+            Unable to load this video.
+        </p>
 
 
-  <div class="watch-info">
+        <button
+            onclick="goBack()">
+            ← Go Back
+        </button>
 
-    <h1 id="videoTitle">
-      Loading...
-    </h1>
+    </div>
 
-    <p>
-      Desi Girl Vairal Link
-    </p>
 
-  </div>
+
+    <!-- ================= VIDEO PLAYER ================= -->
+
+    <div
+        id="playerContainer"
+        class="player-container hidden">
+
+        <iframe
+            id="doodPlayer"
+            src=""
+            allowfullscreen
+            frameborder="0"
+            scrolling="no"
+            allow="autoplay; fullscreen">
+        </iframe>
+
+    </div>
+
+
+
+    <!-- ================= VIDEO INFO ================= -->
+
+    <section class="watch-info">
+
+        <h1 id="videoTitle">
+            Loading...
+        </h1>
+
+
+        <div class="watch-meta">
+
+            <span>
+                🎬 DoodStream
+            </span>
+
+            <span>
+                🔐 Unlocked
+            </span>
+
+        </div>
+
+
+        <p>
+            Enjoy watching the video.
+        </p>
+
+    </section>
 
 
 </main>
+
+
+
+<!-- ================= BOTTOM NAV ================= -->
+
+<nav class="bottom-nav">
+
+    <button
+        class="nav-item"
+        onclick="goHome()">
+
+        <span>🏠</span>
+
+        <small>
+            Home
+        </small>
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        onclick="goBack()">
+
+        <span>←</span>
+
+        <small>
+            Back
+        </small>
+
+    </button>
+
+</nav>
+
 
 
 <script>
@@ -116,207 +195,149 @@
 "use strict";
 
 
+/* =========================================
+   TELEGRAM
+========================================= */
+
 const tg =
-  window.Telegram?.WebApp;
+    window.Telegram?.WebApp;
 
 
 if (tg) {
 
-  tg.ready();
+    tg.ready();
 
-  tg.expand();
+    tg.expand();
+
+
+    const user =
+        tg.initDataUnsafe?.user;
+
+
+    const tgUser =
+        document.getElementById(
+            "tgUser"
+        );
+
+
+    if (user) {
+
+        tgUser.textContent =
+            user.first_name ||
+            user.username ||
+            "Telegram User";
+
+    }
 
 }
 
 
+/* =========================================
+   GET VIDEO ID
+========================================= */
+
 const params =
-  new URLSearchParams(
-    window.location.search
-  );
+    new URLSearchParams(
+        window.location.search
+    );
 
 
 const fileCode =
-  params.get("id");
+    params.get("id");
 
+
+/* =========================================
+   ELEMENTS
+========================================= */
 
 const loading =
-  document.getElementById(
-    "videoLoading"
-  );
+    document.getElementById(
+        "videoLoading"
+    );
 
 
 const errorBox =
-  document.getElementById(
-    "videoError"
-  );
+    document.getElementById(
+        "videoError"
+    );
 
 
 const errorText =
-  document.getElementById(
-    "videoErrorText"
-  );
+    document.getElementById(
+        "videoErrorText"
+    );
 
 
 const playerContainer =
-  document.getElementById(
-    "playerContainer"
-  );
+    document.getElementById(
+        "playerContainer"
+    );
 
 
 const player =
-  document.getElementById(
-    "doodPlayer"
-  );
+    document.getElementById(
+        "doodPlayer"
+    );
 
 
-/*
-  Check file code
-*/
+const videoTitle =
+    document.getElementById(
+        "videoTitle"
+    );
+
+
+/* =========================================
+   CHECK VIDEO ID
+========================================= */
 
 if (!fileCode) {
 
-  showError(
-    "Video ID is missing."
-  );
+    showError(
+        "Video ID পাওয়া যায়নি।"
+    );
 
 } else {
 
-  /*
-    Check unlock
-  */
-
-  const unlocked =
-    sessionStorage.getItem(
-      `video_unlocked_${fileCode}`
-    );
-
-
-  if (unlocked !== "1") {
-
-    showError(
-      "This video is locked. Please unlock it first."
-    );
-
-  } else {
-
-    loadPlayer();
-
-  }
+    checkUnlock();
 
 }
 
 
-/* =========================================================
-   PLAYER
-========================================================= */
+/* =========================================
+   CHECK UNLOCK
+========================================= */
 
-function loadPlayer() {
+function checkUnlock() {
 
-  try {
-
-    /*
-      DoodStream embed
-    */
-
-    player.src =
-      `https://dood.watch/e/${
-        encodeURIComponent(fileCode)
-      }`;
-
-
-    player.onload =
-      () => {
-
-        loading.classList.add(
-          "hidden"
+    const unlocked =
+        sessionStorage.getItem(
+            `video_unlocked_${fileCode}`
         );
 
-        playerContainer.classList.remove(
-          "hidden"
+
+    if (
+        unlocked !== "1"
+    ) {
+
+        showError(
+            "এই ভিডিওটি এখনো Unlock করা হয়নি।"
         );
 
-      };
+        return;
+
+    }
 
 
-    /*
-      Show player even if browser
-      doesn't fire iframe load.
-    */
-
-    setTimeout(
-      () => {
-
-        loading.classList.add(
-          "hidden"
-        );
-
-        playerContainer.classList.remove(
-          "hidden"
-        );
-
-      },
-      2500
-    );
-
-
-  } catch (error) {
-
-    showError(
-      error.message
-    );
-
-  }
+    loadVideo();
 
 }
 
 
-/* =========================================================
-   ERROR
-========================================================= */
+/* =========================================
+   LOAD DOODSTREAM VIDEO
+========================================= */
 
-function showError(message) {
+function loadVideo() {
 
-  loading.classList.add(
-    "hidden"
-  );
-
-  playerContainer.classList.add(
-    "hidden"
-  );
-
-  errorBox.classList.remove(
-    "hidden"
-  );
-
-  errorText.textContent =
-    message;
-
-}
-
-
-/* =========================================================
-   BACK
-========================================================= */
-
-function goBack() {
-
-  if (
-    window.history.length > 1
-  ) {
-
-    window.history.back();
-
-  } else {
-
-    window.location.href =
-      "index.html";
-
-  }
-
-}
-
-</script>
-
-</body>
-
-</html>
+    videoTitle.textContent =
+        "Desi Girl Vairal Video
