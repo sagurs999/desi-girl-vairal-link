@@ -56,7 +56,7 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 ========================================================= */
 function startHomepageAutoAds() {
   setInterval(() => {
-    // শুধুমাত্র মোডাল বন্ধ থাকলে এবং ব্যবহারকারী হোমপেজে থাকলে অ্যাড লোড হবে
+    // শুধুমাত্র মোডাল বন্ধ থাকলে এবং ইউজার হোমপেজে থাকলে অ্যাড লোড হবে
     if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
       console.log("Triggering 30-second automatic homepage ad...");
       window.show_11571866({
@@ -70,10 +70,10 @@ function startHomepageAutoAds() {
         }
       }).catch(err => console.log("Auto ad dismissed or failed:", err));
     }
-  }, 30000); // ৩০,০০০ মিলিসেকেন্ড = ৩০ সেকেন্ড
+  }, 30000); // ৩০ সেকেন্ড
 }
 
-// অটো অ্যাড চালুকরণ
+// অটো অ্যাড চালু
 startHomepageAutoAds();
 
 /* =========================================================
@@ -172,7 +172,7 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   MANUAL WATCH AD BUTTON CLICK
+   MANUAL WATCH AD BUTTON CLICK (Monetag Ad Trigger)
 ========================================================= */
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
@@ -183,6 +183,7 @@ async function showRewardedAd() {
 
   try {
     if (typeof window.show_11571866 === "function") {
+      // Monetag In-App Interstitial Ad Call
       await window.show_11571866({
         type: 'inApp',
         inAppSettings: {
@@ -194,7 +195,7 @@ async function showRewardedAd() {
         }
       });
 
-      // কেবল অ্যাড সফলভাবে শেষ হলেই কাউন্ট হবে
+      // অ্যাড সফলভাবে প্রদর্শন শেষে কাউন্ট ১ বাড়বে
       adsWatched++;
       updateUnlockUI();
     } else {
@@ -202,7 +203,7 @@ async function showRewardedAd() {
     }
   } catch (error) {
     console.error("Ad error:", error);
-    modalText.textContent = "❌ Ad not available or skipped. Please try again.";
+    modalText.textContent = "❌ Ad not available or closed early. Please try again.";
     updateUnlockUI();
   } finally {
     adLoading = false;
