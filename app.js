@@ -19,7 +19,7 @@ const videos = [
     id: "0vascqz7njes", // স্ক্রিনশটের প্লেমোগো আইডি
     title: "Step Brother 2023 - English Short Film",
     category: "Trending",
-    thumbnail: "" // প্রয়োজন হলে থাম্বনেইল লিংক বসাতে পারেন
+    thumbnail: " https://ibb.co.com/Nd5RfKq0
   }
 ];
 
