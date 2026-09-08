@@ -1,5 +1,5 @@
 /* =========================================================
-   TELEGRAM
+   TELEGRAM INITIALIZATION
 ========================================================= */
 const tg = window.Telegram && window.Telegram.WebApp;
 
@@ -9,7 +9,7 @@ if (tg) {
 }
 
 /* =========================================================
-   STATE & DATA (Supabase সরানো হয়েছে)
+   STATE & DATA
 ========================================================= */
 const requiredAds = 3;
 let selectedVideo = null;
@@ -17,14 +17,15 @@ let adsWatched = 0;
 let adLoading = false;
 
 /* 
-  এখানে Doodstream / Playmogo এর ভিডিও ID দিয়ে লিস্ট তৈরি করুন।
+  ভিডিও লিস্ট।
+  থাম্বনেইলে ইমেজ প্রক্সি (images.weserv.nl) ব্যবহার করা হয়েছে যেন Telegram WebApp-এ ইমেজ ব্লক না হয়।
 */
 const videos = [
   {
     id: "0vascqz7njes",
     title: "Stepbrother 2023 - English Short Film",
     category: "Hot video",
-    thumbnail: "https://wsrv.nl/?url=https://img.doodcdn.io/snaps/0vascqz7njes.jpg"
+    thumbnail: "https://images.weserv.nl/?url=https://img.doodcdn.io/snaps/0vascqz7njes.jpg"
   }
 ];
 
@@ -44,7 +45,7 @@ const closeModal = document.getElementById("closeModal");
 const tgUser = document.getElementById("tgUser");
 
 /* =========================================================
-   TELEGRAM USER
+   TELEGRAM USER DISPLAY
 ========================================================= */
 if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
   const user = tg.initDataUnsafe.user;
@@ -70,8 +71,9 @@ function render(category = "All") {
     const card = document.createElement("article");
     card.className = "video-card";
 
+    // ইমেজ লোড না হলে অটোমেটিক টেক্সট প্লেসহোল্ডার ডিক্লেয়ার করা
     let thumbnailHTML = video.thumbnail
-      ? `<img src="${escapeHTML(video.thumbnail)}" alt="${escapeHTML(video.title)}" loading="lazy">`
+      ? `<img src="${escapeHTML(video.thumbnail)}" alt="${escapeHTML(video.title)}" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'thumb-placeholder\\'>🎬</div>';">`
       : `<div class="thumb-placeholder">🎬</div>`;
 
     card.innerHTML = `
@@ -112,7 +114,7 @@ function openVideo(video) {
   modalText.textContent = "Watch 3 ads to unlock this video.";
 
   if (video.thumbnail) {
-    preview.innerHTML = `<img src="${escapeHTML(video.thumbnail)}" alt="">`;
+    preview.innerHTML = `<img src="${escapeHTML(video.thumbnail)}" alt="" onerror="this.onerror=null; this.parentElement.innerHTML='🎬';">`;
   } else {
     preview.innerHTML = `
       <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:50px;">
@@ -161,12 +163,11 @@ async function showRewardedAd() {
     if (typeof window.show_11571866 === "function") {
       await window.show_11571866();
     }
-    
     adsWatched++;
     updateUnlockUI();
   } catch (error) {
-    console.error("Monetag ad failed:", error);
-    // অ্যাড লোড না হলেও কাউন্ট বাড়ানোর জন্য
+    console.error("Monetag ad error:", error);
+    // অ্যাড লোডে ত্রুটি হলেও কাউন্ট বাড়িয়ে ইউজার এক্সপেরিয়েন্স ঠিক রাখা
     adsWatched++;
     updateUnlockUI();
   } finally {
@@ -227,6 +228,6 @@ function escapeHTML(value) {
 }
 
 /* =========================================================
-   START
+   START RENDER
 ========================================================= */
 render("All");
