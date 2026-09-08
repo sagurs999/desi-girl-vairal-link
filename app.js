@@ -297,8 +297,8 @@ function initInAppInterstitial() {
       inAppSettings: {
         frequency: 10,
         capping: 0,
-        interval: 0.40,
-        timeout: 1,
+        interval: 40,
+        timeout: 5,
         everyPage: false
       }
     });
