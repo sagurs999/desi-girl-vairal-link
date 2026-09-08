@@ -15,10 +15,11 @@ const requiredAds = 3;
 let selectedVideo = null;
 let adsWatched = 0;
 let adLoading = false;
+let cooldownTimer = null;
+let cooldownSeconds = 0;
 
 /* 
-  ভিডিও লিস্ট।
-  থাম্বনেইলে ইমেজ প্রক্সি (images.weserv.nl) ব্যবহার করা হয়েছে যেন Telegram WebApp-এ ইমেজ ব্লক না হয়।
+  ভিডিও লিস্ট (weserv প্রক্সি ইউআরএল সহ)
 */
 const videos = [
   {
@@ -71,7 +72,6 @@ function render(category = "All") {
     const card = document.createElement("article");
     card.className = "video-card";
 
-    // ইমেজ লোড না হলে অটোমেটিক টেক্সট প্লেসহোল্ডার ডিক্লেয়ার করা
     let thumbnailHTML = video.thumbnail
       ? `<img src="${escapeHTML(video.thumbnail)}" alt="${escapeHTML(video.title)}" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'thumb-placeholder\\'>🎬</div>';">`
       : `<div class="thumb-placeholder">🎬</div>`;
@@ -109,6 +109,8 @@ function openVideo(video) {
   selectedVideo = video;
   adsWatched = 0;
   adLoading = false;
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  cooldownSeconds = 0;
 
   modalTitle.textContent = video.title || "Video";
   modalText.textContent = "Watch 3 ads to unlock this video.";
@@ -130,30 +132,51 @@ function openVideo(video) {
    UPDATE UNLOCK UI
 ========================================================= */
 function updateUnlockUI() {
-  watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-  adCount.textContent = `${adsWatched} / ${requiredAds} Ads Completed`;
-
-  const percent = (adsWatched / requiredAds) * 100;
-  progressBar.style.width = `${percent}%`;
-
   if (adsWatched >= requiredAds) {
     videoBtn.disabled = false;
     videoBtn.textContent = "▶ Watch Video";
     modalText.textContent = "🎉 All ads completed! Your video is unlocked.";
     watchAdBtn.disabled = true;
     watchAdBtn.textContent = "✓ Ads Completed";
+  } else if (cooldownSeconds > 0) {
+    watchAdBtn.disabled = true;
+    watchAdBtn.textContent = `⏳ Next Ad in ${cooldownSeconds}s`;
   } else {
+    watchAdBtn.disabled = false;
+    watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
     videoBtn.disabled = true;
     videoBtn.textContent = "🔒 Video Locked";
-    watchAdBtn.disabled = false;
   }
+
+  adCount.textContent = `${adsWatched} / ${requiredAds} Ads Completed`;
+  const percent = (adsWatched / requiredAds) * 100;
+  progressBar.style.width = `${percent}%`;
 }
 
 /* =========================================================
-   MONETAG REWARDED AD
+   30-SECOND COOLDOWN TIMER
+========================================================= */
+function startCooldown(seconds = 30) {
+  cooldownSeconds = seconds;
+  updateUnlockUI();
+
+  if (cooldownTimer) clearInterval(cooldownTimer);
+
+  cooldownTimer = setInterval(() => {
+    cooldownSeconds--;
+    if (cooldownSeconds <= 0) {
+      clearInterval(cooldownTimer);
+      cooldownSeconds = 0;
+    }
+    updateUnlockUI();
+  }, 1000);
+}
+
+/* =========================================================
+   MONETAG IN-APP INTERSTITIAL AD ( strict verification )
 ========================================================= */
 async function showRewardedAd() {
-  if (adLoading || adsWatched >= requiredAds) return;
+  if (adLoading || adsWatched >= requiredAds || cooldownSeconds > 0) return;
 
   adLoading = true;
   watchAdBtn.disabled = true;
@@ -161,14 +184,32 @@ async function showRewardedAd() {
 
   try {
     if (typeof window.show_11571866 === "function") {
-      await window.show_11571866();
+      // In-App Interstitial SDK Trigger (docs.monetag.com অনুযায়ী)
+      await window.show_11571866({
+        type: 'inApp',
+        inAppSettings: {
+          frequency: 2,
+          capping: 0.1,
+          interval: 30,
+          timeout: 5,
+          everyPage: false
+        }
+      });
+
+      // অ্যাড সফলভাবে প্রদর্শন হলে তবেই কাউন্ট হবে
+      adsWatched++;
+      updateUnlockUI();
+
+      // সফল দেখার পর ৩০ সেকেন্ডের কুলডাউন চালু হবে
+      if (adsWatched < requiredAds) {
+        startCooldown(30);
+      }
+    } else {
+      throw new Error("Ad SDK not ready");
     }
-    adsWatched++;
-    updateUnlockUI();
   } catch (error) {
-    console.error("Monetag ad error:", error);
-    // অ্যাড লোডে ত্রুটি হলেও কাউন্ট বাড়িয়ে ইউজার এক্সপেরিয়েন্স ঠিক রাখা
-    adsWatched++;
+    console.error("Monetag Ad Failed or Closed:", error);
+    modalText.textContent = "❌ Ad did not show or was closed early. Please try again.";
     updateUnlockUI();
   } finally {
     adLoading = false;
