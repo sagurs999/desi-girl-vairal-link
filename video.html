@@ -53,7 +53,7 @@
       margin-bottom: 14px;
     }
 
-    /* VIDEO CONTAINER & OVERLAY */
+    /* CLEAN VIDEO CONTAINER (NO OVERLAY / NO AD CODES) */
     .video-wrapper {
       position: relative;
       width: 100%;
@@ -68,48 +68,6 @@
       width: 100%;
       height: 100%;
       border: none;
-    }
-
-    .player-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 99;
-    }
-
-    .play-btn-custom {
-      width: 75px;
-      height: 75px;
-      background: #ff0055;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      color: #fff;
-      box-shadow: 0 0 30px rgba(255, 0, 85, 0.8);
-      transition: transform 0.2s ease;
-    }
-
-    .player-overlay:hover .play-btn-custom {
-      transform: scale(1.1);
-    }
-
-    .play-text {
-      margin-top: 10px;
-      font-size: 14px;
-      font-weight: bold;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 6px 16px;
-      border-radius: 20px;
     }
 
     .status { text-align: center; padding: 35px 15px; color: #aeb6cf; }
@@ -133,12 +91,6 @@
             allow="fullscreen; autoplay; encrypted-media; picture-in-picture" 
             allowfullscreen="true">
           </iframe>
-
-          <!-- CLICK OVERLAY FOR FULLSCREEN -->
-          <div id="playerOverlay" class="player-overlay">
-            <div class="play-btn-custom">▶</div>
-            <div class="play-text">Click To Play In Fullscreen ⛶</div>
-          </div>
         </div>
       </div>
 
@@ -155,8 +107,6 @@
     const params = new URLSearchParams(window.location.search);
     const videoId = params.get("id");
     const iframe = document.getElementById("videoIframe");
-    const videoContainer = document.getElementById("videoContainer");
-    const playerOverlay = document.getElementById("playerOverlay");
 
     if (videoId) {
       iframe.src = `https://playmogo.com/e/${videoId}`;
@@ -165,27 +115,6 @@
         <div class="status error">Video ID missing or invalid.</div>
       `;
     }
-
-    /* FULLSCREEN CLICK HANDLER */
-    playerOverlay.addEventListener("click", () => {
-      playerOverlay.style.display = "none";
-
-      if (videoContainer.requestFullscreen) {
-        videoContainer.requestFullscreen();
-      } else if (videoContainer.webkitRequestFullscreen) {
-        videoContainer.webkitRequestFullscreen();
-      } else if (videoContainer.msRequestFullscreen) {
-        videoContainer.msRequestFullscreen();
-      } else if (iframe.webkitEnterFullscreen) {
-        iframe.webkitEnterFullscreen();
-      }
-    });
-
-    document.addEventListener("fullscreenchange", () => {
-      if (!document.fullscreenElement) {
-        playerOverlay.style.display = "flex";
-      }
-    });
   </script>
 
 </body>
