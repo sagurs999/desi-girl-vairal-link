@@ -44,8 +44,14 @@ const videos = [
     title: "Waitress_(2026)_Moodx_Hindi Uncut_Hot_Short Film_Watch_Free",
     category: "Popular",
     thumbnail: "https://i.ibb.co/xKHdTDx7/Waitress-2026-Moodx-Hindi-Uncut-Hot-Short-Film-Watch-Free.webp"
-  }
-];
+  },
+  {
+   id: "hos5vx536juy",
+   title: "sex video",
+   category: "Hot video",
+   thumbnail: "https://i.ibb.co/BVsYqV4Q/Screenshot-2026-09-09-01-28-42-65-99c04817c0de5652397fc8b56c3b3817.jpg"
+  },
+  ];
 
 let selectedVideo = null;
 let adsWatched = 0;
