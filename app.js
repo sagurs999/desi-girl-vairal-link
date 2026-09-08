@@ -9,6 +9,7 @@ if (tg) {
   tg.expand();
 }
 
+
 /* =========================================================
    VIDEO DATA (WITH DIRECT THUMBNAIL URL)
 ========================================================= */
@@ -33,6 +34,7 @@ let adsWatched = 0;
 const requiredAds = 3;
 let adLoading = false;
 
+
 /* =========================================================
    DOM ELEMENTS
 ========================================================= */
@@ -49,6 +51,7 @@ const adCount = document.getElementById("adCount");
 const closeModal = document.getElementById("closeModal");
 const tgUser = document.getElementById("tgUser");
 
+
 /* =========================================================
    TELEGRAM USER PROFILE
 ========================================================= */
@@ -58,6 +61,7 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
   tgUser.textContent = user.first_name || "Telegram User";
 }
 
+
 /* =========================================================
    LOAD POSTS
 ========================================================= */
@@ -66,133 +70,225 @@ function loadPosts() {
   render("All");
 }
 
+
 /* =========================================================
-   RENDER VIDEO CARDS
+   RENDER VIDEO CARDS (NEWEST POSTS FIRST)
 ========================================================= */
 
 function render(category = "All") {
   videoGrid.innerHTML = "";
 
-  const filtered = category === "All" 
-    ? videos 
-    : videos.filter(v => v.category.toLowerCase() === category.toLowerCase());
+  // Filter category
+  const filteredVideos = category === "All"
+    ? videos
+    : videos.filter(video => String(video.category).toLowerCase() === String(category).toLowerCase());
 
-  if (filtered.length === 0) {
-    videoGrid.innerHTML = "<p style='color:#a0aec0; text-align:center; grid-column:1/-1;'>No videos found.</p>";
+  if (!filteredVideos.length) {
+    videoGrid.innerHTML = `<div class="loading">No videos found.</div>`;
     return;
   }
 
-  filtered.forEach(video => {
-    const card = document.createElement("div");
-    card.className = "card";
+  // Reverse array so latest added posts appear first
+  const displayVideos = [...filteredVideos].reverse();
+
+  displayVideos.forEach(video => {
+    const card = document.createElement("article");
+    card.className = "video-card";
+
+    let thumbnailHTML = video.thumbnail
+      ? `<img src="${escapeHTML(video.thumbnail)}" alt="${escapeHTML(video.title)}" loading="lazy">`
+      : `<div class="thumb-placeholder">🎬</div>`;
 
     card.innerHTML = `
-      <img src="${video.thumbnail}" alt="${video.title}" class="thumb" onerror="this.src='https://via.placeholder.com/300x170?text=Image+Not+Found'">
-      <div class="card-content">
-        <h3 class="card-title">${video.title}</h3>
-        <span class="card-category">${video.category}</span>
-        <button class="unlock-btn">🔒 Watch Ad</button>
+      <div class="thumb">${thumbnailHTML}</div>
+      <div class="card-body">
+        <h3>${escapeHTML(video.title)}</h3>
+        <div class="meta">${escapeHTML(video.category)}</div>
+        <button class="open-btn" type="button">🔒 Watch Ad</button>
       </div>
     `;
 
-    card.querySelector(".unlock-btn").addEventListener("click", () => openModal(video));
+    const openBtn = card.querySelector(".open-btn");
+    openBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openVideo(video);
+    });
+
+    const thumb = card.querySelector(".thumb");
+    if (thumb) {
+      thumb.addEventListener("click", () => openVideo(video));
+    }
+
     videoGrid.appendChild(card);
   });
 }
 
-/* =========================================================
-   FILTER BUTTONS
-========================================================= */
-
-document.querySelectorAll(".tab, .nav-item").forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    document.querySelectorAll(".tab, .nav-item").forEach(b => b.classList.remove("active"));
-    
-    const cat = btn.getAttribute("data-category") || btn.innerText.trim();
-    
-    btn.classList.add("active");
-    render(cat);
-  });
-});
 
 /* =========================================================
-   MODAL FUNCTIONS
+   OPEN VIDEO MODAL
 ========================================================= */
 
-function openModal(video) {
+function openVideo(video) {
   selectedVideo = video;
   adsWatched = 0;
-  updateAdUI();
+  adLoading = false;
 
-  modalTitle.textContent = video.title;
-  modalText.textContent = "Watch 3 ads to unlock full video";
-  preview.src = video.thumbnail;
-  
-  videoBtn.style.display = "none";
-  watchAdBtn.style.display = "block";
+  modalTitle.textContent = video.title || "Video";
+  modalText.textContent = "Watch 3 ads to unlock this video.";
 
-  modal.classList.add("active");
+  if (video.thumbnail) {
+    preview.innerHTML = `<img src="${escapeHTML(video.thumbnail)}" alt="">`;
+  } else {
+    preview.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:50px;">🎬</div>`;
+  }
+
+  modal.classList.remove("hidden");
+  videoBtn.disabled = true;
+  videoBtn.textContent = "🔒 Video Locked";
+  watchAdBtn.disabled = false;
+
+  updateUnlockUI();
 }
 
-closeModal.addEventListener("click", () => {
-  modal.classList.remove("active");
-});
 
 /* =========================================================
-   ADS LOGIC
+   UPDATE UI
 ========================================================= */
 
-watchAdBtn.addEventListener("click", () => {
-  if (adLoading) return;
-  adLoading = true;
-  watchAdBtn.innerText = "Loading Ad...";
+function updateUnlockUI() {
+  watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+  adCount.textContent = `${adsWatched} / ${requiredAds} Ads Completed`;
 
-  // Monetag / Adsterra Integration
-  if (typeof show_8984923 === 'function') {
-    show_8984923().then(() => {
-      onAdWatched();
-    }).catch(() => {
-      onAdWatched(); // Fallback if ad fails
-    });
-  } else {
-    setTimeout(() => {
-      onAdWatched();
-    }, 2000);
-  }
-});
-
-function onAdWatched() {
-  adsWatched++;
-  adLoading = false;
-  watchAdBtn.innerText = "🎬 Watch Ad";
-  updateAdUI();
+  const percent = (adsWatched / requiredAds) * 100;
+  progressBar.style.width = `${percent}%`;
 
   if (adsWatched >= requiredAds) {
-    watchAdBtn.style.display = "none";
-    videoBtn.style.display = "block";
-    modalText.textContent = "🎉 Video Unlocked! Click below to play.";
+    videoBtn.disabled = false;
+    videoBtn.textContent = "▶ Watch Video";
+    modalText.textContent = "🎉 All ads completed! Your video is unlocked.";
+    watchAdBtn.disabled = true;
+    watchAdBtn.textContent = "✓ Ads Completed";
+  } else {
+    videoBtn.disabled = true;
+    videoBtn.textContent = "🔒 Video Locked";
+    watchAdBtn.disabled = false;
   }
 }
 
-function updateAdUI() {
-  adCount.textContent = adsWatched;
-  const percentage = (adsWatched / requiredAds) * 100;
-  progressBar.style.width = percentage + "%";
-}
 
 /* =========================================================
-   PLAY VIDEO
+   MONETAG REWARDED AD
+========================================================= */
+
+async function showRewardedAd() {
+  if (adLoading || adsWatched >= requiredAds) return;
+
+  adLoading = true;
+  watchAdBtn.disabled = true;
+  watchAdBtn.textContent = "⏳ Loading Ad...";
+
+  try {
+    if (typeof window.show_11571866 !== "function") {
+      throw new Error("Ad SDK is not loaded.");
+    }
+
+    await window.show_11571866();
+    adsWatched++;
+    updateUnlockUI();
+
+  } catch (error) {
+    console.error("Ad failed:", error);
+    modalText.textContent = "Ad is not available right now. Please try again.";
+    watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+    watchAdBtn.disabled = false;
+  } finally {
+    adLoading = false;
+  }
+}
+
+watchAdBtn.addEventListener("click", showRewardedAd);
+
+
+/* =========================================================
+   WATCH VIDEO
 ========================================================= */
 
 videoBtn.addEventListener("click", () => {
-  if (selectedVideo) {
-    const playUrl = `https://playmogo.com/e/${selectedVideo.id}`;
-    window.open(playUrl, "_blank");
-  }
+  if (!selectedVideo || adsWatched < requiredAds) return;
+  const videoId = encodeURIComponent(selectedVideo.id);
+  window.location.href = `video.html?id=${videoId}`;
 });
 
+
 /* =========================================================
-   INIT
+   CLOSE MODAL
 ========================================================= */
 
+closeModal.addEventListener("click", () => modal.classList.add("hidden"));
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) modal.classList.add("hidden");
+});
+
+
+/* =========================================================
+   CATEGORY BUTTONS
+========================================================= */
+
+document.querySelectorAll(".category-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".category-btn").forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
+    render(button.dataset.category);
+  });
+});
+
+document.querySelectorAll(".bottom-nav button").forEach(button => {
+  button.addEventListener("click", () => {
+    const category = button.dataset.bottomCategory;
+    document.querySelectorAll(".bottom-nav button").forEach(btn => btn.classList.remove("bottom-active"));
+    button.classList.add("bottom-active");
+    document.querySelectorAll(".category-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.category === category);
+    });
+    render(category);
+  });
+});
+
+
+/* =========================================================
+   UTILS
+========================================================= */
+
+function escapeHTML(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   MONETAG IN-APP INTERSTITIAL
+========================================================= */
+
+function initInAppInterstitial() {
+  if (typeof window.show_11571866 === "function") {
+    window.show_11571866({
+      type: 'inApp',
+      inAppSettings: {
+        frequency: 10,
+        capping: 1,
+        interval: 30,
+        timeout: 5,
+        everyPage: false
+      }
+    });
+  } else {
+    setTimeout(initInAppInterstitial, 1000);
+  }
+}
+
 loadPosts();
+initInAppInterstitial();
