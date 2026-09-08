@@ -1,6 +1,7 @@
 /* =========================================================
-   TELEGRAM INITIALIZATION
+   TELEGRAM WEBAPP
 ========================================================= */
+
 const tg = window.Telegram && window.Telegram.WebApp;
 
 if (tg) {
@@ -8,29 +9,30 @@ if (tg) {
   tg.expand();
 }
 
-/* =========================================================
-   STATE & DATA
-========================================================= */
-const requiredAds = 3; 
-let selectedVideo = null;
-let adsWatched = 0;
-let adLoading = false;
 
-/* 
-  ভিডিও ডাটাবেজ
-*/
+/* =========================================================
+   VIDEO DATA (ADDED PLAYMOGO / DOODSTREAM VIDEO)
+========================================================= */
+
 const videos = [
   {
-    id: "0vascqz7njes",
-    title: "Stepbrother 2023 - English Short Film",
-    category: "Hot video",
-    thumbnail: "https://images.weserv.nl/?url=https://img.doodcdn.io/snaps/0vascqz7njes.jpg"
+    id: "0vascqz7njes", // আপনার প্লেমোগো ভিডিও আইডি
+    title: "Step Brother 2023 - English Short Film",
+    category: "Trending",
+    thumbnail: "", // প্রয়োজন হলে ইমেজ লিংক দিতে পারেন
   }
 ];
+
+let selectedVideo = null;
+let adsWatched = 0;
+const requiredAds = 3;
+let adLoading = false;
+
 
 /* =========================================================
    DOM ELEMENTS
 ========================================================= */
+
 const videoGrid = document.getElementById("videoGrid");
 const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
@@ -43,31 +45,30 @@ const adCount = document.getElementById("adCount");
 const closeModal = document.getElementById("closeModal");
 const tgUser = document.getElementById("tgUser");
 
+
 /* =========================================================
-   TELEGRAM USER DISPLAY
+   TELEGRAM USER PROFILE
 ========================================================= */
+
 if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
   const user = tg.initDataUnsafe.user;
   tgUser.textContent = user.first_name || "Telegram User";
 }
 
+
 /* =========================================================
-   HOMEPAGE AUTO AD (শুধুমাত্র হোমপেজে ৩০ সেকেন্ড পর পর ১টি অ্যাড)
+   LOAD POSTS
 ========================================================= */
-function startHomepageAutoAds() {
-  setInterval(() => {
-    // ইউজার যখন কোনো মোডাল বা ওয়াচ বাটনে থাকবে না, তখন ৩০ সে. পর পর অ্যাড আসবে
-    if (modal.classList.contains("hidden") && !adLoading && typeof window.show_11571866 === "function") {
-      window.show_11571866().catch(err => console.log("Homepage auto ad skipped:", err));
-    }
-  }, 30000);
+
+function loadPosts() {
+  render("All");
 }
 
-startHomepageAutoAds();
 
 /* =========================================================
    RENDER VIDEO CARDS
 ========================================================= */
+
 function render(category = "All") {
   videoGrid.innerHTML = "";
 
@@ -85,13 +86,11 @@ function render(category = "All") {
     card.className = "video-card";
 
     let thumbnailHTML = video.thumbnail
-      ? `<img src="${escapeHTML(video.thumbnail)}" alt="${escapeHTML(video.title)}" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'thumb-placeholder\\'>🎬</div>';">`
+      ? `<img src="${escapeHTML(video.thumbnail)}" alt="${escapeHTML(video.title)}" loading="lazy">`
       : `<div class="thumb-placeholder">🎬</div>`;
 
     card.innerHTML = `
-      <div class="thumb">
-        ${thumbnailHTML}
-      </div>
+      <div class="thumb">${thumbnailHTML}</div>
       <div class="card-body">
         <h3>${escapeHTML(video.title)}</h3>
         <div class="meta">${escapeHTML(video.category)}</div>
@@ -100,8 +99,8 @@ function render(category = "All") {
     `;
 
     const openBtn = card.querySelector(".open-btn");
-    openBtn.addEventListener("click", event => {
-      event.stopPropagation();
+    openBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       openVideo(video);
     });
 
@@ -114,55 +113,63 @@ function render(category = "All") {
   });
 }
 
+
 /* =========================================================
    OPEN VIDEO MODAL
 ========================================================= */
+
 function openVideo(video) {
   selectedVideo = video;
   adsWatched = 0;
   adLoading = false;
 
   modalTitle.textContent = video.title || "Video";
-  modalText.textContent = `Watch ${requiredAds} ads to unlock this video.`;
+  modalText.textContent = "Watch 3 ads to unlock this video.";
 
   if (video.thumbnail) {
-    preview.innerHTML = `<img src="${escapeHTML(video.thumbnail)}" alt="" onerror="this.onerror=null; this.parentElement.innerHTML='🎬';">`;
+    preview.innerHTML = `<img src="${escapeHTML(video.thumbnail)}" alt="">`;
   } else {
-    preview.innerHTML = `
-      <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:50px;">
-        🎬
-      </div>`;
+    preview.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:50px;">🎬</div>`;
   }
 
   modal.classList.remove("hidden");
+  videoBtn.disabled = true;
+  videoBtn.textContent = "🔒 Video Locked";
+  watchAdBtn.disabled = false;
+
   updateUnlockUI();
 }
 
+
 /* =========================================================
-   UPDATE UNLOCK UI
+   UPDATE UI
 ========================================================= */
+
 function updateUnlockUI() {
+  watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+  adCount.textContent = `${adsWatched} / ${requiredAds} Ads Completed`;
+
+  const percent = (adsWatched / requiredAds) * 100;
+  progressBar.style.width = `${percent}%`;
+
   if (adsWatched >= requiredAds) {
     videoBtn.disabled = false;
     videoBtn.textContent = "▶ Watch Video";
-    modalText.textContent = `🎉 All ${requiredAds} ads completed! Your video is unlocked.`;
+    modalText.textContent = "🎉 All ads completed! Your video is unlocked.";
     watchAdBtn.disabled = true;
     watchAdBtn.textContent = "✓ Ads Completed";
   } else {
-    watchAdBtn.disabled = false;
-    watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
     videoBtn.disabled = true;
     videoBtn.textContent = "🔒 Video Locked";
+    watchAdBtn.disabled = false;
   }
-
-  adCount.textContent = `${adsWatched} / ${requiredAds} Ads Completed`;
-  const percent = (adsWatched / requiredAds) * 100;
-  progressBar.style.width = `${percent}%`;
 }
 
+
 /* =========================================================
-   WATCH AD BUTTON (বাটন চাপলে ১টি অ্যাড শো করবে ➔ কাউন্ট +১ হবে)
+   MONETAG REWARDED AD
 ========================================================= */
+
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
 
@@ -171,23 +178,19 @@ async function showRewardedAd() {
   watchAdBtn.textContent = "⏳ Loading Ad...";
 
   try {
-    if (typeof window.show_11571866 === "function") {
-      // বাটন ক্লিকের পর মাত্র ১টি অ্যাড কল হবে
-      await window.show_11571866();
-
-      // অ্যাড সফলভাবে দেখানো সম্পন্ন হলে ১ যোগ হবে
-      adsWatched += 1;
-      modalText.textContent = `✅ Ad (${adsWatched}/${requiredAds}) watched! Click button for next ad.`;
-      updateUnlockUI();
-
-    } else {
-      throw new Error("Ad SDK missing");
+    if (typeof window.show_11571866 !== "function") {
+      throw new Error("Ad SDK is not loaded.");
     }
-  } catch (error) {
-    console.error("Ad not shown or failed:", error);
-    // অ্যাড না দেখালে বা ব্যর্থ হলে কাউন্ট বাড়বে না
-    modalText.innerHTML = `<span style="color:#ff4d4d; font-weight:bold;">Ad not available</span>`;
+
+    await window.show_11571866();
+    adsWatched++;
     updateUnlockUI();
+
+  } catch (error) {
+    console.error("Ad failed:", error);
+    modalText.textContent = "Ad is not available right now. Please try again.";
+    watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
+    watchAdBtn.disabled = false;
   } finally {
     adLoading = false;
   }
@@ -195,25 +198,32 @@ async function showRewardedAd() {
 
 watchAdBtn.addEventListener("click", showRewardedAd);
 
+
 /* =========================================================
-   WATCH VIDEO BUTTON
+   WATCH VIDEO
 ========================================================= */
+
 videoBtn.addEventListener("click", () => {
   if (!selectedVideo || adsWatched < requiredAds) return;
-
   const videoId = encodeURIComponent(selectedVideo.id);
   window.location.href = `video.html?id=${videoId}`;
 });
 
-closeModal.addEventListener("click", () => modal.classList.add("hidden"));
-
-modal.addEventListener("click", event => {
-  if (event.target === modal) modal.classList.add("hidden");
-});
 
 /* =========================================================
-   CATEGORY NAVIGATION
+   CLOSE MODAL
 ========================================================= */
+
+closeModal.addEventListener("click", () => modal.classList.add("hidden"));
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) modal.classList.add("hidden");
+});
+
+
+/* =========================================================
+   CATEGORY BUTTONS
+========================================================= */
+
 document.querySelectorAll(".category-btn").forEach(button => {
   button.addEventListener("click", () => {
     document.querySelectorAll(".category-btn").forEach(btn => btn.classList.remove("active"));
@@ -227,14 +237,17 @@ document.querySelectorAll(".bottom-nav button").forEach(button => {
     const category = button.dataset.bottomCategory;
     document.querySelectorAll(".bottom-nav button").forEach(btn => btn.classList.remove("bottom-active"));
     button.classList.add("bottom-active");
-
     document.querySelectorAll(".category-btn").forEach(btn => {
       btn.classList.toggle("active", btn.dataset.category === category);
     });
-
     render(category);
   });
 });
+
+
+/* =========================================================
+   UTILS
+========================================================= */
 
 function escapeHTML(value) {
   return String(value)
@@ -245,4 +258,27 @@ function escapeHTML(value) {
     .replace(/'/g, "&#039;");
 }
 
-render("All");
+
+/* =========================================================
+   MONETAG IN-APP INTERSTITIAL
+========================================================= */
+
+function initInAppInterstitial() {
+  if (typeof window.show_11571866 === "function") {
+    window.show_11571866({
+      type: 'inApp',
+      inAppSettings: {
+        frequency: 10,
+        capping: 1,
+        interval: 30,
+        timeout: 5,
+        everyPage: false
+      }
+    });
+  } else {
+    setTimeout(initInAppInterstitial, 1000);
+  }
+}
+
+loadPosts();
+initInAppInterstitial();
