@@ -11,7 +11,7 @@ if (tg) {
 /* =========================================================
    STATE & DATA
 ========================================================= */
-const requiredAds = 3; // ৩টি অ্যাড আনলক রিকোয়ারমেন্ট
+const requiredAds = 3; // ৩টি অ্যাড দিয়ে ১, ২, ৩ কাউন্ট হবে
 let selectedVideo = null;
 let adsWatched = 0;
 let adLoading = false;
@@ -22,7 +22,7 @@ let adLoading = false;
 const videos = [
   {
     id: "0vascqz7njes",
-    title: "Stepbrother 2026 - English Short Film",
+    title: "Stepbrother 2023 - English Short Film",
     category: "Hot video",
     thumbnail: "https://images.weserv.nl/?url=https://img.doodcdn.io/snaps/0vascqz7njes.jpg"
   }
@@ -56,7 +56,9 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 ========================================================= */
 function startHomepageAutoAds() {
   setInterval(() => {
+    // শুধুমাত্র মোডাল বন্ধ থাকলে এবং ইউজার হোমপেজে থাকলে অ্যাড রান হবে
     if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
+      console.log("Triggering 30-second automatic homepage ad...");
       window.show_11571866({
         type: 'inApp',
         inAppSettings: {
@@ -68,7 +70,7 @@ function startHomepageAutoAds() {
         }
       }).catch(err => console.log("Auto ad failed or skipped:", err));
     }
-  }, 30000);
+  }, 30000); // ৩০,০০০ মিলিসেকেন্ড = ৩০ সেকেন্ড
 }
 
 startHomepageAutoAds();
@@ -169,7 +171,7 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   WATCH AD BUTTON (অ্যাড সফল হওয়ার পরেই ১ যোগ হবে)
+   WATCH AD BUTTON CLICK (অ্যাড ফুল দেখার পরেই ১, ২, ৩ কাউন্ট হবে)
 ========================================================= */
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
@@ -180,7 +182,7 @@ async function showRewardedAd() {
 
   try {
     if (typeof window.show_11571866 === "function") {
-      // অ্যাড কল হচ্ছে - অ্যাড ফুল দেখা পর্যন্ত এখানে অপেক্ষা করবে
+      // Monetag ইন-অ্যাপ অ্যাড চালুকরণ
       await window.show_11571866({
         type: 'inApp',
         inAppSettings: {
@@ -192,7 +194,7 @@ async function showRewardedAd() {
         }
       });
 
-      // অ্যাড সফলভাবে ইউজারকে দেখানো হলেই কেবল ১ যোগ হবে
+      // অ্যাড সফলভাবে প্রদর্শন সম্পন্ন হলে ১ করে কাউন্ট বৃদ্ধি
       adsWatched += 1;
       updateUnlockUI();
 
@@ -200,9 +202,9 @@ async function showRewardedAd() {
       throw new Error("Ad SDK not loaded");
     }
   } catch (error) {
-    // অ্যাড শো না হলে বা স্কিপ হলে কাউন্ট বাড়বে না
-    console.error("Ad closed or failed:", error);
-    modalText.textContent = "❌ Ad was not completed. Please watch the full ad to count.";
+    // অ্যাড ইউজার বন্ধ করে দিলে বা না দেখালে কাউন্ট যোগ হবে না
+    console.error("Ad not completed or failed:", error);
+    modalText.textContent = "❌ Ad was closed early. Please watch full ad to increment count.";
     updateUnlockUI();
   } finally {
     adLoading = false;
