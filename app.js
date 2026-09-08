@@ -19,7 +19,7 @@ const videos = [
     id: "0vascqz7njes",
     title: "Step Brother 2023 - English Short Film",
     category: "Trending",
-    thumbnail: "https://i.ibb.co/qYBmR6N4/image.jpg"
+    thumbnail: "https://ibb.co/1tgckKY7/image.jpg"
   }
 ];
 
