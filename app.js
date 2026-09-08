@@ -57,7 +57,6 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 function startHomepageAutoAds() {
   setInterval(() => {
     if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
-      console.log("Triggering 30-second automatic ad...");
       window.show_11571866({
         type: 'inApp',
         inAppSettings: {
@@ -170,19 +169,19 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   WATCH AD BUTTON (অ্যাড ফুল দেখার পর কাউন্ট ১, ২, ৩ হবে)
+   WATCH AD BUTTON WITH STRICT VERIFICATION
 ========================================================= */
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
 
   adLoading = true;
   watchAdBtn.disabled = true;
-  watchAdBtn.textContent = "⏳ Showing Ad...";
+  watchAdBtn.textContent = "⏳ Loading Ad...";
 
   try {
     if (typeof window.show_11571866 === "function") {
-      // অ্যাড আসা পর্যন্ত ওয়েট করবে
-      await window.show_11571866({
+      // অ্যাড কল করা হচ্ছে
+      const adResult = await window.show_11571866({
         type: 'inApp',
         inAppSettings: {
           frequency: 1,
@@ -193,16 +192,18 @@ async function showRewardedAd() {
         }
       });
 
-      // অ্যাড সফলভাবে প্রদর্শন সম্পন্ন হওয়ার পরেই ১ যোগ হবে
+      // অ্যাড সফলভাবে প্রদর্শন হওয়ার পর
       adsWatched += 1;
+      modalText.textContent = `✅ Ad watched successfully!`;
       updateUnlockUI();
 
     } else {
-      throw new Error("Ad SDK not loaded");
+      throw new Error("Ad SDK missing");
     }
   } catch (error) {
-    console.error("Ad not completed:", error);
-    modalText.textContent = "❌ Please watch full ad to increment count.";
+    console.error("Ad failed or not shown:", error);
+    // অ্যাড না দেখালে বা ব্যর্থ হলে কাউন্ট বাড়বে না
+    modalText.innerHTML = `<span style="color:#ff4d4d; font-weight:bold;">Ad not available</span>`;
     updateUnlockUI();
   } finally {
     adLoading = false;
