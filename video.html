@@ -2,60 +2,90 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Opening Video Player...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Watch Video</title>
   <style>
-    body {
-      background-color: #0b0f19;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    * {
+      box-sizing: border-box;
       margin: 0;
-      text-align: center;
+      padding: 0;
     }
-    .loader {
-      border: 4px solid #1e293b;
-      border-top: 4px solid #6366f1;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      overflow: hidden;
+      font-family: sans-serif;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    h2 {
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-    p {
-      color: #94a3b8;
+
+    /* Floating Back Button */
+    .back-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 99999;
+      background: rgba(15, 23, 42, 0.85);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
       font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .back-btn:active {
+      transform: scale(0.95);
+      background: rgba(99, 102, 241, 0.9);
+    }
+
+    /* Fullscreen Player Container */
+    .player-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
 <body>
 
-  <div class="loader"></div>
-  <h2>ভিডিও প্লেয়ারে রিডাইরেক্ট করা হচ্ছে...</h2>
-  <p>অনুগ্রহ করে ১ সেকেন্ড অপেক্ষা করুন</p>
+  <!-- Floating Back Button -->
+  <button class="back-btn" onclick="window.location.href='index.html'">
+    ← Back
+  </button>
+
+  <!-- Video Player -->
+  <div class="player-container">
+    <iframe 
+      id="videoIframe"
+      src="" 
+      allowfullscreen="true"
+      webkitallowfullscreen="true"
+      mozallowfullscreen="true"
+      allow="autoplay; fullscreen; picture-in-picture">
+    </iframe>
+  </div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
 
     if (videoId) {
-      // Direct full-page player link
-      window.location.href = `https://playmogo.com/e/${videoId}`;
+      document.getElementById('videoIframe').src = `https://playmogo.com/e/${videoId}`;
     } else {
-      document.querySelector('h2').textContent = "Video ID পাওয়া যায়নি!";
-      document.querySelector('.loader').style.display = 'none';
+      alert("Video ID missing!");
+      window.location.href = 'index.html';
     }
   </script>
 
