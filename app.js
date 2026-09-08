@@ -38,8 +38,8 @@ const videos = [
     title: "Sex Hot Video",
     category: "Trending",
     thumbnail: "https://i.ibb.co/Yw7S09v/Screenshot-2026-09-08-19-34-18-93-99c04817c0de5652397fc8b56c3b3817.jpg"
-  }
-   
+  },
+
 ];
 
 let selectedVideo = null;
