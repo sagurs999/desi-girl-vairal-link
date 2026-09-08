@@ -1,12 +1,8 @@
-/* TELEGRAM WEBAPP */
+/* TELEGRAM WEBAPP INITIALIZE */
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
-  const user = tg.initDataUnsafe?.user;
-  if (user) {
-    document.getElementById("tgUser").textContent = user.first_name || "Guest";
-  }
 }
 
 const REQUIRED_ADS = 3;
@@ -14,14 +10,14 @@ let currentVideoCode = null;
 let currentAdsWatched = 0;
 
 /* 
-  আপনার Doodstream-এর ভিডিও লিস্ট। 
-  ভবিষ্যতে নতুন ভিডিও যুক্ত করতে চাইলে কমা (,) দিয়ে নিচে নতুন অবজেক্ট বসিয়ে দিবেন।
+  ভিডিও লিস্ট (নতুন ভিডিও যোগ করতে কমা দিয়ে নিচে নতুন অবজেক্ট বসাবেন)
 */
 const allPosts = [
   {
-    id: "0vascqz7njes", // আপনার ভিডিওর File Code
+    id: "0vascqz7njes",
     title: "Stepbrother 2023 - English Short Film",
-    thumbnail_url: "https://img.doodcdn.io/snaps/0vascqz7njes.jpg", 
+    // wsrv.nl প্রক্সি দিয়ে থাম্বনেইল লোড করা হচ্ছে
+    thumbnail_url: "https://wsrv.nl/?url=https://img.doodcdn.io/snaps/0vascqz7njes.jpg",
     views: "1.5k"
   }
 ];
@@ -34,22 +30,22 @@ const videoBtn = document.getElementById("videoBtn");
 const progressBar = document.getElementById("progressBar");
 const adCount = document.getElementById("adCount");
 
-/* RENDER POSTS */
-function renderPosts(posts) {
-  if (!posts.length) {
-    videoGrid.innerHTML = `<div class="loading">কোনো ভিডিও পাওয়া যায়নি।</div>`;
+/* RENDER CARDS */
+function renderPosts() {
+  if (!allPosts.length) {
+    videoGrid.innerHTML = `<p style="color: #aaa;">কোনো ভিডিও পাওয়া যায়নি।</p>`;
     return;
   }
 
-  videoGrid.innerHTML = posts.map(post => `
+  videoGrid.innerHTML = allPosts.map(post => `
     <div class="video-card">
       <div class="thumb" onclick="openModal('${post.id}')">
         ${post.thumbnail_url 
-          ? `<img src="${post.thumbnail_url}" alt="Thumbnail" />` 
-          : `<div class="thumb-placeholder">🎬</div>`}
+          ? `<img src="${post.thumbnail_url}" alt="Thumb" onerror="this.onerror=null; this.parentElement.innerHTML='🎬';">` 
+          : `🎬`}
       </div>
       <div class="card-body">
-        <h3>${escapeHTML(post.title || "Untitled")}</h3>
+        <h3>${escapeHTML(post.title)}</h3>
         <div class="meta">Views: ${post.views}</div>
         <button class="open-btn" onclick="openModal('${post.id}')">Watch Video</button>
       </div>
@@ -57,7 +53,7 @@ function renderPosts(posts) {
   `).join("");
 }
 
-/* MODAL LOGIC */
+/* MODAL SYSTEM */
 function openModal(id) {
   const post = allPosts.find(p => p.id === id);
   if (!post) return;
@@ -70,12 +66,12 @@ function openModal(id) {
 }
 
 function updateModalUI(post) {
-  document.getElementById("modalTitle").textContent = post.title || "Video";
-  
+  document.getElementById("modalTitle").textContent = post.title;
+
   const pct = Math.floor((currentAdsWatched / REQUIRED_ADS) * 100);
   progressBar.style.width = `${pct}%`;
   adCount.textContent = `${currentAdsWatched} / ${REQUIRED_ADS} Ads Completed`;
-  
+
   watchAdBtn.textContent = `▶ Watch Ad (${currentAdsWatched}/${REQUIRED_ADS})`;
 
   if (currentAdsWatched >= REQUIRED_ADS) {
@@ -89,7 +85,7 @@ function updateModalUI(post) {
   }
 }
 
-/* ADS LOGIC (MONETAG integration) */
+/* MONETAG ADS SYSTEM */
 watchAdBtn.addEventListener("click", () => {
   if (typeof show_11571866 === "function") {
     show_11571866().then(() => {
@@ -110,6 +106,7 @@ function onAdWatched() {
   }
 }
 
+/* UNLOCK ACTION */
 videoBtn.addEventListener("click", () => {
   if (currentAdsWatched >= REQUIRED_ADS && currentVideoCode) {
     window.location.href = `video.html?code=${currentVideoCode}`;
@@ -126,5 +123,4 @@ function escapeHTML(str) {
   }[m]));
 }
 
-// Render Videos Immediately
-renderPosts(allPosts);
+renderPosts();
