@@ -55,7 +55,7 @@
       margin-bottom: 14px;
     }
 
-    /* VIDEO CONTAINER & FULLSCREEN FIX */
+    /* VIDEO CONTAINER & OVERLAY */
     .video-wrapper {
       position: relative;
       width: 100%;
@@ -72,41 +72,70 @@
       border: none;
     }
 
-    /* CUSTOM FULLSCREEN BUTTON */
-    .fullscreen-btn {
+    /* CUSTOM OVERLAY TO BLOCK PLAYER ADS & FIX FULLSCREEN */
+    .player-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      margin-top: 12px;
-      padding: 14px;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: bold;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      z-index: 99;
+    }
+
+    .play-btn-custom {
+      width: 75px;
+      height: 75px;
+      background: #ff0055;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+      font-size: 32px;
+      color: #fff;
+      box-shadow: 0 0 30px rgba(255, 0, 85, 0.8);
+      transition: transform 0.2s ease;
     }
 
-    .fullscreen-btn:active {
-      transform: scale(0.98);
+    .player-overlay:hover .play-btn-custom {
+      transform: scale(1.1);
     }
 
-    /* BELOW PLAYER AD SPACE */
-    .bottom-ad-space {
-      margin-top: 20px;
-      width: 100%;
-      min-height: 120px;
+    .play-text {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 6px 16px;
+      border-radius: 20px;
+    }
+
+    /* HILLTOPADS CONTAINER BELOW VIDEO */
+    .hilltop-ad-box {
+      margin-top: 25px;
+      padding: 15px;
       background: rgba(255, 255, 255, 0.03);
-      border: 1px dashed rgba(255, 255, 255, 0.15);
-      border-radius: 14px;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 18px;
+      text-align: center;
+      min-height: 260px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+    }
+
+    .ad-title {
+      font-size: 11px;
+      color: #7b88a8;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
     .status { text-align: center; padding: 35px 15px; color: #aeb6cf; }
@@ -128,21 +157,24 @@
             id="videoIframe" 
             src="" 
             allow="fullscreen; autoplay; encrypted-media; picture-in-picture" 
-            allowfullscreen="true"
-            webkitallowfullscreen="true"
-            mozallowfullscreen="true">
+            allowfullscreen="true">
           </iframe>
-        </div>
 
-        <!-- 100% WORKING FULLSCREEN TRIGGER BUTTON -->
-        <button id="fsBtn" class="fullscreen-btn" type="button">
-          📺 Click For Fullscreen Video
-        </button>
+          <!-- OVERLAY FOR FULLSCREEN & PREVENTING PLAYER ADS -->
+          <div id="playerOverlay" class="player-overlay">
+            <div class="play-btn-custom">▶</div>
+            <div class="play-text">Click To Play In Fullscreen ⛶</div>
+          </div>
+        </div>
       </div>
 
-      <!-- ================= AD BELOW PLAYER ================= -->
-      <div class="bottom-ad-space">
-        <!-- আপনার HillTopAds / Monetag বা অন্য প্লেসমেন্ট কোড এখানে বসাতে পারেন -->
+      <!-- ================= HILLTOPADS AREA BELOW VIDEO ================= -->
+      <div class="hilltop-ad-box">
+        <div class="ad-title">Sponsored Content</div>
+        
+        <div id="hilltop-ad-container">
+          <!-- HillTopAds Script (আপনার ড্যাশবোর্ড থেকে পাওয়া ব্যানার অ্যাড কোড এখানে বসাবেন) -->
+        </div>
       </div>
 
     </div>
@@ -159,30 +191,34 @@
     const videoId = params.get("id");
     const iframe = document.getElementById("videoIframe");
     const videoContainer = document.getElementById("videoContainer");
-    const fsBtn = document.getElementById("fsBtn");
+    const playerOverlay = document.getElementById("playerOverlay");
 
     if (videoId) {
       iframe.src = `https://playmogo.com/e/${videoId}`;
     } else {
       document.getElementById("playerArea").innerHTML = `
-        <div class="status error">
-          Video ID missing or invalid.
-        </div>
+        <div class="status error">Video ID missing or invalid.</div>
       `;
     }
 
-    /* FULLSCREEN API IMPLEMENTATION FOR TELEGRAM / MOBILE BROWSER */
-    fsBtn.addEventListener("click", () => {
+    /* FULLSCREEN CLICK HANDLER */
+    playerOverlay.addEventListener("click", () => {
+      playerOverlay.style.display = "none";
+
       if (videoContainer.requestFullscreen) {
         videoContainer.requestFullscreen();
-      } else if (videoContainer.webkitRequestFullscreen) { /* Safari / iOS */
+      } else if (videoContainer.webkitRequestFullscreen) {
         videoContainer.webkitRequestFullscreen();
-      } else if (videoContainer.msRequestFullscreen) { /* IE/Edge */
+      } else if (videoContainer.msRequestFullscreen) {
         videoContainer.msRequestFullscreen();
       } else if (iframe.webkitEnterFullscreen) {
         iframe.webkitEnterFullscreen();
-      } else {
-        alert("Fullscreen mode is not supported on this webview.");
+      }
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        playerOverlay.style.display = "flex";
       }
     });
   </script>
