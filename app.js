@@ -72,13 +72,12 @@ function loadPosts() {
 
 
 /* =========================================================
-   RENDER VIDEO CARDS (NEWEST POSTS FIRST)
+   RENDER VIDEO CARDS (MATCHES EXACT ORIGINAL UI)
 ========================================================= */
 
 function render(category = "All") {
   videoGrid.innerHTML = "";
 
-  // Filter category
   const filteredVideos = category === "All"
     ? videos
     : videos.filter(video => String(video.category).toLowerCase() === String(category).toLowerCase());
