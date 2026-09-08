@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- HillTopAds Domain Verification Meta Tag -->
+  <!-- HillTopAds Meta Tag -->
   <meta name="referrer" content="no-referrer-when-downgrade" />
 
   <title>Watch Video</title>
@@ -55,27 +55,51 @@
       margin-bottom: 14px;
     }
 
-    /* FULLSCREEN VIDEO CONTAINER */
-    .video-container {
+    /* VIDEO CONTAINER & FULLSCREEN FIX */
+    .video-wrapper {
       position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
       background: #000;
       border-radius: 18px;
       overflow: hidden;
-      margin-top: 15px;
+      margin-top: 10px;
     }
+
     iframe {
       width: 100%;
       height: 100%;
       border: none;
     }
 
-    /* VIDEO PLAYER BELOW AD AREA */
-    .player-bottom-ad {
+    /* CUSTOM FULLSCREEN BUTTON */
+    .fullscreen-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+    }
+
+    .fullscreen-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* BELOW PLAYER AD SPACE */
+    .bottom-ad-space {
       margin-top: 20px;
       width: 100%;
-      min-height: 100px;
+      min-height: 120px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px dashed rgba(255, 255, 255, 0.15);
       border-radius: 14px;
@@ -98,29 +122,28 @@
     <div class="card">
       <div class="badge">🔓 VIDEO UNLOCKED</div>
 
-      <!-- VIDEO PLAYER (FULLSCREEN ENABLED) -->
       <div id="playerArea">
-        <div class="video-container">
+        <div id="videoContainer" class="video-wrapper">
           <iframe 
             id="videoIframe" 
             src="" 
-            allow="fullscreen; autoplay; encrypted-media; picture-in-picture; accelerometer; gyroscope" 
+            allow="fullscreen; autoplay; encrypted-media; picture-in-picture" 
             allowfullscreen="true"
             webkitallowfullscreen="true"
-            mozallowfullscreen="true"
-            msallowfullscreen="true">
+            mozallowfullscreen="true">
           </iframe>
         </div>
+
+        <!-- 100% WORKING FULLSCREEN TRIGGER BUTTON -->
+        <button id="fsBtn" class="fullscreen-btn" type="button">
+          📺 Click For Fullscreen Video
+        </button>
       </div>
 
-      <!-- ================= VIDEO PLACEMENT AD ================= -->
-      <!-- প্লেয়ারের নিচের অ্যাড কোড এখানে বসাবেন -->
-      <div class="player-bottom-ad">
-        <!-- 
-          এখানে আপনার HillTopAds / Monetag বা অন্য অ্যাড নেটওয়ার্কের ব্যানার বা স্ক্রিপ্ট কোডটি পেস্ট করুন।
-        -->
+      <!-- ================= AD BELOW PLAYER ================= -->
+      <div class="bottom-ad-space">
+        <!-- আপনার HillTopAds / Monetag বা অন্য প্লেসমেন্ট কোড এখানে বসাতে পারেন -->
       </div>
-      <!-- ====================================================== -->
 
     </div>
   </div>
@@ -134,9 +157,12 @@
 
     const params = new URLSearchParams(window.location.search);
     const videoId = params.get("id");
+    const iframe = document.getElementById("videoIframe");
+    const videoContainer = document.getElementById("videoContainer");
+    const fsBtn = document.getElementById("fsBtn");
 
     if (videoId) {
-      document.getElementById("videoIframe").src = `https://playmogo.com/e/${videoId}`;
+      iframe.src = `https://playmogo.com/e/${videoId}`;
     } else {
       document.getElementById("playerArea").innerHTML = `
         <div class="status error">
@@ -144,6 +170,21 @@
         </div>
       `;
     }
+
+    /* FULLSCREEN API IMPLEMENTATION FOR TELEGRAM / MOBILE BROWSER */
+    fsBtn.addEventListener("click", () => {
+      if (videoContainer.requestFullscreen) {
+        videoContainer.requestFullscreen();
+      } else if (videoContainer.webkitRequestFullscreen) { /* Safari / iOS */
+        videoContainer.webkitRequestFullscreen();
+      } else if (videoContainer.msRequestFullscreen) { /* IE/Edge */
+        videoContainer.msRequestFullscreen();
+      } else if (iframe.webkitEnterFullscreen) {
+        iframe.webkitEnterFullscreen();
+      } else {
+        alert("Fullscreen mode is not supported on this webview.");
+      }
+    });
   </script>
 
 </body>
