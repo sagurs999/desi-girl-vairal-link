@@ -6,7 +6,7 @@
 ========================================================= */
 
 // এখানে আপনার নতুন DoodStream API Key বসাবেন
-const DOODSTREAM_API_KEY = "YOUR_DOODSTREAM_API_KEY";
+const DOODSTREAM_API_KEY = "577640ki1zlnwq28ruachu";
 
 
 const DOOD_API =
