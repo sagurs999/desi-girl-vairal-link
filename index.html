@@ -1,163 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Desi Girl Vairal Link</title>
+    <meta charset="UTF-8">
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-  <!-- Monetag -->
-  <script
-    src="https://libtl.com/sdk.js"
-    data-zone="11571866"
-    data-sdk="show_11571866"
-    data-auto="2/0.1/30/5/0">
-  </script>
+    <title>Desi Girl Vairal Link</title>
 
-  <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Monetag -->
+    <script
+        src="https://libtl.com/sdk.js"
+        data-zone="11571866"
+        data-sdk="show_11571866"
+        data-auto="2/0.1/30/5/0">
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
 
 <body>
 
-<header class="header">
-  <div>
-    <div class="brand">🔐 Desi Girl Vairal Link</div>
-    <div class="subtitle">Trending Videos</div>
-  </div>
 
-  <div id="tgUser" class="tg-user">Guest</div>
+<header class="header">
+
+    <div class="header-left">
+
+        <div class="brand">
+            🔐 Desi Girl Vairal Link
+        </div>
+
+        <div class="subtitle">
+            Trending Videos
+        </div>
+
+    </div>
+
+
+    <div id="tgUser" class="tg-user">
+        Guest
+    </div>
+
 </header>
+
 
 
 <main>
 
-  <section class="hero">
-    <div class="hero-icon">🔓</div>
 
-    <h1>Desi Girl Vairal Link</h1>
+    <!-- HERO -->
 
-    <p>Watch ads and unlock videos</p>
-  </section>
+    <section class="hero">
 
+        <div class="hero-icon">
+            🔓
+        </div>
 
-  <div class="categories">
+        <h1>
+            Desi Girl Vairal Link
+        </h1>
 
-    <button class="category active" data-category="all">
-      All
-    </button>
+        <p>
+            Watch ads and unlock videos
+        </p>
 
-    <button class="category" data-category="trending">
-      🔥 Trending
-    </button>
-
-  </div>
+    </section>
 
 
-  <section id="loading" class="loading">
-    <div class="spinner"></div>
-    <p>Loading videos...</p>
-  </section>
+
+    <!-- CATEGORY -->
+
+    <div class="categories">
+
+        <button
+            class="category active"
+            data-category="all">
+            All
+        </button>
+
+        <button
+            class="category"
+            data-category="trending">
+            🔥 Trending
+        </button>
+
+    </div>
 
 
-  <section id="errorBox" class="error-box hidden">
-    <h3>⚠️ Unable to load videos</h3>
 
-    <p id="errorText">
-      Something went wrong.
-    </p>
+    <!-- LOADING -->
 
-    <button id="retryBtn">
-      Retry
-    </button>
-  </section>
+    <section
+        id="loading"
+        class="loading">
 
+        <div class="spinner"></div>
 
-  <section id="emptyBox" class="empty-box hidden">
-    <div>📭</div>
-    <h3>No videos found</h3>
-    <p>Upload videos to your DoodStream account.</p>
-  </section>
+        <p>
+            Loading videos...
+        </p>
+
+    </section>
 
 
-  <section id="videoGrid" class="video-grid"></section>
+
+    <!-- ERROR -->
+
+    <section
+        id="errorBox"
+        class="error-box hidden">
+
+        <div class="error-icon">
+            ⚠️
+        </div>
+
+        <h3>
+            Videos could not be loaded
+        </h3>
+
+        <p id="errorText">
+            Please try again.
+        </p>
+
+        <button id="retryBtn">
+            🔄 Retry
+        </button>
+
+    </section>
+
+
+
+    <!-- EMPTY -->
+
+    <section
+        id="emptyBox"
+        class="empty-box hidden">
+
+        <div class="empty-icon">
+            📭
+        </div>
+
+        <h3>
+            No videos found
+        </h3>
+
+        <p>
+            No videos were found in your DoodStream folders.
+        </p>
+
+    </section>
+
+
+
+    <!-- VIDEO POSTS -->
+
+    <section
+        id="videoGrid"
+        class="video-grid">
+    </section>
+
 
 </main>
 
 
-<!-- Unlock Modal -->
 
-<div id="unlockModal" class="modal hidden">
+<!-- UNLOCK MODAL -->
 
-  <div class="modal-box">
+<div
+    id="unlockModal"
+    class="modal hidden">
 
-    <button id="closeModal" class="close-btn">
-      ×
-    </button>
-
-    <div class="lock-icon">
-      🔒
-    </div>
-
-    <h2>Unlock Video</h2>
-
-    <p>
-      Watch 3 ads to unlock this video.
-    </p>
+    <div class="modal-box">
 
 
-    <div class="progress-container">
-
-      <div class="progress-bar">
-        <div id="progressFill"></div>
-      </div>
-
-      <div id="adCounter">
-        0 / 3 Ads Completed
-      </div>
-
-    </div>
+        <button
+            id="closeModal"
+            class="close-btn">
+            ×
+        </button>
 
 
-    <button id="watchAdBtn" class="primary-btn">
-      ▶ Watch Ad
-    </button>
+        <div class="lock-icon">
+            🔒
+        </div>
 
 
-    <button id="openVideoBtn"
+        <h2>
+            Unlock Video
+        </h2>
+
+
+        <p>
+            Watch 3 ads to unlock this video.
+        </p>
+
+
+        <div class="progress-container">
+
+            <div class="progress-bar">
+
+                <div
+                    id="progressFill">
+                </div>
+
+            </div>
+
+
+            <div id="adCounter">
+                0 / 3 Ads Completed
+            </div>
+
+        </div>
+
+
+        <button
+            id="watchAdBtn"
+            class="primary-btn">
+            ▶ Watch Ad
+        </button>
+
+
+        <button
+            id="openVideoBtn"
             class="primary-btn hidden">
+            🎬 Watch Video
+        </button>
 
-      🎬 Watch Video
 
-    </button>
-
-  </div>
+    </div>
 
 </div>
 
 
+
+<!-- BOTTOM NAV -->
+
 <nav class="bottom-nav">
 
-  <button class="nav-item active">
-    <span>🏠</span>
-    <small>Home</small>
-  </button>
+    <button
+        class="nav-item active">
 
-  <button class="nav-item">
-    <span>🔥</span>
-    <small>Trending</small>
-  </button>
+        <span>🏠</span>
 
-  <button class="nav-item" id="refreshBtn">
-    <span>🔄</span>
-    <small>Refresh</small>
-  </button>
+        <small>
+            Home
+        </small>
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        id="trendingNav">
+
+        <span>🔥</span>
+
+        <small>
+            Trending
+        </small>
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        id="refreshBtn">
+
+        <span>🔄</span>
+
+        <small>
+            Refresh
+        </small>
+
+    </button>
 
 </nav>
+
 
 
 <script src="app.js"></script>
 
 </body>
+
 </html>
