@@ -81,9 +81,8 @@
 
     <div class="player-card">
       <span class="status-badge">🔒 VIDEO UNLOCKED</span>
-      <h2 id="videoTitle" style="margin: 10px 0; font-size: 18px;">Loading Video...</h2>
+      <h2 id="videoTitle" style="margin: 10px 0; font-size: 18px;">Playing Video...</h2>
 
-      <!-- FULLSCREEN SUPPORTED IFRAME -->
       <div class="player-wrapper">
         <iframe 
           id="videoIframe"
@@ -91,15 +90,13 @@
           allowfullscreen="true"
           webkitallowfullscreen="true"
           mozallowfullscreen="true"
-          allow="autoplay; fullscreen; picture-in-picture; accelerometer; gyroscope"
-          sandbox="allow-forms allow-scripts allow-same-origin allow-popups">
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media">
         </iframe>
       </div>
     </div>
   </div>
 
   <script>
-    // URL থেকে ID সংগ্রহ করা
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
 
