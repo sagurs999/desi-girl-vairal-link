@@ -9,14 +9,22 @@ if (tg) {
   }
 }
 
-/* DOODSTREAM CONFIGURATION */
-const DOODSTREAM_API_KEY = "577640ki1zlnwq28ruachu";
-const DOOD_BASE_URL = "https://doodapi.com/api";
-
 const REQUIRED_ADS = 3;
 let currentVideoCode = null;
 let currentAdsWatched = 0;
-let allPosts = [];
+
+/* 
+  আপনার Doodstream-এর ভিডিও লিস্ট। 
+  ভবিষ্যতে নতুন ভিডিও যুক্ত করতে চাইলে কমা (,) দিয়ে নিচে নতুন অবজেক্ট বসিয়ে দিবেন।
+*/
+const allPosts = [
+  {
+    id: "0vascqz7njes", // আপনার ভিডিওর File Code
+    title: "Stepbrother 2023 - English Short Film",
+    thumbnail_url: "https://img.doodcdn.io/snaps/0vascqz7njes.jpg", 
+    views: "1.5k"
+  }
+];
 
 const videoGrid = document.getElementById("videoGrid");
 const modal = document.getElementById("modal");
@@ -26,53 +34,10 @@ const videoBtn = document.getElementById("videoBtn");
 const progressBar = document.getElementById("progressBar");
 const adCount = document.getElementById("adCount");
 
-/* FETCH DOODSTREAM VIDEOS (Multi-Proxy Fallback System) */
-async function fetchPosts() {
-  const targetUrl = `${DOOD_BASE_URL}/file/list?key=${DOODSTREAM_API_KEY}`;
-  
-  // একাধিক প্রক্সি ট্রাই করা হবে যাতে একটি ফেল করলে অন্যটি কাজ করে
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-    `https://thingproxy.freeboard.io/fetch/${targetUrl}`
-  ];
-
-  let data = null;
-
-  for (const proxyUrl of proxies) {
-    try {
-      const res = await fetch(proxyUrl);
-      if (res.ok) {
-        data = await res.json();
-        if (data && (data.status === 200 || data.result)) {
-          break; // ডাটা সফলভাবে পাওয়া গেলে লুপ থামবে
-        }
-      }
-    } catch (e) {
-      console.warn("Proxy failed, trying next one...", proxyUrl);
-    }
-  }
-
-  if (data && data.result && data.result.files) {
-    allPosts = data.result.files.map(file => ({
-      id: file.file_code,
-      title: file.title,
-      thumbnail_url: file.single_img || file.splash_img || "",
-      views: file.views || 0,
-      length: file.length || ""
-    }));
-
-    renderPosts(allPosts);
-  } else {
-    // যদি প্রক্সি এবং API দুটোই ফেল করে, তবে ফলব্যাক ডিফল্ট পোস্ট দেখাবে
-    videoGrid.innerHTML = `<div class="error-box">Doodstream অ্যাকাউন্ট সার্ভারে কোনো ফাইল পাওয়া যায়নি অথবা API সাড়া দিচ্ছে না। অ্যাকাউন্ট চেক করুন।</div>`;
-  }
-}
-
 /* RENDER POSTS */
 function renderPosts(posts) {
   if (!posts.length) {
-    videoGrid.innerHTML = `<div class="loading">কোনো ভিডিও পাওয়া যায়নি। Doodstream-এ নতুন ভিডিও আপলোড করুন।</div>`;
+    videoGrid.innerHTML = `<div class="loading">কোনো ভিডিও পাওয়া যায়নি।</div>`;
     return;
   }
 
@@ -124,7 +89,7 @@ function updateModalUI(post) {
   }
 }
 
-/* ADS LOGIC */
+/* ADS LOGIC (MONETAG integration) */
 watchAdBtn.addEventListener("click", () => {
   if (typeof show_11571866 === "function") {
     show_11571866().then(() => {
@@ -161,4 +126,5 @@ function escapeHTML(str) {
   }[m]));
 }
 
-fetchPosts();
+// Render Videos Immediately
+renderPosts(allPosts);
