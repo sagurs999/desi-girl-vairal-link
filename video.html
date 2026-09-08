@@ -167,22 +167,21 @@
     }
 
 
-    video {
+    /* Doodstream Wrapper */
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 18px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
 
-      width:
-        100%;
-
-      display:
-        block;
-
-      border-radius:
-        18px;
-
-      background:
-        #000;
-
-      max-height:
-        88vh;
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
 
@@ -266,7 +265,7 @@
 
 
       <h1 id="title">
-        Loading...
+        Watch Video
       </h1>
 
 
@@ -305,18 +304,6 @@
 
 
     /* =====================================================
-       SUPABASE
-    ===================================================== */
-
-    const SUPABASE_URL =
-      "https://mshoftgubfbkvynndtnu.supabase.co";
-
-
-    const SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
-
-
-    /* =====================================================
        URL PARAMETER
     ===================================================== */
 
@@ -334,12 +321,6 @@
        DOM
     ===================================================== */
 
-    const title =
-      document.getElementById(
-        "title"
-      );
-
-
     const playerArea =
       document.getElementById(
         "playerArea"
@@ -347,10 +328,10 @@
 
 
     /* =====================================================
-       LOAD VIDEO
+       LOAD DOODSTREAM VIDEO
     ===================================================== */
 
-    async function loadVideo() {
+    function loadVideo() {
 
 
       if (!postId) {
@@ -365,161 +346,6 @@
 
 
       try {
-
-
-        /*
-          IMPORTANT:
-
-          Only request columns that
-          actually exist in posts.
-
-          video_url is used.
-          NOT video.
-        */
-
-        const url =
-          `${SUPABASE_URL}/rest/v1/posts` +
-          `?id=eq.${encodeURIComponent(postId)}` +
-          `&select=id,title,video_url`;
-
-
-        const response =
-          await fetch(
-            url,
-            {
-
-              method:
-                "GET",
-
-              headers:
-                {
-
-                  apikey:
-                    SUPABASE_ANON_KEY,
-
-                  Authorization:
-                    `Bearer ${SUPABASE_ANON_KEY}`
-
-                }
-
-            }
-          );
-
-
-        if (!response.ok) {
-
-          const errorText =
-            await response.text();
-
-          throw new Error(
-            `Supabase ${response.status}: ${errorText}`
-          );
-
-        }
-
-
-        const posts =
-          await response.json();
-
-
-        if (
-          !posts.length
-        ) {
-
-          showError(
-            "Video post not found."
-          );
-
-          return;
-
-        }
-
-
-        const post =
-          posts[0];
-
-
-        /* =================================================
-           TITLE
-        ================================================= */
-
-        title.textContent =
-          post.title ||
-          "Video";
-
-
-        /* =================================================
-           VIDEO URL
-        ================================================= */
-
-        const videoUrl =
-          post.video_url ||
-          "";
-
-
-        if (!videoUrl) {
-
-          showError(
-            "Video URL not found in video_url column."
-          );
-
-          return;
-
-        }
-
-
-        /* =================================================
-           CREATE PLAYER
-        ================================================= */
-
-        const video =
-          document.createElement(
-            "video"
-          );
-
-
-        video.controls =
-          true;
-
-
-        video.playsInline =
-          true;
-
-
-        video.preload =
-          "metadata";
-
-
-        video.setAttribute(
-          "controlsList",
-          "nodownload"
-        );
-
-
-        video.setAttribute(
-          "oncontextmenu",
-          "return false;"
-        );
-
-
-        const source =
-          document.createElement(
-            "source"
-          );
-
-
-        source.src =
-          videoUrl;
-
-
-        source.type =
-          "video/mp4";
-
-
-        video.appendChild(
-          source
-        );
-
 
         playerArea.innerHTML = "";
 
@@ -538,29 +364,46 @@
           "আপনি সফলভাবে ভিডিওটি আনলক করেছেন। নিচের player থেকে ভিডিওটি দেখতে পারবেন।";
 
 
+        const wrapper =
+          document.createElement(
+            "div"
+          );
+
+        wrapper.className =
+          "video-wrapper";
+
+
+        const iframe =
+          document.createElement(
+            "iframe"
+          );
+
+
+        // Doodstream / Playmogo URL
+        iframe.src =
+          `https://playmogo.com/e/${encodeURIComponent(postId)}`;
+
+
+        iframe.allow =
+          "fullscreen; autoplay; encrypted-media; picture-in-picture";
+
+
+        iframe.allowFullscreen =
+          true;
+
+
+        wrapper.appendChild(
+          iframe
+        );
+
+
         playerArea.appendChild(
           success
         );
 
 
         playerArea.appendChild(
-          video
-        );
-
-
-        /* =================================================
-           VIDEO ERROR
-        ================================================= */
-
-        video.addEventListener(
-          "error",
-          () => {
-
-            showError(
-              "ভিডিওটি চালানো যাচ্ছে না। video_url অথবা ভিডিও ফাইলটি পরীক্ষা করুন।"
-            );
-
-          }
+          wrapper
         );
 
 
