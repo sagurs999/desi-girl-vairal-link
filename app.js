@@ -27,19 +27,18 @@ const videos = [
     category: "Popular",
     thumbnail: "https://i.ibb.co/zhvtNwYX/Screenshot-2026-09-08-17-57-33-31-99c04817c0de5652397fc8b56c3b3817.jpg"
   },
-   {
+  {
     id: "1zngyas64349",
     title: "Vairal Video",
     category: "Hot video",
     thumbnail: "https://i.ibb.co/23nw3rN3/Screenshot-2026-09-08-19-13-02-92-99c04817c0de5652397fc8b56c3b3817.jpg"
   },
-   {
+  {
     id: "6clvappg3m8z",
     title: "Sex Hot Video",
     category: "Trending",
     thumbnail: "https://i.ibb.co/Yw7S09v/Screenshot-2026-09-08-19-34-18-93-99c04817c0de5652397fc8b56c3b3817.jpg"
-  },
-
+  }
 ];
 
 let selectedVideo = null;
@@ -282,7 +281,7 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   MONETAG IN-APP INTERSTITIAL
+   MONETAG IN-APP INTERSTITIAL (EVERY 40 SECONDS)
 ========================================================= */
 
 function initInAppInterstitial() {
@@ -291,8 +290,8 @@ function initInAppInterstitial() {
       type: 'inApp',
       inAppSettings: {
         frequency: 10,
-        capping: 1,
-        interval: 30,
+        capping: 0,
+        interval: 40,
         timeout: 5,
         everyPage: false
       }
@@ -301,6 +300,13 @@ function initInAppInterstitial() {
     setTimeout(initInAppInterstitial, 1000);
   }
 }
+
+// ৪ জন সিকিউর লুপ: প্রতি ৪০ সেকেন্ডে অ্যাড শো করার টাইমার
+setInterval(() => {
+  if (typeof window.show_11571866 === "function") {
+    window.show_11571866();
+  }
+}, 40000);
 
 loadPosts();
 initInAppInterstitial();
