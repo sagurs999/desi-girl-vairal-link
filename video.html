@@ -54,7 +54,10 @@
       font-size: 13px;
       margin-bottom: 14px;
     }
+
+    /* FULLSCREEN VIDEO CONTAINER */
     .video-container {
+      position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
       background: #000;
@@ -67,6 +70,21 @@
       height: 100%;
       border: none;
     }
+
+    /* VIDEO PLAYER BELOW AD AREA */
+    .player-bottom-ad {
+      margin-top: 20px;
+      width: 100%;
+      min-height: 100px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
     .status { text-align: center; padding: 35px 15px; color: #aeb6cf; }
     .error { color: #ff8b9d; background: rgba(255,60,100,.08); border-radius: 18px; padding: 20px; }
   </style>
@@ -80,18 +98,29 @@
     <div class="card">
       <div class="badge">🔓 VIDEO UNLOCKED</div>
 
+      <!-- VIDEO PLAYER (FULLSCREEN ENABLED) -->
       <div id="playerArea">
         <div class="video-container">
           <iframe 
             id="videoIframe" 
             src="" 
-            allow="fullscreen; autoplay; encrypted-media; picture-in-picture" 
+            allow="fullscreen; autoplay; encrypted-media; picture-in-picture; accelerometer; gyroscope" 
             allowfullscreen="true"
             webkitallowfullscreen="true"
-            mozallowfullscreen="true">
+            mozallowfullscreen="true"
+            msallowfullscreen="true">
           </iframe>
         </div>
       </div>
+
+      <!-- ================= VIDEO PLACEMENT AD ================= -->
+      <!-- প্লেয়ারের নিচের অ্যাড কোড এখানে বসাবেন -->
+      <div class="player-bottom-ad">
+        <!-- 
+          এখানে আপনার HillTopAds / Monetag বা অন্য অ্যাড নেটওয়ার্কের ব্যানার বা স্ক্রিপ্ট কোডটি পেস্ট করুন।
+        -->
+      </div>
+      <!-- ====================================================== -->
 
     </div>
   </div>
