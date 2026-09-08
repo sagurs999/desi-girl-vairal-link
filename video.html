@@ -35,7 +35,7 @@
       background: #000000;
     }
 
-    /* Floating Header Overlay (Doodstream Style) */
+    /* Floating Header Overlay */
     .player-header {
       position: absolute;
       top: 0;
@@ -92,8 +92,8 @@
       text-transform: uppercase;
     }
 
-    /* Video Player iframe */
-    iframe {
+    /* Video Player iframe & video */
+    iframe, video {
       width: 100%;
       height: 100%;
       border: none;
@@ -135,7 +135,7 @@
 </head>
 <body>
 
-  <div class="player-wrapper">
+  <div class="player-wrapper" id="playerArea">
 
     <!-- Header Overlay -->
     <div class="player-header">
@@ -144,19 +144,9 @@
       <span class="badge-unlocked">Unlocked</span>
     </div>
 
-    <!-- Video Iframe -->
-    <iframe 
-      id="videoIframe" 
-      src="" 
-      allowfullscreen="true" 
-      webkitallowfullscreen="true" 
-      mozallowfullscreen="true" 
-      allow="autoplay; fullscreen">
-    </iframe>
-
     <!-- Error Message Overlay -->
     <div id="errorOverlay" class="overlay-msg hidden">
-      <h3>⚠️ ভিডিও পাওয়া যায়নি</h3>
+      <h3>⚠️ ভিডিও পাওয়া যায়নি</h3>
       <p>ভিডিও আইডি বা লিংকটি অনুপস্থিত।</p>
     </div>
 
@@ -175,36 +165,73 @@
     }
 
     function goBack() {
-      window.location.href = 'index.html';
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
     }
 
     /* URL Parameter Handlers */
     const params = new URLSearchParams(window.location.search);
-    let videoId = params.get("id");
+    let rawVideo = params.get("url") || params.get("id");
     let customTitle = params.get("title");
 
     if (customTitle) {
       document.getElementById("videoTitle").textContent = decodeURIComponent(customTitle);
     }
 
-    const iframe = document.getElementById("videoIframe");
+    const playerArea = document.getElementById("playerArea");
     const errorOverlay = document.getElementById("errorOverlay");
 
-    if (videoId) {
-      videoId = decodeURIComponent(videoId).trim();
+    if (rawVideo) {
+      let videoUrl = decodeURIComponent(rawVideo).trim();
 
-      // ১. যদি পুরো URL পাস হয় (https://...)
-      if (videoId.startsWith("http://") || videoId.startsWith("https://")) {
-        // Doodstream/Playmogo-র Download লিংক থাকলে Embed লিংকে কনভার্ট করবে
-        videoId = videoId.replace("/d/", "/e/");
-        iframe.src = videoId;
-      } 
-      // ২. যদি শুধু Doodstream / Playmogo আইডি পাস হয়
-      else {
-        iframe.src = `https://dood.to/e/${videoId}`;
+      const isEmbed = 
+        videoUrl.includes("lulustream") || 
+        videoUrl.includes("dood") || 
+        videoUrl.includes("playmogo") || 
+        videoUrl.includes("streamwish") || 
+        videoUrl.includes("/e/") || 
+        videoUrl.includes("/d/") ||
+        !videoUrl.includes(".");
+
+      if (isEmbed) {
+        // ১. যদি শুধু আইডি পাস করা হয়
+        if (!videoUrl.startsWith("http://") && !videoUrl.startsWith("https://")) {
+          videoUrl = `https://lulustream.com/e/${videoUrl}`;
+        } 
+        // ২. Lulustream লিংক অটো কনভার্ট
+        else if (videoUrl.includes("lulustream.com")) {
+          videoUrl = videoUrl.replace("/d/", "/e/");
+          if (!videoUrl.includes("/e/")) {
+            videoUrl = videoUrl.replace("lulustream.com/", "lulustream.com/e/");
+          }
+        }
+        // ৩. Doodstream & Playmogo লিংক অটো কনভার্ট
+        else if (videoUrl.includes("dood.to/d/")) {
+          videoUrl = videoUrl.replace("dood.to/d/", "dood.to/e/");
+        } else if (videoUrl.includes("playmogo.com/d/")) {
+          videoUrl = videoUrl.replace("playmogo.com/d/", "playmogo.com/e/");
+        }
+
+        const iframe = document.createElement("iframe");
+        iframe.src = videoUrl;
+        iframe.allowFullscreen = true;
+        iframe.setAttribute("allow", "autoplay; fullscreen");
+        playerArea.appendChild(iframe);
+
+      } else {
+        // ডাইরেক্ট .mp4 ভিডিও প্লেয়ার
+        const video = document.createElement("video");
+        video.src = videoUrl;
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        playerArea.appendChild(video);
       }
+
     } else {
-      iframe.style.display = "none";
       errorOverlay.classList.remove("hidden");
       setTimeout(goBack, 2500);
     }
