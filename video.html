@@ -17,7 +17,6 @@
       overflow: hidden;
       font-family: sans-serif;
     }
-
     /* Floating Back Button */
     .back-btn {
       position: absolute;
@@ -38,19 +37,16 @@
       align-items: center;
       gap: 6px;
     }
-
     .back-btn:active {
       transform: scale(0.95);
       background: rgba(99, 102, 241, 0.9);
     }
-
     /* Fullscreen Player Container */
     .player-container {
       width: 100vw;
       height: 100vh;
       position: relative;
     }
-
     iframe {
       width: 100%;
       height: 100%;
@@ -65,24 +61,20 @@
     ← Back
   </button>
 
-  <!-- Video Player -->
+  <!-- Video Player Container -->
   <div class="player-container">
-    <iframe 
-      id="videoIframe"
-      src="" 
-      allowfullscreen="true"
-      webkitallowfullscreen="true"
-      mozallowfullscreen="true"
-      allow="autoplay; fullscreen; picture-in-picture">
+    <iframe id="videoIframe" src="" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; picture-in-picture">
     </iframe>
   </div>
 
   <script>
+    // app.js থেকে পাঠানো URL parameter (id) পার্স করার অংশ
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
 
     if (videoId) {
-      document.getElementById('videoIframe').src = `https://playmogo.com/e/${videoId}`;
+      // Playmogo embed প্লেয়ার তৈরি করা
+      document.getElementById('videoIframe').src = `https://playmogo.com/e/${decodeURIComponent(videoId)}`;
     } else {
       alert("Video ID missing!");
       window.location.href = 'index.html';
