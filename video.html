@@ -2,459 +2,268 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch Video</title>
 
-    <meta charset="UTF-8">
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <!-- Monetag SDK -->
+  <script src="https://libtl.com/sdk.js" data-zone="11571866" data-sdk="show_11571866"></script>
 
-    <title>Watch Video - Desi Girl Vairal Link</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    <!-- Telegram -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    body {
+      background: linear-gradient(135deg, #060817, #10162d, #061d28);
+      color: white;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+    }
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+    .page {
+      width: 100%;
+      max-width: 800px;
+      margin: auto;
+      padding: 18px;
+    }
 
+    .back {
+      border: 0;
+      background: linear-gradient(135deg, #405cff, #743cff);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-bottom: 22px;
+      font-size: 15px;
+      font-weight: 800;
+      box-shadow: 0 8px 25px rgba(80, 70, 255, 0.25);
+    }
+
+    .card {
+      background: linear-gradient(145deg, rgba(31, 37, 62, 0.96), rgba(16, 24, 45, 0.96));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(15px);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #00d084, #00c6c9);
+      color: #00261d;
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 24px;
+      line-height: 1.3;
+      margin: 6px 0 18px;
+    }
+
+    video, iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: block;
+      border-radius: 18px;
+      border: 0;
+      background: #000;
+    }
+
+    .status {
+      text-align: center;
+      padding: 35px 15px;
+      color: #aeb6cf;
+      line-height: 1.6;
+    }
+
+    .error {
+      color: #ff8b9d;
+      background: rgba(255, 60, 100, 0.08);
+      border: 1px solid rgba(255, 80, 120, 0.15);
+      border-radius: 18px;
+    }
+
+    .success {
+      color: #a9ffe3;
+      background: rgba(0, 208, 132, 0.08);
+      border: 1px solid rgba(0, 208, 132, 0.15);
+      border-radius: 18px;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
-
 
 <body>
 
+  <div class="page">
 
-<!-- ================= HEADER ================= -->
-
-<header class="header">
-
-    <button
-        class="back-btn"
-        onclick="goBack()">
-        ←
+    <button class="back" onclick="history.back()" type="button">
+      ← Back
     </button>
 
+    <div class="card">
 
-    <div class="header-left">
+      <div class="badge">
+        🔓 VIDEO UNLOCKED
+      </div>
 
-        <div class="brand">
-            🔐 Desi Girl Vairal Link
+      <h1 id="title">
+        Loading...
+      </h1>
+
+      <div id="playerArea">
+        <div class="status">
+          Loading video...
         </div>
-
-        <div class="subtitle">
-            Video Player
-        </div>
+      </div>
 
     </div>
 
-
-    <div id="tgUser" class="tg-user">
-        Guest
-    </div>
-
-</header>
-
-
-
-<!-- ================= MAIN ================= -->
-
-<main class="watch-page">
-
-
-    <!-- Loading -->
-
-    <div
-        id="videoLoading"
-        class="loading">
-
-        <div class="spinner"></div>
-
-        <p>
-            Loading video...
-        </p>
-
-    </div>
-
-
-
-    <!-- Error -->
-
-    <div
-        id="videoError"
-        class="error-box hidden">
-
-        <div class="error-icon">
-            ⚠️
-        </div>
-
-        <h3>
-            Video unavailable
-        </h3>
-
-        <p id="videoErrorText">
-            Unable to load this video.
-        </p>
-
-
-        <button
-            onclick="goBack()">
-            ← Go Back
-        </button>
-
-    </div>
-
-
-
-    <!-- ================= VIDEO PLAYER ================= -->
-
-    <div
-        id="playerContainer"
-        class="player-container hidden">
-
-        <iframe
-            id="doodPlayer"
-            src=""
-            allowfullscreen
-            frameborder="0"
-            scrolling="no"
-            allow="autoplay; fullscreen">
-        </iframe>
-
-    </div>
-
-
-
-    <!-- ================= VIDEO INFO ================= -->
-
-    <section class="watch-info">
-
-        <h1 id="videoTitle">
-            Loading...
-        </h1>
-
-
-        <div class="watch-meta">
-
-            <span>
-                🎬 DoodStream
-            </span>
-
-            <span>
-                🔐 Unlocked
-            </span>
-
-        </div>
-
-
-        <p>
-            Enjoy watching the video.
-        </p>
-
-    </section>
-
-
-</main>
-
-
-
-<!-- ================= BOTTOM NAV ================= -->
-
-<nav class="bottom-nav">
-
-    <button
-        class="nav-item"
-        onclick="goHome()">
-
-        <span>🏠</span>
-
-        <small>
-            Home
-        </small>
-
-    </button>
-
-
-    <button
-        class="nav-item"
-        onclick="goBack()">
-
-        <span>←</span>
-
-        <small>
-            Back
-        </small>
-
-    </button>
-
-</nav>
-
-
-
-<script>
-
-"use strict";
-
-
-/* =========================================
-   TELEGRAM
-========================================= */
-
-const tg =
-    window.Telegram?.WebApp;
-
-
-if (tg) {
-
-    tg.ready();
-
-    tg.expand();
-
-
-    const user =
-        tg.initDataUnsafe?.user;
-
-
-    const tgUser =
-        document.getElementById(
-            "tgUser"
-        );
-
-
-    if (user) {
-
-        tgUser.textContent =
-            user.first_name ||
-            user.username ||
-            "Telegram User";
-
+  </div>
+
+  <script>
+    /* TELEGRAM WEBAPP */
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
     }
 
-}
+    /* SUPABASE CONFIGURATION */
+    const SUPABASE_URL = "https://mshoftgubfbkvynndtnu.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
+    /* GET PARAMETERS */
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
 
-/* =========================================
-   GET VIDEO ID
-========================================= */
+    /* DOM ELEMENTS */
+    const title = document.getElementById("title");
+    const playerArea = document.getElementById("playerArea");
 
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
+    /* LOAD VIDEO FUNCTION */
+    async function loadVideo() {
 
-
-const fileCode =
-    params.get("id");
-
-
-/* =========================================
-   ELEMENTS
-========================================= */
-
-const loading =
-    document.getElementById(
-        "videoLoading"
-    );
-
-
-const errorBox =
-    document.getElementById(
-        "videoError"
-    );
-
-
-const errorText =
-    document.getElementById(
-        "videoErrorText"
-    );
-
-
-const playerContainer =
-    document.getElementById(
-        "playerContainer"
-    );
-
-
-const player =
-    document.getElementById(
-        "doodPlayer"
-    );
-
-
-const videoTitle =
-    document.getElementById(
-        "videoTitle"
-    );
-
-
-/* =========================================
-   CHECK VIDEO ID
-========================================= */
-
-if (!fileCode) {
-
-    showError(
-        "Video ID পাওয়া যায়নি।"
-    );
-
-} else {
-
-    checkUnlock();
-
-}
-
-
-/* =========================================
-   CHECK UNLOCK
-========================================= */
-
-function checkUnlock() {
-
-    const unlocked =
-        sessionStorage.getItem(
-            `video_unlocked_${fileCode}`
-        );
-
-
-    if (
-        unlocked !== "1"
-    ) {
-
-        showError(
-            "এই ভিডিওটি এখনো Unlock করা হয়নি।"
-        );
-
+      if (!postId) {
+        showError("Video ID is missing.");
         return;
+      }
 
+      try {
+        const url = `${SUPABASE_URL}/rest/v1/posts?id=eq.${encodeURIComponent(postId)}&select=id,title,video_url`;
+
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Supabase ${response.status}: ${errorText}`);
+        }
+
+        const posts = await response.json();
+
+        if (!posts || posts.length === 0) {
+          showError("Video post not found.");
+          return;
+        }
+
+        const post = posts[0];
+
+        // Title Set
+        title.textContent = post.title || "Video";
+
+        // Video URL Check
+        const videoUrl = post.video_url || "";
+
+        if (!videoUrl) {
+          showError("Video URL not found in video_url column.");
+          return;
+        }
+
+        playerArea.innerHTML = "";
+
+        // Success Message
+        const success = document.createElement("div");
+        success.className = "status success";
+        success.textContent = "আপনি সফলভাবে ভিডিওটি আনলক করেছেন। নিচের player থেকে ভিডিওটি দেখতে পারবেন।";
+        playerArea.appendChild(success);
+
+        // Doodstream & Embed Link Check
+        const isEmbed = videoUrl.includes("/e/") || videoUrl.includes("dood") || videoUrl.includes("dso");
+
+        if (isEmbed) {
+          // Iframe Player for Doodstream
+          const iframe = document.createElement("iframe");
+          iframe.src = videoUrl;
+          iframe.setAttribute("allowfullscreen", "true");
+          iframe.setAttribute("scrolling", "no");
+          playerArea.appendChild(iframe);
+        } else {
+          // Standard HTML5 MP4 Player
+          const video = document.createElement("video");
+          video.controls = true;
+          video.playsInline = true;
+          video.preload = "metadata";
+          video.setAttribute("controlsList", "nodownload");
+          video.setAttribute("oncontextmenu", "return false;");
+
+          const source = document.createElement("source");
+          source.src = videoUrl;
+          source.type = "video/mp4";
+
+          video.appendChild(source);
+          playerArea.appendChild(video);
+
+          video.addEventListener("error", () => {
+            showError("ভিডিওটি চালানো যাচ্ছে না। video_url অথবা ভিডিও ফাইলটি পরীক্ষা করুন।");
+          });
+        }
+
+      } catch (error) {
+        console.error("Video loading error:", error);
+        showError(`Unable to load video: ${error.message}`);
+      }
     }
 
+    /* ERROR HANDLER */
+    function showError(message) {
+      playerArea.innerHTML = `
+        <div class="status error">
+          ${escapeHTML(message)}
+        </div>
+      `;
+    }
 
+    /* ESCAPE HTML */
+    function escapeHTML(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // START
     loadVideo();
-
-}
-
-
-/* =========================================
-   LOAD DOODSTREAM VIDEO
-========================================= */
-
-function loadVideo() {
-
-    videoTitle.textContent =
-        "Desi Girl Vairal Video";
-
-
-    /*
-       DoodStream Embed
-    */
-
-    const embedUrl =
-        `https://dood.watch/e/${
-            encodeURIComponent(
-                fileCode
-            )
-        }`;
-
-
-    player.src =
-        embedUrl;
-
-
-    player.onload =
-        function () {
-
-            loading.classList.add(
-                "hidden"
-            );
-
-
-            playerContainer.classList.remove(
-                "hidden"
-            );
-
-        };
-
-
-    /*
-       কিছু browser iframe-এর
-       load event ঠিকমতো দেয় না।
-    */
-
-    setTimeout(
-        function () {
-
-            loading.classList.add(
-                "hidden"
-            );
-
-
-            playerContainer.classList.remove(
-                "hidden"
-            );
-
-        },
-        3000
-    );
-
-}
-
-
-/* =========================================
-   ERROR
-========================================= */
-
-function showError(message) {
-
-    loading.classList.add(
-        "hidden"
-    );
-
-
-    playerContainer.classList.add(
-        "hidden"
-    );
-
-
-    errorBox.classList.remove(
-        "hidden"
-    );
-
-
-    errorText.textContent =
-        message;
-
-}
-
-
-/* =========================================
-   NAVIGATION
-========================================= */
-
-function goBack() {
-
-    if (
-        window.history.length > 1
-    ) {
-
-        window.history.back();
-
-    } else {
-
-        goHome();
-
-    }
-
-}
-
-
-function goHome() {
-
-    window.location.href =
-        "index.html";
-
-}
-
-</script>
-
+  </script>
 
 </body>
 
