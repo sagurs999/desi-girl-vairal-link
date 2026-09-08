@@ -10,13 +10,13 @@ let currentVideoCode = null;
 let currentAdsWatched = 0;
 
 /* 
-  ভিডিও লিস্ট (নতুন ভিডিও যোগ করতে কমা দিয়ে নিচে নতুন অবজেক্ট বসাবেন)
+  Supabase সরিয়ে দেওয়া হয়েছে।
+  এখানে পোস্টের অবজেক্ট যোগ/পরিবর্তন করবেন।
 */
 const allPosts = [
   {
     id: "0vascqz7njes",
     title: "Stepbrother 2023 - English Short Film",
-    // wsrv.nl প্রক্সি দিয়ে থাম্বনেইল লোড করা হচ্ছে
     thumbnail_url: "https://wsrv.nl/?url=https://img.doodcdn.io/snaps/0vascqz7njes.jpg",
     views: "1.5k"
   }
@@ -32,7 +32,7 @@ const adCount = document.getElementById("adCount");
 
 /* RENDER CARDS */
 function renderPosts() {
-  if (!allPosts.length) {
+  if (!allPosts || !allPosts.length) {
     videoGrid.innerHTML = `<p style="color: #aaa;">কোনো ভিডিও পাওয়া যায়নি।</p>`;
     return;
   }
@@ -46,7 +46,7 @@ function renderPosts() {
       </div>
       <div class="card-body">
         <h3>${escapeHTML(post.title)}</h3>
-        <div class="meta">Views: ${post.views}</div>
+        <div class="meta">Views: ${post.views || '0'}</div>
         <button class="open-btn" onclick="openModal('${post.id}')">Watch Video</button>
       </div>
     </div>
@@ -54,7 +54,7 @@ function renderPosts() {
 }
 
 /* MODAL SYSTEM */
-function openModal(id) {
+window.openModal = function(id) {
   const post = allPosts.find(p => p.id === id);
   if (!post) return;
 
@@ -63,7 +63,7 @@ function openModal(id) {
   updateModalUI(post);
 
   modal.classList.remove("hidden");
-}
+};
 
 function updateModalUI(post) {
   document.getElementById("modalTitle").textContent = post.title;
@@ -106,7 +106,7 @@ function onAdWatched() {
   }
 }
 
-/* UNLOCK ACTION */
+/* UNLOCK NAVIGATION */
 videoBtn.addEventListener("click", () => {
   if (currentAdsWatched >= REQUIRED_ADS && currentVideoCode) {
     window.location.href = `video.html?code=${currentVideoCode}`;
@@ -118,9 +118,10 @@ closeModalBtn.addEventListener("click", () => {
 });
 
 function escapeHTML(str) {
-  return String(str).replace(/[&<>"']/g, m => ({
+  return String(str || '').replace(/[&<>"']/g, m => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
   }[m]));
 }
 
-renderPosts();
+// Initial Load
+document.addEventListener("DOMContentLoaded", renderPosts);
