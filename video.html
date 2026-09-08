@@ -1,246 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>Step Brother 2023 - English Short Film</title>
-
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Video Player</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
+      background-color: #0f172a;
+      color: #fff;
+      font-family: sans-serif;
       margin: 0;
-      background:
-        linear-gradient(
-          135deg,
-          #060817,
-          #10162d,
-          #061d28
-        );
-      color: white;
-      font-family:
-        Arial,
-        sans-serif;
-      min-height: 100vh;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .page {
+    .container {
       width: 100%;
-      max-width: 900px;
-      margin: auto;
-      padding: 18px;
+      max-width: 600px;
     }
 
-    .back {
-      border: 0;
-      background:
-        linear-gradient(
-          135deg,
-          #405cff,
-          #743cff
-        );
-      color: white;
-      padding: 12px 20px;
-      border-radius: 14px;
-      cursor: pointer;
-      margin-bottom: 22px;
-      font-size: 15px;
-      font-weight: 800;
-      box-shadow: 0 8px 25px rgba(80,70,255,.25);
-    }
-
-    .card {
-      background:
-        linear-gradient(
-          145deg,
-          rgba(31,37,62,.96),
-          rgba(16,24,45,.96)
-        );
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 28px;
-      padding: 18px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-      backdrop-filter: blur(15px);
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 20px;
-      background:
-        linear-gradient(
-          135deg,
-          #00d084,
-          #00c6c9
-        );
-      color: #00261d;
+    .back-btn {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
       font-weight: bold;
-      font-size: 13px;
-      margin-bottom: 14px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
 
-    h1 {
-      font-size: 20px;
-      line-height: 1.3;
-      margin: 6px 0 18px;
+    .status-badge {
+      background-color: #10b981;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 10px;
     }
 
-    .video-wrapper {
+    .player-card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .player-wrapper {
       position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #000;
-      border-radius: 18px;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      height: 0;
       overflow: hidden;
-      margin-top: 10px;
+      border-radius: 12px;
+      background: #000;
+      margin-top: 15px;
     }
 
-    iframe {
+    .player-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      border: none;
+      border: 0;
     }
-
-    .status {
-      text-align: center;
-      padding: 35px 15px;
-      color: #aeb6cf;
-      line-height: 1.6;
-    }
-
-    .error {
-      color: #ff8b9d;
-      background: rgba(255,60,100,.08);
-      border: 1px solid rgba(255,80,120,.15);
-      border-radius: 18px;
-    }
-
-    .success {
-      color: #a9ffe3;
-      background: rgba(0,208,132,.08);
-      border: 1px solid rgba(0,208,132,.15);
-      border-radius: 18px;
-      margin-bottom: 15px;
-    }
-
   </style>
-
 </head>
-
 <body>
 
-  <div class="page">
+  <div class="container">
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
 
-    <button
-      class="back"
-      onclick="history.back()"
-      type="button"
-    >
-      ← Back
-    </button>
+    <div class="player-card">
+      <span class="status-badge">🔒 VIDEO UNLOCKED</span>
+      <h2 id="videoTitle" style="margin: 10px 0; font-size: 18px;">Loading Video...</h2>
 
-    <div class="card">
-
-      <div class="badge">
-        🔓 VIDEO UNLOCKED
+      <!-- FULLSCREEN SUPPORTED IFRAME -->
+      <div class="player-wrapper">
+        <iframe 
+          id="videoIframe"
+          src="" 
+          allowfullscreen="true"
+          webkitallowfullscreen="true"
+          mozallowfullscreen="true"
+          allow="autoplay; fullscreen; picture-in-picture; accelerometer; gyroscope"
+          sandbox="allow-forms allow-scripts allow-same-origin allow-popups">
+        </iframe>
       </div>
-
-      <h1 id="title">
-        Step Brother 2023 - English Short Film
-      </h1>
-
-      <div id="playerArea">
-        <div class="status">
-          Loading video...
-        </div>
-      </div>
-
     </div>
-
   </div>
 
   <script>
+    // URL থেকে ID সংগ্রহ করা
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
 
-    /* =====================================================
-       TELEGRAM WEBAPP
-    ===================================================== */
-    const tg = window.Telegram && window.Telegram.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
+    if (videoId) {
+      const iframe = document.getElementById('videoIframe');
+      iframe.src = `https://playmogo.com/e/${videoId}`;
+    } else {
+      document.getElementById('videoTitle').textContent = "Video Not Found";
     }
-
-    /* =====================================================
-       PLAYMOGO EMBED PLAYER
-    ===================================================== */
-    const params = new URLSearchParams(window.location.search);
-    let postId = params.get("id");
-
-    if (!postId) {
-      postId = "0vascqz7njes";
-    }
-
-    const playerArea = document.getElementById("playerArea");
-
-    function loadVideo() {
-      try {
-        playerArea.innerHTML = "";
-
-        const success = document.createElement("div");
-        success.className = "status success";
-        success.textContent = "আপনি সফলভাবে ভিডিওটি আনলক করেছেন। নিচে প্লেয়ার থেকে ভিডিওটি দেখুন।";
-
-        const wrapper = document.createElement("div");
-        wrapper.className = "video-wrapper";
-
-        const iframe = document.createElement("iframe");
-        iframe.src = `https://playmogo.com/e/${encodeURIComponent(postId)}`;
-        iframe.allow = "fullscreen; autoplay; encrypted-media; picture-in-picture";
-        iframe.allowFullscreen = true;
-
-        wrapper.appendChild(iframe);
-        playerArea.appendChild(success);
-        playerArea.appendChild(wrapper);
-
-      } catch (error) {
-        console.error("Video loading error:", error);
-        showError(`Unable to load video: ${error.message}`);
-      }
-    }
-
-    function showError(message) {
-      playerArea.innerHTML = `
-        <div class="status error">
-          ${escapeHTML(message)}
-        </div>
-      `;
-    }
-
-    function escapeHTML(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    loadVideo();
-
   </script>
-
 </body>
-
 </html>
