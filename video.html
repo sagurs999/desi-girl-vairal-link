@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Watch Video - Doodstream Style Player</title>
+  <title>Watch Video</title>
 
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -24,7 +24,7 @@
       color: #ffffff;
     }
 
-    /* Video Player Outer Container */
+    /* Fullscreen Player Wrapper */
     .player-wrapper {
       position: relative;
       width: 100vw;
@@ -56,7 +56,7 @@
 
     .back-btn {
       border: none;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.18);
       color: #ffffff;
       padding: 8px 16px;
       border-radius: 20px;
@@ -65,11 +65,10 @@
       cursor: pointer;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      transition: background 0.2s ease;
     }
 
     .back-btn:active {
-      background: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.35);
     }
 
     .video-title {
@@ -93,15 +92,15 @@
       text-transform: uppercase;
     }
 
-    /* Native Video Element */
-    video {
+    /* Video Player iframe */
+    iframe {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      border: none;
       background: #000000;
     }
 
-    /* Status & Error Overlay */
+    /* Error Overlay */
     .overlay-msg {
       position: absolute;
       top: 50%;
@@ -109,33 +108,24 @@
       transform: translate(-50%, -50%);
       z-index: 50;
       width: 85%;
-      max-width: 400px;
+      max-width: 380px;
       text-align: center;
       padding: 20px;
       background: rgba(18, 22, 38, 0.95);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(12px);
     }
 
     .overlay-msg h3 {
       font-size: 16px;
-      margin-bottom: 8px;
-    }
-
-    .overlay-msg.error h3 {
       color: #ff5c75;
-    }
-
-    .overlay-msg.loading h3 {
-      color: #3b82f6;
+      margin-bottom: 6px;
     }
 
     .overlay-msg p {
       font-size: 13px;
       color: #a0aec0;
-      line-height: 1.4;
     }
 
     .hidden {
@@ -150,31 +140,30 @@
     <!-- Header Overlay -->
     <div class="player-header">
       <button class="back-btn" onclick="goBack()" type="button">← Back</button>
-      <div id="videoTitle" class="video-title">Loading...</div>
+      <div id="videoTitle" class="video-title">Watch Video</div>
       <span class="badge-unlocked">Unlocked</span>
     </div>
 
-    <!-- Video Player -->
-    <video 
-      id="mainPlayer" 
-      controls 
-      playsinline 
-      controlslist="nodownload" 
-      oncontextmenu="return false;">
-    </video>
+    <!-- Video Iframe -->
+    <iframe 
+      id="videoIframe" 
+      src="" 
+      allowfullscreen="true" 
+      webkitallowfullscreen="true" 
+      mozallowfullscreen="true" 
+      allow="autoplay; fullscreen">
+    </iframe>
 
-    <!-- Status Message Overlay -->
-    <div id="statusOverlay" class="overlay-msg loading">
-      <h3 id="statusTitle">ভিডিও লোড হচ্ছে...</h3>
-      <p id="statusDesc">অনুগ্রহ করে অপেক্ষা করুন।</p>
+    <!-- Error Message Overlay -->
+    <div id="errorOverlay" class="overlay-msg hidden">
+      <h3>⚠️ ভিডিও পাওয়া যায়নি</h3>
+      <p>ভিডিও আইডি বা লিংকটি অনুপস্থিত।</p>
     </div>
 
   </div>
 
   <script>
-    /* =====================================================
-       TELEGRAM WEBAPP
-    ===================================================== */
+    /* Telegram WebApp Integration */
     const tg = window.Telegram && window.Telegram.WebApp;
     if (tg) {
       tg.ready();
@@ -189,92 +178,36 @@
       window.location.href = 'index.html';
     }
 
-    /* =====================================================
-       SUPABASE CONFIGURATION
-    ===================================================== */
-    const SUPABASE_URL = "https://mshoftgubfbkvynndtnu.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
-
-    /* =====================================================
-       URL PARAMS & DOM ELEMENTS
-    ===================================================== */
+    /* URL Parameter Handlers */
     const params = new URLSearchParams(window.location.search);
-    const postId = params.get("id");
+    let videoId = params.get("id");
+    let customTitle = params.get("title");
 
-    const player = document.getElementById("mainPlayer");
-    const videoTitle = document.getElementById("videoTitle");
-    const statusOverlay = document.getElementById("statusOverlay");
-    const statusTitle = document.getElementById("statusTitle");
-    const statusDesc = document.getElementById("statusDesc");
-
-    /* =====================================================
-       FETCH & PLAY VIDEO
-    ===================================================== */
-    async function loadVideo() {
-      if (!postId) {
-        showError("ভুল রিকোয়েস্ট", "ভিডিও আইডি পাওয়া যায়নি। মূল পেজে রিডাইরেক্ট করা হচ্ছে...");
-        setTimeout(goBack, 2000);
-        return;
-      }
-
-      try {
-        const url = `${SUPABASE_URL}/rest/v1/posts?id=eq.${encodeURIComponent(postId)}&select=id,title,video_url`;
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Supabase Server Error: ${response.status}`);
-        }
-
-        const posts = await response.json();
-
-        if (!posts || posts.length === 0) {
-          showError("ভিডিও পাওয়া যায়নি", "আকাঙ্ক্ষিত ভিডিওটি সার্ভারে পাওয়া যায়নি।");
-          return;
-        }
-
-        const post = posts[0];
-        const videoUrl = post.video_url || "";
-
-        if (!videoUrl) {
-          showError("লিংক ত্রুটি", "ভিডিও স্ট্রিম ইউআরএল অনুপস্থিত।");
-          return;
-        }
-
-        // Set Title & Source
-        videoTitle.textContent = post.title || "Watch Video";
-        player.src = videoUrl;
-
-        // Hide overlay on success play
-        player.addEventListener("canplay", () => {
-          statusOverlay.classList.add("hidden");
-        });
-
-        // Handle Playback Errors
-        player.addEventListener("error", () => {
-          showError("প্লেব্যাকের সমস্যা", "ভিডিওটি চালানো যাচ্ছে না। video_url ফরম্যাট বা ফাইলটি ঠিক আছে কিনা পরীক্ষা করুন।");
-        });
-
-      } catch (error) {
-        console.error("Video Fetch Error:", error);
-        showError("নেটওয়ার্ক ত্রুটি", error.message);
-      }
+    if (customTitle) {
+      document.getElementById("videoTitle").textContent = decodeURIComponent(customTitle);
     }
 
-    function showError(title, desc) {
-      statusOverlay.className = "overlay-msg error";
-      statusTitle.textContent = title;
-      statusDesc.textContent = desc;
-      statusOverlay.classList.remove("hidden");
-    }
+    const iframe = document.getElementById("videoIframe");
+    const errorOverlay = document.getElementById("errorOverlay");
 
-    // Initialize Video Loading
-    loadVideo();
+    if (videoId) {
+      videoId = decodeURIComponent(videoId).trim();
+
+      // ১. যদি পুরো URL পাস হয় (https://...)
+      if (videoId.startsWith("http://") || videoId.startsWith("https://")) {
+        // Doodstream/Playmogo-র Download লিংক থাকলে Embed লিংকে কনভার্ট করবে
+        videoId = videoId.replace("/d/", "/e/");
+        iframe.src = videoId;
+      } 
+      // ২. যদি শুধু Doodstream / Playmogo আইডি পাস হয়
+      else {
+        iframe.src = `https://dood.to/e/${videoId}`;
+      }
+    } else {
+      iframe.style.display = "none";
+      errorOverlay.classList.remove("hidden");
+      setTimeout(goBack, 2500);
+    }
   </script>
 
 </body>
