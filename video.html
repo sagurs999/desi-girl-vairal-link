@@ -66,13 +66,7 @@
       margin-bottom: 14px;
     }
 
-    h1 {
-      font-size: 24px;
-      line-height: 1.3;
-      margin: 6px 0 18px;
-    }
-
-    video, iframe {
+    iframe {
       width: 100%;
       aspect-ratio: 16 / 9;
       display: block;
@@ -119,10 +113,6 @@
         🔓 VIDEO UNLOCKED
       </div>
 
-      <h1 id="title">
-        Loading...
-      </h1>
-
       <div id="playerArea">
         <div class="status">
           Loading video...
@@ -141,105 +131,33 @@
       tg.expand();
     }
 
-    /* SUPABASE CONFIGURATION */
-    const SUPABASE_URL = "https://mshoftgubfbkvynndtnu.supabase.co";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-
     /* GET PARAMETERS */
     const params = new URLSearchParams(window.location.search);
-    const postId = params.get("id");
+    const fileCode = params.get("code");
 
     /* DOM ELEMENTS */
-    const title = document.getElementById("title");
     const playerArea = document.getElementById("playerArea");
 
-    /* LOAD VIDEO FUNCTION */
-    async function loadVideo() {
-
-      if (!postId) {
-        showError("Video ID is missing.");
+    /* LOAD DOODSTREAM IFRAME */
+    function loadVideo() {
+      if (!fileCode) {
+        showError("Video File Code is missing.");
         return;
       }
 
-      try {
-        const url = `${SUPABASE_URL}/rest/v1/posts?id=eq.${encodeURIComponent(postId)}&select=id,title,video_url`;
+      playerArea.innerHTML = "";
 
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-          }
-        });
+      const success = document.createElement("div");
+      success.className = "status success";
+      success.textContent = "আপনি সফলভাবে ভিডিওটি আনলক করেছেন। নিচের player থেকে ভিডিওটি দেখতে পারবেন।";
+      playerArea.appendChild(success);
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Supabase ${response.status}: ${errorText}`);
-        }
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://dood.so/e/${fileCode}`;
+      iframe.setAttribute("allowfullscreen", "true");
+      iframe.setAttribute("scrolling", "no");
 
-        const posts = await response.json();
-
-        if (!posts || posts.length === 0) {
-          showError("Video post not found.");
-          return;
-        }
-
-        const post = posts[0];
-
-        // Title Set
-        title.textContent = post.title || "Video";
-
-        // Video URL Check
-        const videoUrl = post.video_url || "";
-
-        if (!videoUrl) {
-          showError("Video URL not found in video_url column.");
-          return;
-        }
-
-        playerArea.innerHTML = "";
-
-        // Success Message
-        const success = document.createElement("div");
-        success.className = "status success";
-        success.textContent = "আপনি সফলভাবে ভিডিওটি আনলক করেছেন। নিচের player থেকে ভিডিওটি দেখতে পারবেন।";
-        playerArea.appendChild(success);
-
-        // Doodstream & Embed Link Check
-        const isEmbed = videoUrl.includes("/e/") || videoUrl.includes("dood") || videoUrl.includes("dso");
-
-        if (isEmbed) {
-          // Iframe Player for Doodstream
-          const iframe = document.createElement("iframe");
-          iframe.src = videoUrl;
-          iframe.setAttribute("allowfullscreen", "true");
-          iframe.setAttribute("scrolling", "no");
-          playerArea.appendChild(iframe);
-        } else {
-          // Standard HTML5 MP4 Player
-          const video = document.createElement("video");
-          video.controls = true;
-          video.playsInline = true;
-          video.preload = "metadata";
-          video.setAttribute("controlsList", "nodownload");
-          video.setAttribute("oncontextmenu", "return false;");
-
-          const source = document.createElement("source");
-          source.src = videoUrl;
-          source.type = "video/mp4";
-
-          video.appendChild(source);
-          playerArea.appendChild(video);
-
-          video.addEventListener("error", () => {
-            showError("ভিডিওটি চালানো যাচ্ছে না। video_url অথবা ভিডিও ফাইলটি পরীক্ষা করুন।");
-          });
-        }
-
-      } catch (error) {
-        console.error("Video loading error:", error);
-        showError(`Unable to load video: ${error.message}`);
-      }
+      playerArea.appendChild(iframe);
     }
 
     /* ERROR HANDLER */
@@ -261,7 +179,6 @@
         .replace(/'/g, "&#039;");
     }
 
-    // START
     loadVideo();
   </script>
 
