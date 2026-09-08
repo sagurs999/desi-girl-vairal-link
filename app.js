@@ -42,7 +42,7 @@ const videos = [
    {
     id: "f26efl5pl12r",
     title: "Waitress_(2026)_Moodx_Hindi Uncut_Hot_Short Film_Watch_Free",
-    category: "Popular",
+    category: "popular",
     thumbnail: "https://i.ibb.co/xKHdTDx7/Waitress-2026-Moodx-Hindi-Uncut-Hot-Short-Film-Watch-Free.webp"
    },
 ];
