@@ -17,28 +17,28 @@ if (tg) {
 const videos = [
   {
     id: "0vascqz7njes",
-    url: "https://playmogo.com/d/0vascqz7njes",
+    url: "https://playmogo.com/e/0vascqz7njes",
     title: "Step Brother 2026 - English Short Film",
     category: "Trending",
     thumbnail: "https://i.ibb.co/YF39Dw1h/Step-Brother-2023-English-Short-Film-Sex-Mex.jpg"
   },
   {
     id: "x7pdzvpfeuw7",
-    url: "https://playmogo.com/d/x7pdzvpfeuw7",
+    url: "https://playmogo.com/e/x7pdzvpfeuw7",
     title: "sex video 1",
     category: "Popular",
     thumbnail: "https://i.ibb.co/zhvtNwYX/Screenshot-2026-09-08-17-57-33-31-99c04817c0de5652397fc8b56c3b3817.jpg"
   },
   {
     id: "1zngyas64349",
-    url: "https://playmogo.com/d/1zngyas64349",
+    url: "https://playmogo.com/e/1zngyas64349",
     title: "Vairal Video",
     category: "Hot video",
     thumbnail: "https://i.ibb.co/23nw3rN3/Screenshot-2026-09-08-19-13-02-92-99c04817c0de5652397fc8b56c3b3817.jpg"
   },
   {
     id: "6clvappg3m8z",
-    url: "https://playmogo.com/d/6clvappg3m8z",
+    url: "https://playmogo.com/e/6clvappg3m8z",
     title: "Sex Hot Video",
     category: "Trending",
     thumbnail: "https://i.ibb.co/Yw7S09v/Screenshot-2026-09-08-19-34-18-93-99c04817c0de5652397fc8b56c3b3817.jpg"
