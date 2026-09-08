@@ -9,7 +9,6 @@ if (tg) {
   tg.expand();
 }
 
-
 /* =========================================================
    VIDEO DATA (WITH DIRECT THUMBNAIL URL)
 ========================================================= */
@@ -21,22 +20,18 @@ const videos = [
     category: "Trending",
     thumbnail: "https://i.ibb.co/YF39Dw1h/Step-Brother-2023-English-Short-Film-Sex-Mex.jpg"
   },
-   
-{
-id: "x7pdzvpfeuw7",
-title: "sex video 1",
-category: "Popular", 
-thumbnail: "https://i.ibb.co/zhvtNwYX/Screenshot-2026-09-08-17-57-33-31-99c04817c0de5652397fc8b56c3b3817.jpg"
-},
-
-   
+  {
+    id: "x7pdzvpfeuw7",
+    title: "sex video 1",
+    category: "Popular",
+    thumbnail: "https://i.ibb.co/zhvtNwYX/Screenshot-2026-09-08-17-57-33-31-99c04817c0de5652397fc8b56c3b3817.jpg"
+  }
 ];
 
 let selectedVideo = null;
 let adsWatched = 0;
 const requiredAds = 3;
 let adLoading = false;
-
 
 /* =========================================================
    DOM ELEMENTS
@@ -54,7 +49,6 @@ const adCount = document.getElementById("adCount");
 const closeModal = document.getElementById("closeModal");
 const tgUser = document.getElementById("tgUser");
 
-
 /* =========================================================
    TELEGRAM USER PROFILE
 ========================================================= */
@@ -64,7 +58,6 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
   tgUser.textContent = user.first_name || "Telegram User";
 }
 
-
 /* =========================================================
    LOAD POSTS
 ========================================================= */
@@ -73,7 +66,6 @@ function loadPosts() {
   render("All");
 }
 
-
 /* =========================================================
    RENDER VIDEO CARDS
 ========================================================= */
@@ -81,213 +73,126 @@ function loadPosts() {
 function render(category = "All") {
   videoGrid.innerHTML = "";
 
-  const filteredVideos = category === "All"
-    ? videos
-    : videos.filter(video => String(video.category).toLowerCase() === String(category).toLowerCase());
+  const filtered = category === "All" 
+    ? videos 
+    : videos.filter(v => v.category.toLowerCase() === category.toLowerCase());
 
-  if (!filteredVideos.length) {
-    videoGrid.innerHTML = `<div class="loading">No videos found.</div>`;
+  if (filtered.length === 0) {
+    videoGrid.innerHTML = "<p style='color:#a0aec0; text-align:center; grid-column:1/-1;'>No videos found.</p>";
     return;
   }
 
-  filteredVideos.forEach(video => {
-    const card = document.createElement("article");
-    card.className = "video-card";
-
-    let thumbnailHTML = video.thumbnail
-      ? `<img src="${escapeHTML(video.thumbnail)}" alt="${escapeHTML(video.title)}" loading="lazy">`
-      : `<div class="thumb-placeholder">🎬</div>`;
+  filtered.forEach(video => {
+    const card = document.createElement("div");
+    card.className = "card";
 
     card.innerHTML = `
-      <div class="thumb">${thumbnailHTML}</div>
-      <div class="card-body">
-        <h3>${escapeHTML(video.title)}</h3>
-        <div class="meta">${escapeHTML(video.category)}</div>
-        <button class="open-btn" type="button">🔒 Watch Ad</button>
+      <img src="${video.thumbnail}" alt="${video.title}" class="thumb" onerror="this.src='https://via.placeholder.com/300x170?text=Image+Not+Found'">
+      <div class="card-content">
+        <h3 class="card-title">${video.title}</h3>
+        <span class="card-category">${video.category}</span>
+        <button class="unlock-btn">🔒 Watch Ad</button>
       </div>
     `;
 
-    const openBtn = card.querySelector(".open-btn");
-    openBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openVideo(video);
-    });
-
-    const thumb = card.querySelector(".thumb");
-    if (thumb) {
-      thumb.addEventListener("click", () => openVideo(video));
-    }
-
+    card.querySelector(".unlock-btn").addEventListener("click", () => openModal(video));
     videoGrid.appendChild(card);
   });
 }
 
-
 /* =========================================================
-   OPEN VIDEO MODAL
+   FILTER BUTTONS
 ========================================================= */
 
-function openVideo(video) {
+document.querySelectorAll(".tab, .nav-item").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    document.querySelectorAll(".tab, .nav-item").forEach(b => b.classList.remove("active"));
+    
+    const cat = btn.getAttribute("data-category") || btn.innerText.trim();
+    
+    btn.classList.add("active");
+    render(cat);
+  });
+});
+
+/* =========================================================
+   MODAL FUNCTIONS
+========================================================= */
+
+function openModal(video) {
   selectedVideo = video;
   adsWatched = 0;
-  adLoading = false;
+  updateAdUI();
 
-  modalTitle.textContent = video.title || "Video";
-  modalText.textContent = "Watch 3 ads to unlock this video.";
+  modalTitle.textContent = video.title;
+  modalText.textContent = "Watch 3 ads to unlock full video";
+  preview.src = video.thumbnail;
+  
+  videoBtn.style.display = "none";
+  watchAdBtn.style.display = "block";
 
-  if (video.thumbnail) {
-    preview.innerHTML = `<img src="${escapeHTML(video.thumbnail)}" alt="">`;
-  } else {
-    preview.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:50px;">🎬</div>`;
-  }
-
-  modal.classList.remove("hidden");
-  videoBtn.disabled = true;
-  videoBtn.textContent = "🔒 Video Locked";
-  watchAdBtn.disabled = false;
-
-  updateUnlockUI();
+  modal.classList.add("active");
 }
 
+closeModal.addEventListener("click", () => {
+  modal.classList.remove("active");
+});
 
 /* =========================================================
-   UPDATE UI
+   ADS LOGIC
 ========================================================= */
 
-function updateUnlockUI() {
-  watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-  adCount.textContent = `${adsWatched} / ${requiredAds} Ads Completed`;
+watchAdBtn.addEventListener("click", () => {
+  if (adLoading) return;
+  adLoading = true;
+  watchAdBtn.innerText = "Loading Ad...";
 
-  const percent = (adsWatched / requiredAds) * 100;
-  progressBar.style.width = `${percent}%`;
+  // Monetag / Adsterra Integration
+  if (typeof show_8984923 === 'function') {
+    show_8984923().then(() => {
+      onAdWatched();
+    }).catch(() => {
+      onAdWatched(); // Fallback if ad fails
+    });
+  } else {
+    setTimeout(() => {
+      onAdWatched();
+    }, 2000);
+  }
+});
+
+function onAdWatched() {
+  adsWatched++;
+  adLoading = false;
+  watchAdBtn.innerText = "🎬 Watch Ad";
+  updateAdUI();
 
   if (adsWatched >= requiredAds) {
-    videoBtn.disabled = false;
-    videoBtn.textContent = "▶ Watch Video";
-    modalText.textContent = "🎉 All ads completed! Your video is unlocked.";
-    watchAdBtn.disabled = true;
-    watchAdBtn.textContent = "✓ Ads Completed";
-  } else {
-    videoBtn.disabled = true;
-    videoBtn.textContent = "🔒 Video Locked";
-    watchAdBtn.disabled = false;
+    watchAdBtn.style.display = "none";
+    videoBtn.style.display = "block";
+    modalText.textContent = "🎉 Video Unlocked! Click below to play.";
   }
 }
 
-
-/* =========================================================
-   MONETAG REWARDED AD
-========================================================= */
-
-async function showRewardedAd() {
-  if (adLoading || adsWatched >= requiredAds) return;
-
-  adLoading = true;
-  watchAdBtn.disabled = true;
-  watchAdBtn.textContent = "⏳ Loading Ad...";
-
-  try {
-    if (typeof window.show_11571866 !== "function") {
-      throw new Error("Ad SDK is not loaded.");
-    }
-
-    await window.show_11571866();
-    adsWatched++;
-    updateUnlockUI();
-
-  } catch (error) {
-    console.error("Ad failed:", error);
-    modalText.textContent = "Ad is not available right now. Please try again.";
-    watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-    watchAdBtn.disabled = false;
-  } finally {
-    adLoading = false;
-  }
+function updateAdUI() {
+  adCount.textContent = adsWatched;
+  const percentage = (adsWatched / requiredAds) * 100;
+  progressBar.style.width = percentage + "%";
 }
 
-watchAdBtn.addEventListener("click", showRewardedAd);
-
-
 /* =========================================================
-   WATCH VIDEO
+   PLAY VIDEO
 ========================================================= */
 
 videoBtn.addEventListener("click", () => {
-  if (!selectedVideo || adsWatched < requiredAds) return;
-  const videoId = encodeURIComponent(selectedVideo.id);
-  window.location.href = `video.html?id=${videoId}`;
-});
-
-
-/* =========================================================
-   CLOSE MODAL
-========================================================= */
-
-closeModal.addEventListener("click", () => modal.classList.add("hidden"));
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) modal.classList.add("hidden");
-});
-
-
-/* =========================================================
-   CATEGORY BUTTONS
-========================================================= */
-
-document.querySelectorAll(".category-btn").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll(".category-btn").forEach(btn => btn.classList.remove("active"));
-    button.classList.add("active");
-    render(button.dataset.category);
-  });
-});
-
-document.querySelectorAll(".bottom-nav button").forEach(button => {
-  button.addEventListener("click", () => {
-    const category = button.dataset.bottomCategory;
-    document.querySelectorAll(".bottom-nav button").forEach(btn => btn.classList.remove("bottom-active"));
-    button.classList.add("bottom-active");
-    document.querySelectorAll(".category-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.category === category);
-    });
-    render(category);
-  });
-});
-
-
-/* =========================================================
-   UTILS
-========================================================= */
-
-function escapeHTML(value) {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-
-/* =========================================================
-   MONETAG IN-APP INTERSTITIAL
-========================================================= */
-
-function initInAppInterstitial() {
-  if (typeof window.show_11571866 === "function") {
-    window.show_11571866({
-      type: 'inApp',
-      inAppSettings: {
-        frequency: 10,
-        capping: 1,
-        interval: 30,
-        timeout: 5,
-        everyPage: false
-      }
-    });
-  } else {
-    setTimeout(initInAppInterstitial, 1000);
+  if (selectedVideo) {
+    const playUrl = `https://playmogo.com/e/${selectedVideo.id}`;
+    window.open(playUrl, "_blank");
   }
-}
+});
+
+/* =========================================================
+   INIT
+========================================================= */
 
 loadPosts();
-initInAppInterstitial();
