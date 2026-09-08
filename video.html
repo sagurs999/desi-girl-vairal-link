@@ -5,11 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- HillTopAds Meta Tag -->
-  <meta name="referrer" content="no-referrer-when-downgrade" />
-
   <title>Watch Video</title>
 
+  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
@@ -55,7 +53,7 @@
       margin-bottom: 14px;
     }
 
-    /* VIDEO CONTAINER & OVERLAY */
+    /* VIDEO WRAPPER & FULLSCREEN OVERLAY */
     .video-wrapper {
       position: relative;
       width: 100%;
@@ -72,7 +70,6 @@
       border: none;
     }
 
-    /* CUSTOM OVERLAY TO BLOCK PLAYER ADS & FIX FULLSCREEN */
     .player-overlay {
       position: absolute;
       top: 0;
@@ -115,29 +112,6 @@
       border-radius: 20px;
     }
 
-    /* HILLTOPADS CONTAINER BELOW VIDEO */
-    .hilltop-ad-box {
-      margin-top: 25px;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px dashed rgba(255, 255, 255, 0.2);
-      border-radius: 18px;
-      text-align: center;
-      min-height: 260px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .ad-title {
-      font-size: 11px;
-      color: #7b88a8;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
     .status { text-align: center; padding: 35px 15px; color: #aeb6cf; }
     .error { color: #ff8b9d; background: rgba(255,60,100,.08); border-radius: 18px; padding: 20px; }
   </style>
@@ -160,20 +134,11 @@
             allowfullscreen="true">
           </iframe>
 
-          <!-- OVERLAY FOR FULLSCREEN & PREVENTING PLAYER ADS -->
+          <!-- OVERLAY FOR FULLSCREEN -->
           <div id="playerOverlay" class="player-overlay">
             <div class="play-btn-custom">▶</div>
             <div class="play-text">Click To Play In Fullscreen ⛶</div>
           </div>
-        </div>
-      </div>
-
-      <!-- ================= HILLTOPADS AREA BELOW VIDEO ================= -->
-      <div class="hilltop-ad-box">
-        <div class="ad-title">Sponsored Content</div>
-        
-        <div id="hilltop-ad-container">
-          <!-- HillTopAds Script (আপনার ড্যাশবোর্ড থেকে পাওয়া ব্যানার অ্যাড কোড এখানে বসাবেন) -->
         </div>
       </div>
 
