@@ -1,119 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VAIRAL VIDEO</title>
-<style>
-body{
-  margin:0;
-  padding:20px;
-  font-family:Arial,sans-serif;
-  background:linear-gradient(135deg,#141e30,#243b55,#2c5364);
-  color:white;
-}
-.container{max-width:900px;margin:auto;}
-.telegram{
-  display:block;padding:18px;margin-bottom:20px;text-align:center;
-  text-decoration:none;font-size:24px;font-weight:bold;color:white;
-  border-radius:20px;background:linear-gradient(90deg,#0088cc,#00c6ff);
-}
-.ad-top,.ad-bottom{
-  background:#111;padding:20px;border-radius:20px;margin-bottom:20px;min-height:90px;
-  text-align:center;
-}
-.player{position:relative;overflow:hidden;border-radius:25px;background:#000;width:100%;height:450px;}
-iframe{width:100%;height:100%;border:0;display:block;}
-.video-info{
-  padding:10px 5px;
-  font-size:18px;
-  font-weight:bold;
-  margin-bottom:15px;
-  text-align:center;
-}
-.overlay-ad{
-  display:none;position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);width:85%;background:white;
-  padding:20px;border-radius:15px;z-index:100;color:#000;
-}
-.end-ad{
-  display:none;margin-top:20px;background:white;padding:20px;border-radius:20px;color:#000;
-}
-</style>
-
-<!-- Adsterra Popunder Script -->
-<script src="https://pl30923744.profitableratecpmnetwork.com/bc/bf/98/bcbf98c695a71ec20aa923a7a131ffa3.js"></script>
-
-<!-- Adsterra Social Bar Script -->
-<script src="https://pl30923746.profitableratecpmnetwork.com/60/5e/6e/605e6e402e2188c01fb7fcc993d62be2.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Watch Video</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    /* Floating Back Button */
+    .back-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 99999;
+      background: rgba(15, 23, 42, 0.85);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .back-btn:active {
+      transform: scale(0.95);
+      background: rgba(99, 102, 241, 0.9);
+    }
+    /* Fullscreen Player Container */
+    .player-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <!-- টেলিগ্রাম বাটন -->
-  <a class="telegram" href="https://t.me/hotvideo457" target="_blank" rel="noopener">
-    🚀 JOIN TELEGRAM CHANNEL
-  </a>
 
-  <div class="video-info" id="videoTitle">Loading Video...</div>
+  <!-- Floating Back Button -->
+  <button class="back-btn" onclick="window.location.href='index.html'">
+    ← Back
+  </button>
 
-  <div class="player">
-    <iframe id="videoFrame" src="" allowfullscreen scrolling="no"></iframe>
-
-    <div class="overlay-ad" id="middleAd">
-      YOUR_MIDDLE_AD_CODE
-    </div>
+  <!-- Video Player -->
+  <div class="player-container">
+    <iframe id="videoIframe" src="" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; picture-in-picture">
+    </iframe>
   </div>
 
-  <!-- নেটিভ ব্যানার অ্যাড -->
-  <div class="ad-bottom" style="margin-top:20px;">
-    <script async="async" data-cfasync="false" src="https://pl30923747.profitableratecpmnetwork.com/12b187a99414c09ca49488896ff8e0ac/invoke.js"></script>
-    <div id="container-12b187a99414c09ca49488896ff8e0ac"></div>
-  </div>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
 
-  <div class="end-ad" id="endAd">
-    YOUR_END_AD_CODE
-  </div>
-</div>
-
-<script>
-// URL থেকে Parameter নেয়ার লজিক
-const urlParams = new URLSearchParams(window.location.search);
-let rawId = urlParams.get('id');
-let videoTitleParam = urlParams.get('title');
-
-const videoFrame = document.getElementById("videoFrame");
-const videoTitle = document.getElementById("videoTitle");
-
-function initVideo() {
-  if (!rawId) {
-    videoTitle.textContent = "Video Not Found!";
-    return;
-  }
-
-  // ID ডিকোড করা
-  let decodedId = decodeURIComponent(rawId).trim();
-
-  // টাইটেল সেট করা
-  if (videoTitleParam) {
-    videoTitle.textContent = decodeURIComponent(videoTitleParam);
-  } else {
-    videoTitle.textContent = "Vairal Video Player";
-  }
-
-  // যদি সরাসরি পুরো URL (http/https) পাস হয়ে থাকে
-  if (decodedId.startsWith("http://") || decodedId.startsWith("https://")) {
-    // Playmogo লিংক হলে /e/ এমবেড ফরম্যাট ঠিক রাখা
-    if (decodedId.includes("playmogo.com") && !decodedId.includes("/e/")) {
-      decodedId = decodedId.replace("playmogo.com/", "playmogo.com/e/");
+    if (videoId) {
+      document.getElementById('videoIframe').src = `https://playmogo.com/e/${videoId}`;
+    } else {
+      alert("Video ID missing!");
+      window.location.href = 'index.html';
     }
-    videoFrame.src = decodedId;
-  } else {
-    // শুধু ID পাস হয়ে থাকলে Playmogo এর Embed link তৈরি করা
-    videoFrame.src = `https://playmogo.com/e/${decodedId}`;
-  }
-}
+  </script>
 
-initVideo();
-</script>
 </body>
 </html>
