@@ -11,15 +11,15 @@ if (tg) {
 
 
 /* =========================================================
-   VIDEO DATA (ADDED FROM SCREENSHOT)
+   VIDEO DATA (WITH DIRECT THUMBNAIL URL)
 ========================================================= */
 
 const videos = [
   {
-    id: "0vascqz7njes", // স্ক্রিনশটের প্লেমোগো আইডি
+    id: "0vascqz7njes",
     title: "Step Brother 2023 - English Short Film",
     category: "Trending",
-    thumbnail: "" // প্রয়োজন হলে থাম্বনেইল লিংক বসাতে পারেন
+    thumbnail: "https://i.ibb.co/qYBmR6N4/image.jpg"
   }
 ];
 
