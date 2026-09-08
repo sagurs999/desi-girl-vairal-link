@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Watch Video - Desi Girl Vairal Link</title>
+  <title>Watch Video - Doodstream Style Player</title>
 
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -14,93 +14,167 @@
       margin: 0;
       padding: 0;
     }
+
     html, body {
       width: 100%;
       height: 100%;
-      background: #080d1d;
+      background: #000000;
       overflow: hidden;
       font-family: Arial, Helvetica, sans-serif;
       color: #ffffff;
     }
 
-    /* Floating Back Button */
-    .back-btn {
-      position: fixed;
-      top: 14px;
-      left: 14px;
-      z-index: 9999;
-      background: rgba(24, 29, 48, 0.85);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 10px 18px;
-      border-radius: 25px;
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .back-btn:active {
-      transform: scale(0.95);
-      background: linear-gradient(135deg, #3e5eff, #733dff);
-    }
-
-    /* Player Container */
-    .player-container {
+    /* Video Player Outer Container */
+    .player-wrapper {
+      position: relative;
       width: 100vw;
       height: 100vh;
-      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #000000;
-    }
-    
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+      background: #000000;
     }
 
-    .error-msg {
-      display: none;
+    /* Floating Header Overlay (Doodstream Style) */
+    .player-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .player-header * {
+      pointer-events: auto;
+    }
+
+    .back-btn {
+      border: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background 0.2s ease;
+    }
+
+    .back-btn:active {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .video-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .badge-unlocked {
+      background: #00d084;
+      color: #00261d;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+
+    /* Native Video Element */
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000000;
+    }
+
+    /* Status & Error Overlay */
+    .overlay-msg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 50;
+      width: 85%;
+      max-width: 400px;
       text-align: center;
       padding: 20px;
-      background: rgba(21, 26, 53, 0.9);
+      background: rgba(18, 22, 38, 0.95);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
     }
-    .error-msg h2 { font-size: 18px; color: #ff4d4d; margin-bottom: 8px; }
-    .error-msg p { font-size: 13px; color: #b9c0dc; }
+
+    .overlay-msg h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .overlay-msg.error h3 {
+      color: #ff5c75;
+    }
+
+    .overlay-msg.loading h3 {
+      color: #3b82f6;
+    }
+
+    .overlay-msg p {
+      font-size: 13px;
+      color: #a0aec0;
+      line-height: 1.4;
+    }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
 
-  <button class="back-btn" onclick="goBack()">
-    ← Back
-  </button>
+  <div class="player-wrapper">
 
-  <div class="player-container">
-    <iframe 
-      id="videoIframe" 
-      src="" 
-      allowfullscreen="true" 
-      webkitallowfullscreen="true" 
-      mozallowfullscreen="true" 
-      allow="autoplay; fullscreen; picture-in-picture">
-    </iframe>
-
-    <div id="errorBox" class="error-msg">
-      <h2>⚠️ Invalid Request</h2>
-      <p>Video ID is missing. Redirecting to home...</p>
+    <!-- Header Overlay -->
+    <div class="player-header">
+      <button class="back-btn" onclick="goBack()" type="button">← Back</button>
+      <div id="videoTitle" class="video-title">Loading...</div>
+      <span class="badge-unlocked">Unlocked</span>
     </div>
+
+    <!-- Video Player -->
+    <video 
+      id="mainPlayer" 
+      controls 
+      playsinline 
+      controlslist="nodownload" 
+      oncontextmenu="return false;">
+    </video>
+
+    <!-- Status Message Overlay -->
+    <div id="statusOverlay" class="overlay-msg loading">
+      <h3 id="statusTitle">ভিডিও লোড হচ্ছে...</h3>
+      <p id="statusDesc">অনুগ্রহ করে অপেক্ষা করুন।</p>
+    </div>
+
   </div>
 
   <script>
+    /* =====================================================
+       TELEGRAM WEBAPP
+    ===================================================== */
     const tg = window.Telegram && window.Telegram.WebApp;
     if (tg) {
       tg.ready();
@@ -115,25 +189,92 @@
       window.location.href = 'index.html';
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    let videoId = urlParams.get('id');
+    /* =====================================================
+       SUPABASE CONFIGURATION
+    ===================================================== */
+    const SUPABASE_URL = "https://mshoftgubfbkvynndtnu.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zaG9mdGd1YmZia3Z5bm5kdG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDkwOTQsImV4cCI6MjEwMjIyNTA5NH0.vcebPtNubpl8s34D-YsZ6jQwH93-MA0wgyDZBiO0Hi4";
 
-    if (videoId) {
-      videoId = decodeURIComponent(videoId).trim();
-      const iframe = document.getElementById('videoIframe');
+    /* =====================================================
+       URL PARAMS & DOM ELEMENTS
+    ===================================================== */
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
 
-      // যদি পুরো URL পাস করা থাকে (HTTP/HTTPS)
-      if (videoId.startsWith("http://") || videoId.startsWith("https://")) {
-        iframe.src = videoId;
-      } else {
-        // শুধু ID হলে Playmogo-র Embed URL তৈরি করা
-        iframe.src = `https://playmogo.com/e/${videoId}`;
+    const player = document.getElementById("mainPlayer");
+    const videoTitle = document.getElementById("videoTitle");
+    const statusOverlay = document.getElementById("statusOverlay");
+    const statusTitle = document.getElementById("statusTitle");
+    const statusDesc = document.getElementById("statusDesc");
+
+    /* =====================================================
+       FETCH & PLAY VIDEO
+    ===================================================== */
+    async function loadVideo() {
+      if (!postId) {
+        showError("ভুল রিকোয়েস্ট", "ভিডিও আইডি পাওয়া যায়নি। মূল পেজে রিডাইরেক্ট করা হচ্ছে...");
+        setTimeout(goBack, 2000);
+        return;
       }
-    } else {
-      document.getElementById('videoIframe').style.display = 'none';
-      document.getElementById('errorBox').style.display = 'block';
-      setTimeout(goBack, 2500);
+
+      try {
+        const url = `${SUPABASE_URL}/rest/v1/posts?id=eq.${encodeURIComponent(postId)}&select=id,title,video_url`;
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Supabase Server Error: ${response.status}`);
+        }
+
+        const posts = await response.json();
+
+        if (!posts || posts.length === 0) {
+          showError("ভিডিও পাওয়া যায়নি", "আকাঙ্ক্ষিত ভিডিওটি সার্ভারে পাওয়া যায়নি।");
+          return;
+        }
+
+        const post = posts[0];
+        const videoUrl = post.video_url || "";
+
+        if (!videoUrl) {
+          showError("লিংক ত্রুটি", "ভিডিও স্ট্রিম ইউআরএল অনুপস্থিত।");
+          return;
+        }
+
+        // Set Title & Source
+        videoTitle.textContent = post.title || "Watch Video";
+        player.src = videoUrl;
+
+        // Hide overlay on success play
+        player.addEventListener("canplay", () => {
+          statusOverlay.classList.add("hidden");
+        });
+
+        // Handle Playback Errors
+        player.addEventListener("error", () => {
+          showError("প্লেব্যাকের সমস্যা", "ভিডিওটি চালানো যাচ্ছে না। video_url ফরম্যাট বা ফাইলটি ঠিক আছে কিনা পরীক্ষা করুন।");
+        });
+
+      } catch (error) {
+        console.error("Video Fetch Error:", error);
+        showError("নেটওয়ার্ক ত্রুটি", error.message);
+      }
     }
+
+    function showError(title, desc) {
+      statusOverlay.className = "overlay-msg error";
+      statusTitle.textContent = title;
+      statusDesc.textContent = desc;
+      statusOverlay.classList.remove("hidden");
+    }
+
+    // Initialize Video Loading
+    loadVideo();
   </script>
 
 </body>
