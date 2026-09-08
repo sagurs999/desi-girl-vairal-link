@@ -15,8 +15,6 @@ const requiredAds = 3;
 let selectedVideo = null;
 let adsWatched = 0;
 let adLoading = false;
-let cooldownTimer = null;
-let cooldownSeconds = 0;
 
 /* 
   ভিডিও লিস্ট (weserv প্রক্সি ইউআরএল সহ)
@@ -52,6 +50,31 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
   const user = tg.initDataUnsafe.user;
   tgUser.textContent = user.first_name || "Telegram User";
 }
+
+/* =========================================================
+   HOMEPAGE AUTO AD LOOP ( ৩০ সেকেন্ড পর পর অটোমেটিক অ্যাড )
+========================================================= */
+function startHomepageAutoAds() {
+  setInterval(() => {
+    // শুধুমাত্র মোডাল বন্ধ থাকলে এবং ব্যবহারকারী হোমপেজে থাকলে অ্যাড লোড হবে
+    if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
+      console.log("Triggering 30-second automatic homepage ad...");
+      window.show_11571866({
+        type: 'inApp',
+        inAppSettings: {
+          frequency: 2,
+          capping: 0.1,
+          interval: 30,
+          timeout: 5,
+          everyPage: false
+        }
+      }).catch(err => console.log("Auto ad dismissed or failed:", err));
+    }
+  }, 30000); // ৩০,০০০ মিলিসেকেন্ড = ৩০ সেকেন্ড
+}
+
+// অটো অ্যাড চালুকরণ
+startHomepageAutoAds();
 
 /* =========================================================
    RENDER VIDEO CARDS
@@ -109,8 +132,6 @@ function openVideo(video) {
   selectedVideo = video;
   adsWatched = 0;
   adLoading = false;
-  if (cooldownTimer) clearInterval(cooldownTimer);
-  cooldownSeconds = 0;
 
   modalTitle.textContent = video.title || "Video";
   modalText.textContent = "Watch 3 ads to unlock this video.";
@@ -138,9 +159,6 @@ function updateUnlockUI() {
     modalText.textContent = "🎉 All ads completed! Your video is unlocked.";
     watchAdBtn.disabled = true;
     watchAdBtn.textContent = "✓ Ads Completed";
-  } else if (cooldownSeconds > 0) {
-    watchAdBtn.disabled = true;
-    watchAdBtn.textContent = `⏳ Next Ad in ${cooldownSeconds}s`;
   } else {
     watchAdBtn.disabled = false;
     watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
@@ -154,29 +172,10 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   30-SECOND COOLDOWN TIMER
-========================================================= */
-function startCooldown(seconds = 30) {
-  cooldownSeconds = seconds;
-  updateUnlockUI();
-
-  if (cooldownTimer) clearInterval(cooldownTimer);
-
-  cooldownTimer = setInterval(() => {
-    cooldownSeconds--;
-    if (cooldownSeconds <= 0) {
-      clearInterval(cooldownTimer);
-      cooldownSeconds = 0;
-    }
-    updateUnlockUI();
-  }, 1000);
-}
-
-/* =========================================================
-   MONETAG IN-APP INTERSTITIAL AD ( strict verification )
+   MANUAL WATCH AD BUTTON CLICK
 ========================================================= */
 async function showRewardedAd() {
-  if (adLoading || adsWatched >= requiredAds || cooldownSeconds > 0) return;
+  if (adLoading || adsWatched >= requiredAds) return;
 
   adLoading = true;
   watchAdBtn.disabled = true;
@@ -184,7 +183,6 @@ async function showRewardedAd() {
 
   try {
     if (typeof window.show_11571866 === "function") {
-      // In-App Interstitial SDK Trigger (docs.monetag.com অনুযায়ী)
       await window.show_11571866({
         type: 'inApp',
         inAppSettings: {
@@ -196,20 +194,15 @@ async function showRewardedAd() {
         }
       });
 
-      // অ্যাড সফলভাবে প্রদর্শন হলে তবেই কাউন্ট হবে
+      // কেবল অ্যাড সফলভাবে শেষ হলেই কাউন্ট হবে
       adsWatched++;
       updateUnlockUI();
-
-      // সফল দেখার পর ৩০ সেকেন্ডের কুলডাউন চালু হবে
-      if (adsWatched < requiredAds) {
-        startCooldown(30);
-      }
     } else {
-      throw new Error("Ad SDK not ready");
+      throw new Error("Ad SDK not loaded");
     }
   } catch (error) {
-    console.error("Monetag Ad Failed or Closed:", error);
-    modalText.textContent = "❌ Ad did not show or was closed early. Please try again.";
+    console.error("Ad error:", error);
+    modalText.textContent = "❌ Ad not available or skipped. Please try again.";
     updateUnlockUI();
   } finally {
     adLoading = false;
