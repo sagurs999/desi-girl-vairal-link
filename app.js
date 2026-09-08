@@ -39,12 +39,12 @@ const videos = [
     category: "Trending",
     thumbnail: "https://i.ibb.co/Yw7S09v/Screenshot-2026-09-08-19-34-18-93-99c04817c0de5652397fc8b56c3b3817.jpg"
   },
-   {
-    id: "f26efl5pl12r",
+  {
+    id: "f26ef15p112r",
     title: "Waitress_(2026)_Moodx_Hindi Uncut_Hot_Short Film_Watch_Free",
-    category: "popular",
+    category: "Popular",
     thumbnail: "https://i.ibb.co/xKHdTDx7/Waitress-2026-Moodx-Hindi-Uncut-Hot-Short-Film-Watch-Free.webp"
-   }
+  }
 ];
 
 let selectedVideo = null;
@@ -81,7 +81,7 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 
 
 /* =========================================================
-   LOAD POSTS
+   LOAD POSTS (AUTO-RUNS ON PAGE LOAD)
 ========================================================= */
 
 function loadPosts() {
@@ -90,18 +90,19 @@ function loadPosts() {
 
 
 /* =========================================================
-   RENDER VIDEO CARDS (MATCHES EXACT ORIGINAL UI)
+   RENDER VIDEO CARDS (CLICK ANYWHERE ON CARD)
 ========================================================= */
 
 function render(category = "All") {
+  if (!videoGrid) return;
   videoGrid.innerHTML = "";
 
   const filteredVideos = category === "All"
     ? videos
     : videos.filter(video => String(video.category).toLowerCase() === String(category).toLowerCase());
 
-  if (!filteredVideos.length) {
-    videoGrid.innerHTML = `<div class="loading">No videos found.</div>`;
+  if (!filteredVideos || filteredVideos.length === 0) {
+    videoGrid.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">No videos found.</div>`;
     return;
   }
 
@@ -125,15 +126,17 @@ function render(category = "All") {
       </div>
     `;
 
-    const openBtn = card.querySelector(".open-btn");
-    openBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
+    // পুরো কার্ডের যেকোনো জায়গায় ক্লিক করলেই মডাল ওপেন হবে
+    card.addEventListener("click", () => {
       openVideo(video);
     });
 
-    const thumb = card.querySelector(".thumb");
-    if (thumb) {
-      thumb.addEventListener("click", () => openVideo(video));
+    const openBtn = card.querySelector(".open-btn");
+    if (openBtn) {
+      openBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openVideo(video);
+      });
     }
 
     videoGrid.appendChild(card);
@@ -285,13 +288,13 @@ function escapeHTML(value) {
     .replace(/'/g, "&#039;");
 }
 
+
 /* =========================================================
    MONETAG IN-APP INTERSTITIAL (EXACT 40 SECONDS INTERVAL)
 ========================================================= */
 
 function initInAppInterstitial() {
   if (typeof window.show_11571866 === "function") {
-    // শুধুমাত্র ৪০ সেকেন্ড পর পর একবার করে অ্যাড কল করার টাইমার
     setInterval(() => {
       window.show_11571866();
     }, 40000); 
@@ -302,3 +305,5 @@ function initInAppInterstitial() {
 
 initInAppInterstitial();
 
+// পেজ লোড হওয়ার সাথে সাথেই ভিডিওগুলো রেন্ডার করার জন্য
+loadPosts();
