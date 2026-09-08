@@ -1,400 +1,147 @@
-/* =========================================================
-   TELEGRAM
-========================================================= */
-
+/* TELEGRAM WEBAPP */
 const tg = window.Telegram && window.Telegram.WebApp;
-
 if (tg) {
   tg.ready();
   tg.expand();
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    document.getElementById("tgUser").textContent = user.first_name || "Guest";
+  }
 }
 
-/* =========================================================
-   DOODSTREAM CONFIG
-========================================================= */
-
+/* DOODSTREAM CONFIGURATION */
 const DOODSTREAM_API_KEY = "577640ki1zlnwq28ruachu";
+const DOOD_BASE_URL = "https://doodapi.com/api";
 
-/* =========================================================
-   STATE
-========================================================= */
-
-const videos = [];
-let selectedVideo = null;
-let adsWatched = 0;
-const requiredAds = 3;
-let adLoading = false;
-
-/* =========================================================
-   DOM
-========================================================= */
+const REQUIRED_ADS = 3;
+let currentVideoCode = null;
+let currentAdsWatched = 0;
+let allPosts = [];
 
 const videoGrid = document.getElementById("videoGrid");
 const modal = document.getElementById("modal");
-const modalTitle = document.getElementById("modalTitle");
-const modalText = document.getElementById("modalText");
-const preview = document.getElementById("preview");
+const closeModalBtn = document.getElementById("closeModal");
 const watchAdBtn = document.getElementById("watchAdBtn");
 const videoBtn = document.getElementById("videoBtn");
 const progressBar = document.getElementById("progressBar");
 const adCount = document.getElementById("adCount");
-const closeModal = document.getElementById("closeModal");
-const tgUser = document.getElementById("tgUser");
 
-/* =========================================================
-   TELEGRAM USER
-========================================================= */
-
-if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-  const user = tg.initDataUnsafe.user;
-  tgUser.textContent = user.first_name || "Telegram User";
-}
-
-/* =========================================================
-   LOAD POSTS FROM DOODSTREAM API
-========================================================= */
-
-async function loadPosts() {
-  videoGrid.innerHTML = `
-    <div class="loading">
-      Loading videos...
-    </div>
-  `;
-
-  const apiUrl = `https://doodapi.com/api/file/list?key=${DOODSTREAM_API_KEY}`;
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
-
+/* FETCH DOODSTREAM VIDEOS */
+async function fetchPosts() {
   try {
-    const response = await fetch(proxyUrl);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+    const url = `${DOOD_BASE_URL}/file/list?key=${DOODSTREAM_API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.status !== 200 || !data.result || !data.result.files) {
+      throw new Error(data.msg || "Failed to fetch videos from Doodstream");
     }
 
-    const proxyData = await response.json();
-    const data = JSON.parse(proxyData.contents);
+    allPosts = data.result.files.map(file => ({
+      id: file.file_code,
+      title: file.title,
+      thumbnail_url: file.single_img || file.splash_img || "",
+      views: file.views || 0,
+      length: file.length || ""
+    }));
 
-    videos.length = 0;
-
-    if (data.status === 200 && data.result && data.result.files) {
-      data.result.files.forEach(file => {
-        videos.push({
-          id: file.file_code,
-          title: file.title || "Untitled Video",
-          category: "Trending",
-          thumbnail: file.single_img || file.splash_img || "",
-          videoUrl: `https://dood.to/e/${file.file_code}`,
-          createdAt: file.uploaded || ""
-        });
-      });
-    }
-
-    if (videos.length === 0) {
-      videoGrid.innerHTML = `<div class="loading">No videos found.</div>`;
-      return;
-    }
-
-    render("All");
-
-  } catch (error) {
-    console.error("Failed to load posts from Doodstream:", error);
-
-    videoGrid.innerHTML = `
-      <div class="error-box">
-        <h3>Unable to load videos</h3>
-        <p>${escapeHTML(error.message)}</p>
-      </div>
-    `;
+    renderPosts(allPosts);
+  } catch (err) {
+    console.error(err);
+    videoGrid.innerHTML = `<div class="error-box">Doodstream থেকে ভিডিও লোড করা যাচ্ছে না। API Key বা কানেকশন পরীক্ষা করুন।</div>`;
   }
 }
 
-/* =========================================================
-   RENDER
-========================================================= */
-
-function render(category = "All") {
-  videoGrid.innerHTML = "";
-
-  const filteredVideos =
-    category === "All"
-      ? videos
-      : videos.filter(
-          video =>
-            String(video.category).toLowerCase() ===
-            String(category).toLowerCase()
-        );
-
-  if (!filteredVideos.length) {
-    videoGrid.innerHTML = `
-      <div class="loading">
-        No videos found.
-      </div>
-    `;
+/* RENDER POSTS */
+function renderPosts(posts) {
+  if (!posts.length) {
+    videoGrid.innerHTML = `<div class="loading">কোনো ভিডিও পাওয়া যায়নি।</div>`;
     return;
   }
 
-  filteredVideos.forEach(video => {
-    const card = document.createElement("article");
-    card.className = "video-card";
-
-    /* ================= THUMBNAIL ================= */
-    let thumbnailHTML;
-    if (video.thumbnail) {
-      thumbnailHTML = `
-        <img
-          src="${escapeHTML(video.thumbnail)}"
-          alt="${escapeHTML(video.title)}"
-          loading="lazy"
-        >
-      `;
-    } else {
-      thumbnailHTML = `
-        <div class="thumb-placeholder">
-          🎬
-        </div>
-      `;
-    }
-
-    /* ================= CARD ================= */
-    card.innerHTML = `
-      <div class="thumb">
-        ${thumbnailHTML}
+  videoGrid.innerHTML = posts.map(post => `
+    <div class="video-card">
+      <div class="thumb" onclick="openModal('${post.id}')">
+        ${post.thumbnail_url 
+          ? `<img src="${post.thumbnail_url}" alt="Thumbnail" />` 
+          : `<div class="thumb-placeholder">🎬</div>`}
       </div>
-
       <div class="card-body">
-        <h3>
-          ${escapeHTML(video.title)}
-        </h3>
-        <div class="meta">
-          ${escapeHTML(video.category)}
-        </div>
-        <button
-          class="open-btn"
-          type="button"
-        >
-          🔒 Watch Ad
-        </button>
+        <h3>${escapeHTML(post.title || "Untitled")}</h3>
+        <div class="meta">Views: ${post.views}</div>
+        <button class="open-btn" onclick="openModal('${post.id}')">Watch Video</button>
       </div>
-    `;
-
-    /* ================= WATCH BUTTON ================= */
-    const openBtn = card.querySelector(".open-btn");
-    openBtn.addEventListener("click", event => {
-      event.stopPropagation();
-      openVideo(video);
-    });
-
-    /* ================= THUMBNAIL CLICK ================= */
-    const thumb = card.querySelector(".thumb");
-    if (thumb) {
-      thumb.addEventListener("click", () => {
-        openVideo(video);
-      });
-    }
-
-    videoGrid.appendChild(card);
-  });
+    </div>
+  `).join("");
 }
 
-/* =========================================================
-   OPEN VIDEO MODAL
-========================================================= */
+/* MODAL LOGIC */
+function openModal(id) {
+  const post = allPosts.find(p => p.id === id);
+  if (!post) return;
 
-function openVideo(video) {
-  selectedVideo = video;
-  adsWatched = 0;
-  adLoading = false;
-
-  modalTitle.textContent = video.title || "Video";
-  modalText.textContent = "Watch 3 ads to unlock this video.";
-
-  /* ================= PREVIEW ================= */
-  if (video.thumbnail) {
-    preview.innerHTML = `
-      <img
-        src="${escapeHTML(video.thumbnail)}"
-        alt=""
-      >
-    `;
-  } else {
-    preview.innerHTML = `
-      <div
-        style="
-          width:100%;
-          height:100%;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font-size:50px;
-        "
-      >
-        🎬
-      </div>
-    `;
-  }
+  currentVideoCode = id;
+  currentAdsWatched = 0;
+  updateModalUI(post);
 
   modal.classList.remove("hidden");
-
-  videoBtn.disabled = true;
-  videoBtn.textContent = "🔒 Video Locked";
-  watchAdBtn.disabled = false;
-
-  updateUnlockUI();
 }
 
-/* =========================================================
-   UPDATE UNLOCK UI
-========================================================= */
+function updateModalUI(post) {
+  document.getElementById("modalTitle").textContent = post.title || "Video";
+  
+  const pct = Math.floor((currentAdsWatched / REQUIRED_ADS) * 100);
+  progressBar.style.width = `${pct}%`;
+  adCount.textContent = `${currentAdsWatched} / ${REQUIRED_ADS} Ads Completed`;
+  
+  watchAdBtn.textContent = `▶ Watch Ad (${currentAdsWatched}/${REQUIRED_ADS})`;
 
-function updateUnlockUI() {
-  watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-  adCount.textContent = `${adsWatched} / ${requiredAds} Ads Completed`;
-
-  const percent = (adsWatched / requiredAds) * 100;
-  progressBar.style.width = `${percent}%`;
-
-  /* ================= UNLOCKED ================= */
-  if (adsWatched >= requiredAds) {
-    videoBtn.disabled = false;
-    videoBtn.textContent = "▶ Watch Video";
-    modalText.textContent = "🎉 All ads completed! Your video is unlocked.";
+  if (currentAdsWatched >= REQUIRED_ADS) {
     watchAdBtn.disabled = true;
-    watchAdBtn.textContent = "✓ Ads Completed";
-  }
-  /* ================= LOCKED ================= */
-  else {
+    videoBtn.disabled = false;
+    videoBtn.textContent = "🔓 Watch Video";
+  } else {
+    watchAdBtn.disabled = false;
     videoBtn.disabled = true;
     videoBtn.textContent = "🔒 Video Locked";
-    watchAdBtn.disabled = false;
   }
 }
 
-/* =========================================================
-   MONETAG REWARDED AD
-========================================================= */
-
-async function showRewardedAd() {
-  if (adLoading || adsWatched >= requiredAds) {
-    return;
+/* ADS LOGIC */
+watchAdBtn.addEventListener("click", () => {
+  if (typeof show_11571866 === "function") {
+    show_11571866().then(() => {
+      onAdWatched();
+    }).catch(() => {
+      onAdWatched();
+    });
+  } else {
+    onAdWatched();
   }
-
-  adLoading = true;
-  watchAdBtn.disabled = true;
-  watchAdBtn.textContent = "⏳ Loading Ad...";
-
-  try {
-    if (typeof window.show_11571866 !== "function") {
-      throw new Error("Monetag SDK is not loaded.");
-    }
-
-    const result = await window.show_11571866();
-    adsWatched++;
-    console.log("Monetag ad completed:", result);
-    updateUnlockUI();
-
-  } catch (error) {
-    console.error("Monetag ad failed:", error);
-    modalText.textContent = "Ad is not available right now. Please try again.";
-    watchAdBtn.textContent = `▶ Watch Ad (${adsWatched}/${requiredAds})`;
-    watchAdBtn.disabled = false;
-  } finally {
-    adLoading = false;
-  }
-}
-
-/* =========================================================
-   WATCH AD BUTTON
-========================================================= */
-
-watchAdBtn.addEventListener("click", showRewardedAd);
-
-/* =========================================================
-   WATCH VIDEO BUTTON
-========================================================= */
-
-videoBtn.addEventListener("click", () => {
-  if (!selectedVideo || adsWatched < requiredAds) {
-    return;
-  }
-
-  const videoId = encodeURIComponent(selectedVideo.id);
-  const videoUrl = encodeURIComponent(selectedVideo.videoUrl || "");
-
-  window.location.href = `video.html?id=${videoId}&url=${videoUrl}`;
 });
 
-/* =========================================================
-   CLOSE MODAL
-========================================================= */
+function onAdWatched() {
+  if (currentAdsWatched < REQUIRED_ADS) {
+    currentAdsWatched++;
+    const post = allPosts.find(p => p.id === currentVideoCode);
+    if (post) updateModalUI(post);
+  }
+}
 
-closeModal.addEventListener("click", () => {
+videoBtn.addEventListener("click", () => {
+  if (currentAdsWatched >= REQUIRED_ADS && currentVideoCode) {
+    window.location.href = `video.html?code=${currentVideoCode}`;
+  }
+});
+
+closeModalBtn.addEventListener("click", () => {
   modal.classList.add("hidden");
 });
 
-/* =========================================================
-   CLICK OUTSIDE MODAL
-========================================================= */
-
-modal.addEventListener("click", event => {
-  if (event.target === modal) {
-    modal.classList.add("hidden");
-  }
-});
-
-/* =========================================================
-   CATEGORY BUTTONS
-========================================================= */
-
-document.querySelectorAll(".category-btn").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll(".category-btn").forEach(btn => {
-      btn.classList.remove("active");
-    });
-    button.classList.add("active");
-    render(button.dataset.category);
-  });
-});
-
-/* =========================================================
-   BOTTOM NAV
-========================================================= */
-
-document.querySelectorAll(".bottom-nav button").forEach(button => {
-  button.addEventListener("click", () => {
-    const category = button.dataset.bottomCategory;
-
-    document.querySelectorAll(".bottom-nav button").forEach(btn => {
-      btn.classList.remove("bottom-active");
-    });
-
-    button.classList.add("bottom-active");
-
-    document.querySelectorAll(".category-btn").forEach(btn => {
-      btn.classList.toggle(
-        "active",
-        btn.dataset.category === category
-      );
-    });
-
-    render(category);
-  });
-});
-
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
-function escapeHTML(value) {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+function escapeHTML(str) {
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  }[m]));
 }
 
-/* =========================================================
-   START
-========================================================= */
-
-loadPosts();
+fetchPosts();
