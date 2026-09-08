@@ -24,7 +24,7 @@ const videos = [
    
 {
 id: "x7pdzvpfeuw7",
-title: " sex video 1",
+title: "sex video 1",
 category: "Popular", 
 thumbnail: "https://i.ibb.co/zhvtNwYX/Screenshot-2026-09-08-17-57-33-31-99c04817c0de5652397fc8b56c3b3817.jpg"
 }
