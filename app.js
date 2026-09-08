@@ -26,11 +26,14 @@ const videoBtn = document.getElementById("videoBtn");
 const progressBar = document.getElementById("progressBar");
 const adCount = document.getElementById("adCount");
 
-/* FETCH DOODSTREAM VIDEOS */
+/* FETCH DOODSTREAM VIDEOS (CORS Proxy যুক্ত) */
 async function fetchPosts() {
   try {
-    const url = `${DOOD_BASE_URL}/file/list?key=${DOODSTREAM_API_KEY}`;
-    const res = await fetch(url);
+    const targetUrl = `${DOOD_BASE_URL}/file/list?key=${DOODSTREAM_API_KEY}`;
+    // CORS Proxy ব্যবহার করে ব্রাউজারের ব্লক বাইপাস করা হচ্ছে
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+
+    const res = await fetch(proxyUrl);
     const data = await res.json();
 
     if (data.status !== 200 || !data.result || !data.result.files) {
@@ -48,7 +51,7 @@ async function fetchPosts() {
     renderPosts(allPosts);
   } catch (err) {
     console.error(err);
-    videoGrid.innerHTML = `<div class="error-box">Doodstream থেকে ভিডিও লোড করা যাচ্ছে না। API Key বা কানেকশন পরীক্ষা করুন।</div>`;
+    videoGrid.innerHTML = `<div class="error-box">Doodstream থেকে ভিডিও লোড করা যাচ্ছে না। API Key অথবা ফাইল চেক করুন।</div>`;
   }
 }
 
