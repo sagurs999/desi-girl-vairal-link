@@ -1,81 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Watch Video</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: #000;
-      color: #fff;
+    body {
+      background: linear-gradient(135deg, #060817, #10162d, #061d28);
+      color: white;
       font-family: Arial, sans-serif;
-      overflow: hidden;
+      min-height: 100vh;
     }
-    .main-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      width: 100vw;
-      padding: 10px;
+    .page {
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+      padding: 18px;
+    }
+    .back {
+      border: 0;
+      background: linear-gradient(135deg, #405cff, #743cff);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-bottom: 22px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .card {
+      background: linear-gradient(145deg, rgba(31,37,62,.96), rgba(16,24,45,.96));
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #00d084, #00c6c9);
+      color: #00261d;
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 14px;
     }
     .video-container {
       width: 100%;
-      max-width: 900px;
-      aspect-ratio: 16/9;
-      background: #111;
-      border-radius: 8px;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      margin-top: 15px;
     }
     iframe {
       width: 100%;
       height: 100%;
       border: none;
     }
-    .back-btn {
-      margin-top: 15px;
-      padding: 10px 22px;
-      background: #3c5cf5;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 14px;
-      display: inline-block;
-    }
+    .status { text-align: center; padding: 35px 15px; color: #aeb6cf; }
+    .error { color: #ff8b9d; background: rgba(255,60,100,.08); border-radius: 18px; padding: 20px; }
   </style>
 </head>
+
 <body>
 
-  <div class="main-wrapper">
-    <div class="video-container">
-      <iframe 
-        id="videoIframe" 
-        src="" 
-        allow="fullscreen; autoplay; encrypted-media; picture-in-picture" 
-        allowfullscreen="true"
-        webkitallowfullscreen="true"
-        mozallowfullscreen="true">
-      </iframe>
-    </div>
+  <div class="page">
+    <button class="back" onclick="history.back()" type="button">← Back</button>
 
-    <a href="index.html" class="back-btn">⬅ Back to Home</a>
+    <div class="card">
+      <div class="badge">🔓 VIDEO UNLOCKED</div>
+
+      <div id="playerArea">
+        <div class="video-container">
+          <iframe 
+            id="videoIframe" 
+            src="" 
+            allow="fullscreen; autoplay; encrypted-media; picture-in-picture" 
+            allowfullscreen="true"
+            webkitallowfullscreen="true"
+            mozallowfullscreen="true">
+          </iframe>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const videoCode = urlParams.get('code');
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
 
-    if (videoCode) {
-      document.getElementById('videoIframe').src = `https://playmogo.com/e/${videoCode}`;
+    const params = new URLSearchParams(window.location.search);
+    const videoId = params.get("id");
+
+    if (videoId) {
+      // Doodstream/Playmogo Iframe Link
+      document.getElementById("videoIframe").src = `https://playmogo.com/e/${videoId}`;
     } else {
-      document.querySelector('.main-wrapper').innerHTML = "<h2>Video code not found!</h2><a href='index.html' class='back-btn'>Go Back</a>";
+      document.getElementById("playerArea").innerHTML = `
+        <div class="status error">
+          Video ID missing or invalid.
+        </div>
+      `;
     }
   </script>
+
 </body>
+
 </html>
