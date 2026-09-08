@@ -17,7 +17,7 @@ let adsWatched = 0;
 let adLoading = false;
 
 /* 
-  ভিডিও লিস্ট (weserv প্রক্সি ইউআরএল সহ)
+  ভিডিও লিস্ট
 */
 const videos = [
   {
@@ -56,7 +56,7 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 ========================================================= */
 function startHomepageAutoAds() {
   setInterval(() => {
-    // শুধুমাত্র মোডাল বন্ধ থাকলে এবং ইউজার হোমপেজে থাকলে অ্যাড লোড হবে
+    // শুধুমাত্র মোডাল বন্ধ থাকলে এবং ইউজার হোমপেজে থাকলে অ্যাড রান হবে
     if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
       console.log("Triggering 30-second automatic homepage ad...");
       window.show_11571866({
@@ -68,12 +68,12 @@ function startHomepageAutoAds() {
           timeout: 5,
           everyPage: false
         }
-      }).catch(err => console.log("Auto ad dismissed or failed:", err));
+      }).catch(err => console.log("Auto ad failed or skipped:", err));
     }
   }, 30000); // ৩০ সেকেন্ড
 }
 
-// অটো অ্যাড চালু
+// অটো অ্যাড চালুকরণ
 startHomepageAutoAds();
 
 /* =========================================================
@@ -172,7 +172,7 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   MANUAL WATCH AD BUTTON CLICK (Monetag Ad Trigger)
+   MANUAL WATCH AD BUTTON CLICK (অ্যাড শো হলেই কেবল কাউন্ট বাড়বে)
 ========================================================= */
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
@@ -183,7 +183,7 @@ async function showRewardedAd() {
 
   try {
     if (typeof window.show_11571866 === "function") {
-      // Monetag In-App Interstitial Ad Call
+      // Monetag Ad Call
       await window.show_11571866({
         type: 'inApp',
         inAppSettings: {
@@ -195,15 +195,16 @@ async function showRewardedAd() {
         }
       });
 
-      // অ্যাড সফলভাবে প্রদর্শন শেষে কাউন্ট ১ বাড়বে
+      // অ্যাড সফলভাবে ইউজারকে দেখানো হলেই কেবল কাউন্ট বাড়বে
       adsWatched++;
       updateUnlockUI();
     } else {
       throw new Error("Ad SDK not loaded");
     }
   } catch (error) {
-    console.error("Ad error:", error);
-    modalText.textContent = "❌ Ad not available or closed early. Please try again.";
+    // অ্যাড শো না করলে বা কোনো সমস্যা হলে কাউন্ট বাড়বে না
+    console.error("Ad not shown or error occurred:", error);
+    modalText.textContent = "❌ Ad did not show or was closed early. Try again.";
     updateUnlockUI();
   } finally {
     adLoading = false;
