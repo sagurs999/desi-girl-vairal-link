@@ -49,7 +49,7 @@ iframe{width:100%;height:100%;border:0;display:block;}
 </head>
 <body>
 <div class="container">
-  <!-- টেলিগ্রাম বাটন -->
+  <!-- টেলিগ্রাম বাটন (এটিতে ক্লিক করলে শুধু টেলিগ্রাম চ্যানেলে যাবে) -->
   <a class="telegram" href="https://t.me/hotvideo457" target="_blank" rel="noopener">
     🚀 JOIN TELEGRAM CHANNEL
   </a>
@@ -76,7 +76,7 @@ iframe{width:100%;height:100%;border:0;display:block;}
 </div>
 
 <script>
-/* app.js থেকে পাঠানো ভিডিও আইডি এবং টাইটেল ডিকোড করে রিসিভ করার লজিক */
+/* app.js বা পোস্ট থেকে পাঠানো ভিডিও আইডি ও টাইটেল রিসিভ করার লজিক */
 const urlParams = new URLSearchParams(window.location.search);
 const videoId = urlParams.get('id');
 const videoTitleParam = urlParams.get('title');
@@ -84,23 +84,23 @@ const videoTitleParam = urlParams.get('title');
 const videoFrame = document.getElementById("videoFrame");
 const videoTitle = document.getElementById("videoTitle");
 
-function loadDynamicVideo() {
+function loadCurrentVideo() {
   if (!videoId) {
     videoTitle.textContent = "Video not found!";
     return;
   }
 
-  // সরাসরি app.js এর পোস্ট থেকে প্রাপ্ত id দিয়ে پلےمگو (Playmogo) লিংক সেট করা হলো
+  // সরাসরি পোস্ট বা app.js থেকে আসা আইডি অনুযায়ী প্লেয়ারে ভিডিও লোড করবে
   videoFrame.src = `https://playmogo.com/e/${videoId}`;
 
   if (videoTitleParam) {
     videoTitle.textContent = decodeURIComponent(videoTitleParam);
   } else {
-    videoTitle.textContent = "Vairal Video Player";
+    videoTitle.textContent = "Vairal Video";
   }
 }
 
-loadDynamicVideo();
+loadCurrentVideo();
 </script>
 </body>
 </html>
