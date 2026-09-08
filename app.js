@@ -298,7 +298,7 @@ function initInAppInterstitial() {
         frequency: 10,
         capping: 0,
         interval: 40,
-        timeout: 5,
+        timeout: 40,
         everyPage: false
       }
     });
