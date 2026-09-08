@@ -52,21 +52,13 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 }
 
 /* =========================================================
-   HOMEPAGE AUTO AD LOOP (৩০ সেকেন্ড পর পর অটো অ্যাড)
+   HOMEPAGE AUTO AD (৩০ সেকেন্ড পর পর হোমপেজে অ্যাড আসবে)
 ========================================================= */
 function startHomepageAutoAds() {
   setInterval(() => {
+    // শুধুমাত্র মোডাল বন্ধ থাকা অবস্থায় (হোমপেজে) অটো অ্যাড ট্রাই করবে
     if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
-      window.show_11571866({
-        type: 'inApp',
-        inAppSettings: {
-          frequency: 1,
-          capping: 0,
-          interval: 30,
-          timeout: 5,
-          everyPage: false
-        }
-      }).catch(err => console.log("Auto ad skipped:", err));
+      window.show_11571866().catch(err => console.log("Auto ad skipped:", err));
     }
   }, 30000);
 }
@@ -169,7 +161,7 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   WATCH AD BUTTON WITH STRICT VERIFICATION
+   WATCH AD BUTTON (ম্যানুয়াল ক্লিক ১ ➔ ২ ➔ ৩ লজিক)
 ========================================================= */
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
@@ -180,29 +172,20 @@ async function showRewardedAd() {
 
   try {
     if (typeof window.show_11571866 === "function") {
-      // অ্যাড কল করা হচ্ছে
-      const adResult = await window.show_11571866({
-        type: 'inApp',
-        inAppSettings: {
-          frequency: 1,
-          capping: 0,
-          interval: 0,
-          timeout: 5,
-          everyPage: false
-        }
-      });
+      // বাটন চাপলে অ্যাড রান হবে
+      await window.show_11571866();
 
-      // অ্যাড সফলভাবে প্রদর্শন হওয়ার পর
+      // অ্যাড দেখা সফল হলে তবেই ১ যোগ হবে
       adsWatched += 1;
-      modalText.textContent = `✅ Ad watched successfully!`;
+      modalText.textContent = `✅ Ad (${adsWatched}/${requiredAds}) completed! Click again for next ad.`;
       updateUnlockUI();
 
     } else {
       throw new Error("Ad SDK missing");
     }
   } catch (error) {
-    console.error("Ad failed or not shown:", error);
-    // অ্যাড না দেখালে বা ব্যর্থ হলে কাউন্ট বাড়বে না
+    console.error("Ad failed or skipped:", error);
+    // অ্যাড শো না হলে কাউন্ট বাড়বে না
     modalText.innerHTML = `<span style="color:#ff4d4d; font-weight:bold;">Ad not available</span>`;
     updateUnlockUI();
   } finally {
