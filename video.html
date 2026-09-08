@@ -23,7 +23,7 @@
       color: #ffffff;
     }
 
-    /* Floating Back Button (Matches style.css Theme) */
+    /* Floating Back Button */
     .back-btn {
       position: fixed;
       top: 14px;
@@ -43,14 +43,13 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: transform 0.2s ease, background 0.2s ease;
     }
     .back-btn:active {
       transform: scale(0.95);
       background: linear-gradient(135deg, #3e5eff, #733dff);
     }
 
-    /* Video Player Container */
+    /* Player Container */
     .player-container {
       width: 100vw;
       height: 100vh;
@@ -67,7 +66,6 @@
       border: none;
     }
 
-    /* Error Overlay State */
     .error-msg {
       display: none;
       text-align: center;
@@ -75,27 +73,17 @@
       background: rgba(21, 26, 53, 0.9);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.5);
     }
-    .error-msg h2 {
-      font-size: 18px;
-      color: #ff4d4d;
-      margin-bottom: 8px;
-    }
-    .error-msg p {
-      font-size: 13px;
-      color: #b9c0dc;
-    }
+    .error-msg h2 { font-size: 18px; color: #ff4d4d; margin-bottom: 8px; }
+    .error-msg p { font-size: 13px; color: #b9c0dc; }
   </style>
 </head>
 <body>
 
-  <!-- Custom Floating Back Button -->
   <button class="back-btn" onclick="goBack()">
     ← Back
   </button>
 
-  <!-- Player Container -->
   <div class="player-container">
     <iframe 
       id="videoIframe" 
@@ -106,7 +94,6 @@
       allow="autoplay; fullscreen; picture-in-picture">
     </iframe>
 
-    <!-- Error Message UI -->
     <div id="errorBox" class="error-msg">
       <h2>⚠️ Invalid Request</h2>
       <p>Video ID is missing. Redirecting to home...</p>
@@ -114,13 +101,10 @@
   </div>
 
   <script>
-    // Initialize Telegram WebApp
     const tg = window.Telegram && window.Telegram.WebApp;
     if (tg) {
       tg.ready();
       tg.expand();
-      
-      // Enable Telegram Native Back Button
       if (tg.BackButton) {
         tg.BackButton.show();
         tg.BackButton.onClick(goBack);
@@ -131,20 +115,24 @@
       window.location.href = 'index.html';
     }
 
-    // Get Video ID from URL Parameter
     const urlParams = new URLSearchParams(window.location.search);
-    const videoId = urlParams.get('id');
+    let videoId = urlParams.get('id');
 
     if (videoId) {
+      videoId = decodeURIComponent(videoId).trim();
       const iframe = document.getElementById('videoIframe');
-      iframe.src = `https://playmogo.com/e/${decodeURIComponent(videoId)}`;
+
+      // যদি পুরো URL পাস করা থাকে (HTTP/HTTPS)
+      if (videoId.startsWith("http://") || videoId.startsWith("https://")) {
+        iframe.src = videoId;
+      } else {
+        // শুধু ID হলে Playmogo-র Embed URL তৈরি করা
+        iframe.src = `https://playmogo.com/e/${videoId}`;
+      }
     } else {
-      // Show Error UI and Auto Redirect
       document.getElementById('videoIframe').style.display = 'none';
       document.getElementById('errorBox').style.display = 'block';
-      setTimeout(() => {
-        goBack();
-      }, 2500);
+      setTimeout(goBack, 2500);
     }
   </script>
 
