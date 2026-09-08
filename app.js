@@ -52,11 +52,10 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 }
 
 /* =========================================================
-   HOMEPAGE AUTO AD LOOP ( ৩০ সেকেন্ড পর পর অটোমেটিক অ্যাড )
+   HOMEPAGE AUTO AD LOOP (৩০ সেকেন্ড পর পর অটোমেটিক অ্যাড)
 ========================================================= */
 function startHomepageAutoAds() {
   setInterval(() => {
-    // শুধুমাত্র মোডাল বন্ধ থাকলে এবং ইউজার হোমপেজে থাকলে অ্যাড রান হবে
     if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
       console.log("Triggering 30-second automatic homepage ad...");
       window.show_11571866({
@@ -70,10 +69,9 @@ function startHomepageAutoAds() {
         }
       }).catch(err => console.log("Auto ad failed or skipped:", err));
     }
-  }, 30000); // ৩০ সেকেন্ড
+  }, 30000);
 }
 
-// অটো অ্যাড চালুকরণ
 startHomepageAutoAds();
 
 /* =========================================================
@@ -156,7 +154,7 @@ function updateUnlockUI() {
   if (adsWatched >= requiredAds) {
     videoBtn.disabled = false;
     videoBtn.textContent = "▶ Watch Video";
-    modalText.textContent = "🎉 All ads completed! Your video is unlocked.";
+    modalText.textContent = "🎉 All 3 ads completed! Your video is unlocked.";
     watchAdBtn.disabled = true;
     watchAdBtn.textContent = "✓ Ads Completed";
   } else {
@@ -172,18 +170,18 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   MANUAL WATCH AD BUTTON CLICK (অ্যাড শো হলেই কেবল কাউন্ট বাড়বে)
+   REWARDED AD BUTTON CLICK (১টি অ্যাড শেষ হলে তবেই ১ বাড়বে)
 ========================================================= */
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
 
   adLoading = true;
   watchAdBtn.disabled = true;
-  watchAdBtn.textContent = "⏳ Loading Ad...";
+  watchAdBtn.textContent = "⏳ Showing Ad...";
 
   try {
     if (typeof window.show_11571866 === "function") {
-      // Monetag Ad Call
+      // অ্যাডটি ডিসপ্লে করা হচ্ছে এবং সম্পূর্ণ হওয়া পর্যন্ত await করবে
       await window.show_11571866({
         type: 'inApp',
         inAppSettings: {
@@ -195,16 +193,17 @@ async function showRewardedAd() {
         }
       });
 
-      // অ্যাড সফলভাবে ইউজারকে দেখানো হলেই কেবল কাউন্ট বাড়বে
-      adsWatched++;
+      // অ্যাড সফলভাবে শেষ হলেই কেবল ১টি কাউন্ট যোগ হবে
+      adsWatched += 1;
       updateUnlockUI();
+
     } else {
       throw new Error("Ad SDK not loaded");
     }
   } catch (error) {
-    // অ্যাড শো না করলে বা কোনো সমস্যা হলে কাউন্ট বাড়বে না
-    console.error("Ad not shown or error occurred:", error);
-    modalText.textContent = "❌ Ad did not show or was closed early. Try again.";
+    // অ্যাড সম্পূর্ণ না দেখলে বা কোনো সমস্যা হলে কাউন্ট বাড়বে না
+    console.error("Ad closed or failed:", error);
+    modalText.textContent = "❌ Ad was not completed. Please watch the full ad to count.";
     updateUnlockUI();
   } finally {
     adLoading = false;
