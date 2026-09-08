@@ -20,7 +20,7 @@ const videos = [
     title: "Step Brother 2023 - English Short Film",
     category: "Trending",
     thumbnail: "https://i.ibb.co/YF39Dw1h/Step-Brother-2023-English-Short-Film-Sex-Mex.jpg"
-  };
+  }
    
 {
 id: "x7pdzvpfeuw7",
