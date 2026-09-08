@@ -52,6 +52,7 @@ const videos = [
   },
   {
    id: "hos5vx536juy",
+   url: "https://playmogo.com/e/hos5vx536juy",
    title: "sex video",
    category: "Hot video",
    thumbnail: "https://i.ibb.co/BVsYqV4Q/Screenshot-2026-09-09-01-28-42-65-99c04817c0de5652397fc8b56c3b3817.jpg"
