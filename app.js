@@ -11,13 +11,13 @@ if (tg) {
 /* =========================================================
    STATE & DATA
 ========================================================= */
-const requiredAds = 3; // ৩টি অ্যাড দিয়ে ১, ২, ৩ কাউন্ট হবে
+const requiredAds = 3; 
 let selectedVideo = null;
 let adsWatched = 0;
 let adLoading = false;
 
 /* 
-  ভিডিও লিস্ট
+  ভিডিও ডাটাবেজ
 */
 const videos = [
   {
@@ -52,25 +52,24 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 }
 
 /* =========================================================
-   HOMEPAGE AUTO AD LOOP (৩০ সেকেন্ড পর পর অটোমেটিক অ্যাড)
+   HOMEPAGE AUTO AD LOOP (৩০ সেকেন্ড পর পর অটো অ্যাড)
 ========================================================= */
 function startHomepageAutoAds() {
   setInterval(() => {
-    // শুধুমাত্র মোডাল বন্ধ থাকলে এবং ইউজার হোমপেজে থাকলে অ্যাড রান হবে
     if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
-      console.log("Triggering 30-second automatic homepage ad...");
+      console.log("Triggering 30-second automatic ad...");
       window.show_11571866({
         type: 'inApp',
         inAppSettings: {
-          frequency: 2,
-          capping: 0.1,
+          frequency: 1,
+          capping: 0,
           interval: 30,
           timeout: 5,
           everyPage: false
         }
-      }).catch(err => console.log("Auto ad failed or skipped:", err));
+      }).catch(err => console.log("Auto ad skipped:", err));
     }
-  }, 30000); // ৩০,০০০ মিলিসেকেন্ড = ৩০ সেকেন্ড
+  }, 30000);
 }
 
 startHomepageAutoAds();
@@ -171,7 +170,7 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   WATCH AD BUTTON CLICK (অ্যাড ফুল দেখার পরেই ১, ২, ৩ কাউন্ট হবে)
+   WATCH AD BUTTON (অ্যাড ফুল দেখার পর কাউন্ট ১, ২, ৩ হবে)
 ========================================================= */
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
@@ -182,19 +181,19 @@ async function showRewardedAd() {
 
   try {
     if (typeof window.show_11571866 === "function") {
-      // Monetag ইন-অ্যাপ অ্যাড চালুকরণ
+      // অ্যাড আসা পর্যন্ত ওয়েট করবে
       await window.show_11571866({
         type: 'inApp',
         inAppSettings: {
-          frequency: 2,
-          capping: 0.1,
-          interval: 30,
+          frequency: 1,
+          capping: 0,
+          interval: 0,
           timeout: 5,
           everyPage: false
         }
       });
 
-      // অ্যাড সফলভাবে প্রদর্শন সম্পন্ন হলে ১ করে কাউন্ট বৃদ্ধি
+      // অ্যাড সফলভাবে প্রদর্শন সম্পন্ন হওয়ার পরেই ১ যোগ হবে
       adsWatched += 1;
       updateUnlockUI();
 
@@ -202,9 +201,8 @@ async function showRewardedAd() {
       throw new Error("Ad SDK not loaded");
     }
   } catch (error) {
-    // অ্যাড ইউজার বন্ধ করে দিলে বা না দেখালে কাউন্ট যোগ হবে না
-    console.error("Ad not completed or failed:", error);
-    modalText.textContent = "❌ Ad was closed early. Please watch full ad to increment count.";
+    console.error("Ad not completed:", error);
+    modalText.textContent = "❌ Please watch full ad to increment count.";
     updateUnlockUI();
   } finally {
     adLoading = false;
@@ -230,7 +228,7 @@ modal.addEventListener("click", event => {
 });
 
 /* =========================================================
-   CATEGORY BUTTONS & NAVIGATION
+   CATEGORY NAVIGATION
 ========================================================= */
 document.querySelectorAll(".category-btn").forEach(button => {
   button.addEventListener("click", () => {
