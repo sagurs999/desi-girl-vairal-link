@@ -63,6 +63,18 @@
       height: 100%;
       border: none;
     }
+    .ad-banner-space {
+      margin-top: 20px;
+      width: 100%;
+      min-height: 100px;
+      background: rgba(255,255,255,0.05);
+      border: 1px dashed rgba(255,255,255,0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
     .status { text-align: center; padding: 35px 15px; color: #aeb6cf; }
     .error { color: #ff8b9d; background: rgba(255,60,100,.08); border-radius: 18px; padding: 20px; }
   </style>
@@ -88,6 +100,12 @@
           </iframe>
         </div>
       </div>
+
+      <!-- Player Ad Container ( HillTopAds / ExoClick Banner Code Here ) -->
+      <div class="ad-banner-space">
+        <!-- HillTopAds বা অন্য নেটওয়ার্কের অ্যাড কোড (Script/Banner) এখানে পেস্ট করুন -->
+      </div>
+
     </div>
   </div>
 
@@ -102,7 +120,6 @@
     const videoId = params.get("id");
 
     if (videoId) {
-      // Doodstream/Playmogo Iframe Player URL
       document.getElementById("videoIframe").src = `https://playmogo.com/e/${videoId}`;
     } else {
       document.getElementById("playerArea").innerHTML = `
