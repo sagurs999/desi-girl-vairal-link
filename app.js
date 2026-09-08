@@ -285,34 +285,20 @@ function escapeHTML(value) {
     .replace(/'/g, "&#039;");
 }
 
-
 /* =========================================================
-   MONETAG IN-APP INTERSTITIAL (EVERY 40 SECONDS)
+   MONETAG IN-APP INTERSTITIAL (EXACT 40 SECONDS INTERVAL)
 ========================================================= */
 
 function initInAppInterstitial() {
   if (typeof window.show_11571866 === "function") {
-    window.show_11571866({
-      type: 'inApp',
-      inAppSettings: {
-        frequency: 10,
-        capping: 0,
-        interval: 40,
-        timeout: 5,
-        everyPage: false
-      }
-    });
+    // শুধুমাত্র ৪০ সেকেন্ড পর পর একবার করে অ্যাড কল করার টাইমার
+    setInterval(() => {
+      window.show_11571866();
+    }, 40000); 
   } else {
     setTimeout(initInAppInterstitial, 1000);
   }
 }
 
-// ৪ জন সিকিউর লুপ: প্রতি ৪০ সেকেন্ডে অ্যাড শো করার টাইমার
-setInterval(() => {
-  if (typeof window.show_11571866 === "function") {
-    window.show_11571866();
-  }
-}, 40000);
-
-loadPosts();
 initInAppInterstitial();
+
