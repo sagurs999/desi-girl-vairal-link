@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
   <title>Desi Girl Vairal Link</title>
-  
+
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Monetag Ad SDK -->
+
+  <!-- Monetag Ad SDK Script -->
   <script src="https://libtl.com/sdk.js" data-zone="11571866" data-sdk="show_11571866"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: Arial, sans-serif;
-      background: #080d1d;
+      background: #0b1120;
       color: #fff;
       padding: 15px;
     }
@@ -25,97 +26,144 @@
       border-radius: 12px;
       margin-bottom: 20px;
     }
+    .header h2 { font-size: 18px; }
+    .header p { font-size: 12px; color: #a0a8c7; margin-top: 4px; }
+
+    /* Video Grid */
     .video-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 15px;
     }
-    .card {
-      background: #1b2034;
+    .video-card {
+      background: #151c33;
       border-radius: 12px;
       padding: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .thumb {
       width: 100%;
-      height: 100px;
+      height: 110px;
       background: #252d50;
       border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 30px;
-      overflow: hidden;
+      font-size: 28px;
     }
     .thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .card h3 {
-      font-size: 14px;
+    .card-body h3 {
+      font-size: 13px;
       margin: 10px 0 5px;
-      height: 36px;
+      line-height: 1.3;
+      height: 34px;
       overflow: hidden;
     }
-    .btn {
+    .meta { font-size: 11px; color: #8c93b0; margin-bottom: 10px; }
+    
+    .open-btn {
       width: 100%;
       background: #3c5cf5;
-      color: white;
-      border: 0;
+      color: #fff;
+      border: none;
       padding: 8px;
-      border-radius: 8px;
+      border-radius: 6px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
     }
+
+    /* Modal / Pop-up */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .modal.hidden { display: none; }
+    .modal-content {
+      background: #1b223c;
+      width: 100%;
+      max-width: 350px;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 22px;
+      color: #aaa;
+      cursor: pointer;
+    }
+    .progress-box {
+      background: #0f1426;
+      border-radius: 10px;
+      height: 12px;
+      width: 100%;
+      margin: 15px 0 8px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background: #00d26a;
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .ad-count { font-size: 12px; color: #a0a8c7; margin-bottom: 15px; }
+    
+    .modal-action-btn {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 8px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    .watch-ad-btn { background: #e02424; color: #fff; }
+    .watch-ad-btn:disabled { background: #555; cursor: not-allowed; }
+    .video-unlock-btn { background: #00d26a; color: #fff; }
+    .video-unlock-btn:disabled { background: #333; color: #777; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
   <div class="header">
     <h2>🔐 Desi Girl Vairal Link</h2>
-    <p style="font-size: 12px; color: #a0a8c7;">Watch ads to unlock videos</p>
+    <p>Watch ads and unlock videos</p>
   </div>
 
-  <h3>Today's Videos 🔥</h3>
-  <br>
+  <h3 style="margin-bottom: 12px; font-size: 16px;">Today's Videos 🔥</h3>
 
-  <div id="videoGrid" class="video-grid">
-    <!-- Videos will load here -->
+  <div id="videoGrid" class="video-grid"></div>
+
+  <!-- Modal Pop-up -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="closeModal" class="close-btn">&times;</span>
+      <h3 id="modalTitle" style="font-size: 15px; margin-top: 10px;">Video Title</h3>
+
+      <div class="progress-box">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <div id="adCount" class="ad-count">0 / 3 Ads Completed</div>
+
+      <button id="watchAdBtn" class="modal-action-btn watch-ad-btn">▶ Watch Ad (0/3)</button>
+      <button id="videoBtn" class="modal-action-btn video-unlock-btn" disabled>🔒 Video Locked</button>
+    </div>
   </div>
 
-  <script>
-    // 1. Telegram WebApp Ready
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-    }
-
-    // 2. Videos Array
-    const allPosts = [
-      {
-        id: "0vascqz7njes",
-        title: "Stepbrother 2023 - English Short Film",
-        thumbnail_url: "https://img.doodcdn.io/snaps/0vascqz7njes.jpg"
-      }
-    ];
-
-    // 3. Render Videos
-    const videoGrid = document.getElementById("videoGrid");
-
-    if (allPosts.length > 0) {
-      videoGrid.innerHTML = allPosts.map(post => `
-        <div class="card">
-          <div class="thumb">
-            ${post.thumbnail_url ? `<img src="${post.thumbnail_url}">` : '🎬'}
-          </div>
-          <h3>${post.title}</h3>
-          <button class="btn" onclick="openVideo('${post.id}')">Watch Video</button>
-        </div>
-      `).join("");
-    } else {
-      videoGrid.innerHTML = "<p>No videos found</p>";
-    }
-
-    function openVideo(id) {
-      window.location.href = `video.html?code=${id}`;
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
