@@ -27,13 +27,12 @@ const videos = [
     category: "Popular",
     thumbnail: "https://i.ibb.co/zhvtNwYX/Screenshot-2026-09-08-17-57-33-31-99c04817c0de5652397fc8b56c3b3817.jpg"
   },
-   
-{
-id: "1zngyas64349",
-title: "Vairal Video",
-category: "Hot Video",
-thumbnail: "https://i.ibb.co/23nw3rN3/Screenshot-2026-09-08-19-13-02-92-99c04817c0de5652397fc8b56c3b3817.jpg "
-},
+   {
+    id: "1zngyas64349",
+    title: "Vairal Video",
+    category: "Hot Video",
+    thumbnail: "https://i.ibb.co/23nw3rN3/Screenshot-2026-09-08-19-13-02-92-99c04817c0de5652397fc8b56c3b3817.jpg"
+  },
 
 
 ];
