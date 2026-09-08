@@ -52,13 +52,13 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
 }
 
 /* =========================================================
-   HOMEPAGE AUTO AD (৩০ সেকেন্ড পর পর হোমপেজে অ্যাড আসবে)
+   HOMEPAGE AUTO AD (শুধুমাত্র হোমপেজে ৩০ সেকেন্ড পর পর ১টি অ্যাড)
 ========================================================= */
 function startHomepageAutoAds() {
   setInterval(() => {
-    // শুধুমাত্র মোডাল বন্ধ থাকা অবস্থায় (হোমপেজে) অটো অ্যাড ট্রাই করবে
-    if (modal.classList.contains("hidden") && typeof window.show_11571866 === "function") {
-      window.show_11571866().catch(err => console.log("Auto ad skipped:", err));
+    // ইউজার যখন কোনো মোডাল বা ওয়াচ বাটনে থাকবে না, তখন ৩০ সে. পর পর অ্যাড আসবে
+    if (modal.classList.contains("hidden") && !adLoading && typeof window.show_11571866 === "function") {
+      window.show_11571866().catch(err => console.log("Homepage auto ad skipped:", err));
     }
   }, 30000);
 }
@@ -161,7 +161,7 @@ function updateUnlockUI() {
 }
 
 /* =========================================================
-   WATCH AD BUTTON (ম্যানুয়াল ক্লিক ১ ➔ ২ ➔ ৩ লজিক)
+   WATCH AD BUTTON (বাটন চাপলে ১টি অ্যাড শো করবে ➔ কাউন্ট +১ হবে)
 ========================================================= */
 async function showRewardedAd() {
   if (adLoading || adsWatched >= requiredAds) return;
@@ -172,20 +172,20 @@ async function showRewardedAd() {
 
   try {
     if (typeof window.show_11571866 === "function") {
-      // বাটন চাপলে অ্যাড রান হবে
+      // বাটন ক্লিকের পর মাত্র ১টি অ্যাড কল হবে
       await window.show_11571866();
 
-      // অ্যাড দেখা সফল হলে তবেই ১ যোগ হবে
+      // অ্যাড সফলভাবে দেখানো সম্পন্ন হলে ১ যোগ হবে
       adsWatched += 1;
-      modalText.textContent = `✅ Ad (${adsWatched}/${requiredAds}) completed! Click again for next ad.`;
+      modalText.textContent = `✅ Ad (${adsWatched}/${requiredAds}) watched! Click button for next ad.`;
       updateUnlockUI();
 
     } else {
       throw new Error("Ad SDK missing");
     }
   } catch (error) {
-    console.error("Ad failed or skipped:", error);
-    // অ্যাড শো না হলে কাউন্ট বাড়বে না
+    console.error("Ad not shown or failed:", error);
+    // অ্যাড না দেখালে বা ব্যর্থ হলে কাউন্ট বাড়বে না
     modalText.innerHTML = `<span style="color:#ff4d4d; font-weight:bold;">Ad not available</span>`;
     updateUnlockUI();
   } finally {
