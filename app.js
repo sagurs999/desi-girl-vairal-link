@@ -64,7 +64,6 @@ const videos = [
    category: "Popular",
    thumbnail: "https://i.ibb.co/5hsSrdzF/Christmas-Special-Christmas-Present-2023-English-Short-Film-Sex-Mex.jpg"
    },
-   
 ];
 
 let selectedVideo = null;
@@ -94,9 +93,13 @@ const tgUser = document.getElementById("tgUser");
    TELEGRAM USER PROFILE
 ========================================================= */
 
+let telegramUserId = "guest_user";
 if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
   const user = tg.initDataUnsafe.user;
   tgUser.textContent = user.first_name || "Telegram User";
+  if (user.id) {
+    telegramUserId = String(user.id);
+  }
 }
 
 
@@ -110,7 +113,7 @@ function loadPosts() {
 
 
 /* =========================================================
-   RENDER VIDEO CARDS (CLICK ANYWHERE ON CARD)
+   RENDER VIDEO CARDS
 ========================================================= */
 
 function render(category = "All") {
@@ -126,7 +129,6 @@ function render(category = "All") {
     return;
   }
 
-  // Reverse array so latest added posts appear first
   const displayVideos = [...filteredVideos].reverse();
 
   displayVideos.forEach(video => {
@@ -146,7 +148,6 @@ function render(category = "All") {
       </div>
     `;
 
-    // পুরো কার্ডের যেকোনো জায়গায় ক্লিক করলেই মডাল ওপেন হবে
     card.addEventListener("click", () => {
       openVideo(video);
     });
@@ -165,7 +166,7 @@ function render(category = "All") {
 
 
 /* =========================================================
-   OPEN VIDEO MODAL
+   OPEN VIDEO MODAL & PRELOAD REWARDED AD
 ========================================================= */
 
 function openVideo(video) {
@@ -188,6 +189,11 @@ function openVideo(video) {
   watchAdBtn.disabled = false;
 
   updateUnlockUI();
+
+  // স্ক্রিনশটের গাইড অনুযায়ী প্রি-লোডিং অ্যাড কল করা হলো
+  if (typeof window.show_11571866 === "function") {
+    window.show_11571866({ type: 'preload', ymid: telegramUserId }).catch(() => {});
+  }
 }
 
 
@@ -217,7 +223,7 @@ function updateUnlockUI() {
 
 
 /* =========================================================
-   MONETAG REWARDED AD
+   MONETAG REWARDED AD (NEW PROMISE & YMID FORMAT)
 ========================================================= */
 
 async function showRewardedAd() {
@@ -232,9 +238,14 @@ async function showRewardedAd() {
       throw new Error("Ad SDK is not loaded.");
     }
 
-    await window.show_11571866();
+    // নতুন স্ক্রিনশটের নিয়ম অনুযায়ী .then() এবং .catch() স্ট্রাকচার এবং ymid এ Telegram ID পাস করা হলো
+    await window.show_11571866({ ymid: telegramUserId });
+    
     adsWatched++;
     updateUnlockUI();
+
+    // পরবর্তী অ্যাডের জন্য আবার প্রি-লোড করে রাখা
+    window.show_11571866({ type: 'preload', ymid: telegramUserId }).catch(() => {});
 
   } catch (error) {
     console.error("Ad failed:", error);
@@ -250,7 +261,7 @@ watchAdBtn.addEventListener("click", showRewardedAd);
 
 
 /* =========================================================
-   WATCH VIDEO (UPDATED TO REDIRECT TO video.html)
+   WATCH VIDEO 
 ========================================================= */
 
 videoBtn.addEventListener("click", () => {
@@ -259,7 +270,6 @@ videoBtn.addEventListener("click", () => {
   const videoUrl = encodeURIComponent(selectedVideo.url);
   const videoTitle = encodeURIComponent(selectedVideo.title);
   
-  // সরাসরি আপনার দেওয়া video.html পেজে লিংক এবং টাইটেল সহ রিডায়রেক্ট করবে
   window.location.href = `video.html?url=${videoUrl}&title=${videoTitle}`;
 });
 
@@ -314,14 +324,23 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   MONETAG IN-APP INTERSTITIAL (EXACT 40 SECONDS INTERVAL)
+   MONETAG IN-APP INTERSTITIAL (UPDATED SCREENSHOT FORMAT)
 ========================================================= */
 
 function initInAppInterstitial() {
   if (typeof window.show_11571866 === "function") {
-    setInterval(() => {
-      window.show_11571866();
-    }, 40000); 
+    // স্ক্রিনশটের ইন-অ্যাপ ইন্টারেস্টিয়াল গাইড অনুযায়ী সঠিক কনফিগারেশন প্যারামিটার সহ সেট করা হলো
+    window.show_11571866({
+      type: 'inApp',
+      ymid: telegramUserId,
+      inAppSettings: {
+        frequency: 2,
+        capping: 0.1,
+        interval: 30,
+        timeout: 5,
+        everyPage: false
+      }
+    });
   } else {
     setTimeout(initInAppInterstitial, 1000);
   }
@@ -329,5 +348,4 @@ function initInAppInterstitial() {
 
 initInAppInterstitial();
 
-// পেজ লোড হওয়ার সাথে সাথেই ভিডিওগুলো রেন্ডার করার জন্য
 loadPosts();
