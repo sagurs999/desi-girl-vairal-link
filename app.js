@@ -48,7 +48,7 @@ const videos = [
     url: "https://luluvdo.com/e/37urf9qdgfkf",
     title: "Waitress_(2026)_Moodx_Hindi Uncut_Hot_Short Film_Watch_Free",
     category: "Popular",
-    thumbnail: "https://i.ibb.co/xKHdTDX7/Waitress-2026-Moodx-Hindi-Uncut-Hot-Short-Film-Watch-Free.webp"
+    thumbnail: "https://ibb.co/j9RsXTnr.jpg"
   },
   {
    id: "hos5vx536juy",
