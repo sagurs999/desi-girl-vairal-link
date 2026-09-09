@@ -61,7 +61,7 @@ const videos = [
 id: "dp17ac2pyiml",
 url:  "https://playmogo.com/e/dp17ac2pyiml",
 title: "Christmas_Special-Christmas_Present_-2026-English_Short_Film-_SexMex",
-category: "popular",
+category: "Popular",
 thumbnail: "https://i.ibb.co/5hsSrdzF/Christmas-Special-Christmas-Present-2023-English-Short-Film-Sex-Mex.jpg"
 },
    
