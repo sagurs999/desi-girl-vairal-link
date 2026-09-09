@@ -48,7 +48,7 @@ const videos = [
     url: "https://luluvdo.com/e/37urf9qdgfkf",
     title: "Waitress_(2026)_Moodx_Hindi Uncut_Hot_Short Film_Watch_Free",
     category: "Popular",
-    thumbnail: "https://i.ibb.co/xKHdTDx7/Waitress-2026-Moodx-Hindi-Uncut-Hot-Short-Film-Watch-Free.webp"
+    thumbnail: "https://i.ibb.co/xKHdTDX7/Waitress-2026-Moodx-Hindi-Uncut-Hot-Short-Film-Watch-Free.webp"
   },
   {
    id: "hos5vx536juy",
@@ -57,7 +57,7 @@ const videos = [
    category: "Hot video",
    thumbnail: "https://i.ibb.co/BVsYqV4Q/Screenshot-2026-09-09-01-28-42-65-99c04817c0de5652397fc8b56c3b3817.jpg"
   },
-  ];
+];
 
 let selectedVideo = null;
 let adsWatched = 0;
@@ -138,7 +138,7 @@ function render(category = "All") {
       </div>
     `;
 
-    // পুরো কার্ডের যেকোনো জায়গায় ক্লিক করলেই মডাল ওপেন হবে
+    // পুরো কার্ডের যেকোনো জায়গায় ক্লিক করলেই মডাল ওপেন হবে
     card.addEventListener("click", () => {
       openVideo(video);
     });
@@ -242,13 +242,17 @@ watchAdBtn.addEventListener("click", showRewardedAd);
 
 
 /* =========================================================
-   WATCH VIDEO
+   WATCH VIDEO (UPDATED TO REDIRECT TO video.html)
 ========================================================= */
 
 videoBtn.addEventListener("click", () => {
   if (!selectedVideo || adsWatched < requiredAds) return;
-  const videoId = encodeURIComponent(selectedVideo.id);
-  window.location.href = `video.html?id=${videoId}`;
+  
+  const videoUrl = encodeURIComponent(selectedVideo.url);
+  const videoTitle = encodeURIComponent(selectedVideo.title);
+  
+  // সরাসরি আপনার দেওয়া video.html পেজে লিংক এবং টাইটেল সহ রিডায়রেক্ট করবে
+  window.location.href = `video.html?url=${videoUrl}&title=${videoTitle}`;
 });
 
 
@@ -317,5 +321,5 @@ function initInAppInterstitial() {
 
 initInAppInterstitial();
 
-// পেজ লোড হওয়ার সাথে সাথেই ভিডিওগুলো রেন্ডার করার জন্য
+// পেজ লোড হওয়ার সাথে সাথেই ভিডিওগুলো রেন্ডার করার জন্য
 loadPosts();
