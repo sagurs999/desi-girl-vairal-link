@@ -190,7 +190,6 @@ function openVideo(video) {
 
   updateUnlockUI();
 
-  // স্ক্রিনশটের গাইড অনুযায়ী প্রি-লোডিং অ্যাড কল করা হলো
   if (typeof window.show_11571866 === "function") {
     window.show_11571866({ type: 'preload', ymid: telegramUserId }).catch(() => {});
   }
@@ -223,7 +222,7 @@ function updateUnlockUI() {
 
 
 /* =========================================================
-   MONETAG REWARDED AD (NEW PROMISE & YMID FORMAT)
+   MONETAG REWARDED AD
 ========================================================= */
 
 async function showRewardedAd() {
@@ -238,13 +237,11 @@ async function showRewardedAd() {
       throw new Error("Ad SDK is not loaded.");
     }
 
-    // নতুন স্ক্রিনশটের নিয়ম অনুযায়ী .then() এবং .catch() স্ট্রাকচার এবং ymid এ Telegram ID পাস করা হলো
     await window.show_11571866({ ymid: telegramUserId });
     
     adsWatched++;
     updateUnlockUI();
 
-    // পরবর্তী অ্যাডের জন্য আবার প্রি-লোড করে রাখা
     window.show_11571866({ type: 'preload', ymid: telegramUserId }).catch(() => {});
 
   } catch (error) {
@@ -324,23 +321,15 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   MONETAG IN-APP INTERSTITIAL (UPDATED SCREENSHOT FORMAT)
+   MONETAG IN-APP INTERSTITIAL (EXACT 40 SECONDS INTERVAL)
 ========================================================= */
 
 function initInAppInterstitial() {
   if (typeof window.show_11571866 === "function") {
-    // স্ক্রিনশটের ইন-অ্যাপ ইন্টারেস্টিয়াল গাইড অনুযায়ী সঠিক কনফিগারেশন প্যারামিটার সহ সেট করা হলো
-    window.show_11571866({
-      type: 'inApp',
-      ymid: telegramUserId,
-      inAppSettings: {
-        frequency: 2,
-        capping: 0.1,
-        interval: 30,
-        timeout: 5,
-        everyPage: false
-      }
-    });
+    // আগের মতো প্রতি ৪০ সেকেন্ড পর পর স্বয়ংক্রিয়ভাবে অ্যাড দেখানোর জন্য setInterval সেট করা হলো
+    setInterval(() => {
+      window.show_11571866({ ymid: telegramUserId }).catch(() => {});
+    }, 40000); 
   } else {
     setTimeout(initInAppInterstitial, 1000);
   }
