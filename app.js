@@ -91,16 +91,14 @@ const tgUser = document.getElementById("tgUser");
 
 
 /* =========================================================
-   TELEGRAM USER PROFILE & YMID
+   TELEGRAM USER PROFILE
 ========================================================= */
 
-let telegramUserId = "guest_user";
+let telegramUserId = "guest";
 if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
   const user = tg.initDataUnsafe.user;
   tgUser.textContent = user.first_name || "Telegram User";
-  if (user.id) {
-    telegramUserId = String(user.id);
-  }
+  telegramUserId = String(user.id || "guest");
 }
 
 
@@ -169,7 +167,7 @@ function render(category = "All") {
 
 
 /* =========================================================
-   OPEN VIDEO MODAL (PRELOAD REWARDED AD)
+   OPEN VIDEO MODAL
 ========================================================= */
 
 function openVideo(video) {
@@ -191,12 +189,12 @@ function openVideo(video) {
   videoBtn.textContent = "🔒 Video Locked";
   watchAdBtn.disabled = false;
 
-  updateUnlockUI();
-
-  // স্ক্রিনশটের গাইড অনুযায়ী প্রি-লোডিং অ্যাড কল (Rewarded Interstitial)
-  if (typeof window.show_11571866 === "function") {
-    window.show_11571866({ type: 'preload', ymid: telegramUserId }).catch(() => {});
+  // স্ক্রিনশটের গাইড অনুযায়ী প্রি-লোড অ্যাড কল করা হচ্ছে
+  if (typeof window.show_11762716 === "function") {
+    window.show_11762716({ type: 'preload', ymid: telegramUserId }).catch(() => {});
   }
+
+  updateUnlockUI();
 }
 
 
@@ -226,7 +224,7 @@ function updateUnlockUI() {
 
 
 /* =========================================================
-   MONETAG REWARDED AD (PROMISE & YMID FORMAT)
+   MONETAG REWARDED INTERSTITIAL AD
 ========================================================= */
 
 async function showRewardedAd() {
@@ -237,18 +235,18 @@ async function showRewardedAd() {
   watchAdBtn.textContent = "⏳ Loading Ad...";
 
   try {
-    if (typeof window.show_11571866 !== "function") {
+    if (typeof window.show_11762716 !== "function") {
       throw new Error("Ad SDK is not loaded.");
     }
 
-    // স্ক্রিনশটের নিয়ম অনুযায়ী .then() / await ফরম্যাট এবং ymid পাস করা
-    await window.show_11571866({ ymid: telegramUserId });
+    // স্ক্রিনশট অনুযায়ী সঠিক প্যারামিটারসহ রিওয়ার্ডেড অ্যাড কল
+    await window.show_11762716({ ymid: telegramUserId });
     
     adsWatched++;
     updateUnlockUI();
 
     // পরবর্তী অ্যাডের জন্য প্রি-লোড করে রাখা
-    window.show_11571866({ type: 'preload', ymid: telegramUserId }).catch(() => {});
+    window.show_11762716({ type: 'preload', ymid: telegramUserId }).catch(() => {});
 
   } catch (error) {
     console.error("Ad failed:", error);
@@ -264,7 +262,7 @@ watchAdBtn.addEventListener("click", showRewardedAd);
 
 
 /* =========================================================
-   WATCH VIDEO (REDIRECT TO video.html)
+   WATCH VIDEO (UPDATED TO REDIRECT TO video.html)
 ========================================================= */
 
 videoBtn.addEventListener("click", () => {
@@ -273,6 +271,7 @@ videoBtn.addEventListener("click", () => {
   const videoUrl = encodeURIComponent(selectedVideo.url);
   const videoTitle = encodeURIComponent(selectedVideo.title);
   
+  // সরাসরি আপনার দেওয়া video.html পেজে লিংক এবং টাইটেল সহ রিডায়রেক্ট করবে
   window.location.href = `video.html?url=${videoUrl}&title=${videoTitle}`;
 });
 
@@ -327,25 +326,22 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   MONETAG IN-APP INTERSTITIAL (EXACT 40 SECONDS INTERVAL)
+   MONETAG IN-APP INTERSTITIAL AD
 ========================================================= */
 
 function initInAppInterstitial() {
-  if (typeof window.show_11571866 === "function") {
-    // স্ক্রিনশটের ইন-অ্যাপ গাইড অনুযায়ী সঠিক ফরম্যাটে ৪০ সেকেন্ড পর পর কল করা
-    setInterval(() => {
-      window.show_11571866({
-        type: 'inApp',
-        ymid: telegramUserId,
-        inAppSettings: {
-          frequency: 2,
-          capping: 0.1,
-          interval: 30,
-          timeout: 5,
-          everyPage: false
-        }
-      }).catch(() => {});
-    }, 40000); 
+  if (typeof window.show_11762716 === "function") {
+    // স্ক্রিনশটের ইন-অ্যাপ সেটিংস অনুযায়ী কনফিগারেশন
+    window.show_11762716({
+      type: 'inApp',
+      inAppSettings: {
+        frequency: 2,
+        capping: 0.1,
+        interval: 30,
+        timeout: 5,
+        everyPage: false
+      }
+    });
   } else {
     setTimeout(initInAppInterstitial, 1000);
   }
