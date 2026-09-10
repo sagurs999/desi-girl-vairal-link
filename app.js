@@ -327,31 +327,30 @@ function escapeHTML(value) {
 }
 
 /* =========================================================
-   MONETAG IN-APP INTERSTITIAL AD (EXACTLY EVERY 40 SECONDS)
+   MONETAG CUSTOM 40-SECOND INTERVAL IN-APP AD (10s Delay)
 ========================================================= */
 
-let inAppAdInitialized = false;
-
-function initInAppInterstitial() {
-  if (inAppAdInitialized) return;
-
+function triggerCustomInAppAd() {
   if (typeof window.show_11762716 === "function") {
-    inAppAdInitialized = true;
-    window.show_11762716({
-      type: 'inApp',
-      inAppSettings: {
-        frequency: 10,       // সেশনে মোট কতবার দেখাবে তার লিমিট
-        capping: 0.1,        // সময় ক্যাপ ফ্রিকোয়েন্সি
-        interval: 40,        // দুটি অ্যাডের মাঝখানে ন্যূনতম ৪০ সেকেন্ড বিরতি
-        timeout: 5,
-        everyPage: false
-      }
-    });
-  } else {
-    setTimeout(initInAppInterstitial, 1000);
+    // সরাসরি নির্দিষ্ট জোনের অ্যাড কল করা
+    window.show_11762716().catch(() => {});
   }
 }
 
-initInAppInterstitial();
+function startInAppAdTimer() {
+  // হোমপেজে ঢোকার ঠিক ১০ সেকেন্ড পর প্রথম অ্যাড দেখাবে
+  setTimeout(() => {
+    triggerCustomInAppAd();
+    
+    // এরপর থেকে ঠিক প্রতি ৪০ সেকেন্ড পর পর পরবর্তী অ্যাডগুলো আসবে
+    setInterval(() => {
+      triggerCustomInAppAd();
+    }, 40000); // 40000 মিলিসেকেন্ড = ৪০ সেকেন্ড
+    
+  }, 10000); // 10000 মিলিসেকেন্ড = ১০ সেকেন্ড
+}
+
+// পেজ লোড হওয়ার পর টাইমার চালু হবে
+startInAppAdTimer();
 
 loadPosts();
