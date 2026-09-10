@@ -59,12 +59,11 @@ const videos = [
   },
   {
    id: "dp17ac2pyiml",
-   url:  "https://playmogo.com/e/dp17ac2pyiml",
+   url: "https://playmogo.com/e/dp17ac2pyiml",
    title: "Christmas_Special-Christmas_Present_-2026-English_Short_Film-_SexMex",
    category: "Popular",
    thumbnail: "https://i.ibb.co/5hsSrdzF/Christmas-Special-Christmas-Present-2023-English-Short-Film-Sex-Mex.jpg"
    },
-   
 ];
 
 let selectedVideo = null;
@@ -112,7 +111,7 @@ function loadPosts() {
 
 
 /* =========================================================
-   RENDER VIDEO CARDS (CLICK ANYWHERE ON CARD)
+   RENDER VIDEO CARDS
 ========================================================= */
 
 function render(category = "All") {
@@ -128,7 +127,6 @@ function render(category = "All") {
     return;
   }
 
-  // Reverse array so latest added posts appear first
   const displayVideos = [...filteredVideos].reverse();
 
   displayVideos.forEach(video => {
@@ -148,7 +146,6 @@ function render(category = "All") {
       </div>
     `;
 
-    // পুরো কার্ডের যেকোনো জায়গায় ক্লিক করলেই মডাল ওপেন হবে
     card.addEventListener("click", () => {
       openVideo(video);
     });
@@ -189,7 +186,6 @@ function openVideo(video) {
   videoBtn.textContent = "🔒 Video Locked";
   watchAdBtn.disabled = false;
 
-  // স্ক্রিনশটের গাইড অনুযায়ী প্রি-লোড অ্যাড কল করা হচ্ছে
   if (typeof window.show_11762716 === "function") {
     window.show_11762716({ type: 'preload', ymid: telegramUserId }).catch(() => {});
   }
@@ -239,13 +235,11 @@ async function showRewardedAd() {
       throw new Error("Ad SDK is not loaded.");
     }
 
-    // স্ক্রিনশট অনুযায়ী সঠিক প্যারামিটারসহ রিওয়ার্ডেড অ্যাড কল
     await window.show_11762716({ ymid: telegramUserId });
     
     adsWatched++;
     updateUnlockUI();
 
-    // পরবর্তী অ্যাডের জন্য প্রি-লোড করে রাখা
     window.show_11762716({ type: 'preload', ymid: telegramUserId }).catch(() => {});
 
   } catch (error) {
@@ -262,7 +256,7 @@ watchAdBtn.addEventListener("click", showRewardedAd);
 
 
 /* =========================================================
-   WATCH VIDEO (UPDATED TO REDIRECT TO video.html)
+   WATCH VIDEO
 ========================================================= */
 
 videoBtn.addEventListener("click", () => {
@@ -271,7 +265,6 @@ videoBtn.addEventListener("click", () => {
   const videoUrl = encodeURIComponent(selectedVideo.url);
   const videoTitle = encodeURIComponent(selectedVideo.title);
   
-  // সরাসরি আপনার দেওয়া video.html পেজে লিংক এবং টাইটেল সহ রিডায়রেক্ট করবে
   window.location.href = `video.html?url=${videoUrl}&title=${videoTitle}`;
 });
 
@@ -331,7 +324,6 @@ function escapeHTML(value) {
 
 function initInAppInterstitial() {
   if (typeof window.show_11762716 === "function") {
-    // স্ক্রিনশটের ইন-অ্যাপ সেটিংস অনুযায়ী কনফিগারেশন
     window.show_11762716({
       type: 'inApp',
       inAppSettings: {
@@ -349,5 +341,4 @@ function initInAppInterstitial() {
 
 initInAppInterstitial();
 
-// পেজ লোড হওয়ার সাথে সাথেই ভিডিওগুলো রেন্ডার করার জন্য
 loadPosts();
