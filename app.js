@@ -336,10 +336,10 @@ function initInAppInterstitial() {
     window.show_11762716({
       type: 'inApp',
       inAppSettings: {
-        frequency: 2,        // প্রতি সেশনে সর্বোচ্চ কতবার অ্যাড দেখাবে
+        frequency: 1,        // প্রতি সেশনে সর্বোচ্চ কতবার অ্যাড দেখাবে
         capping: 0.011,      // সময় নিয়ন্ত্রণ (প্রায় ৪০ সেকেন্ড পর পর দেখানোর জন্য)
         interval: 40,        // দুটি অ্যাডের মাঝখানে ন্যূনতম ৪০ সেকেন্ড বিরতি
-        timeout: 2,
+        timeout: 1,
         everyPage: false
       }
     });
