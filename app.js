@@ -72,7 +72,15 @@ const videos = [
    category: "Hot video",
    thumbnail: "https://i.ibb.co/qLN4JtvG/Things-That-Wont-Happen-In-You.jpg"
   },
+  {
+   id: "dlne35i4crla",
+   url:  "https://playmogo.com/e/dlne35i4crla",
+   title: "Sex Video",
+   category: "Popular",
+   thumbnail: "https://i.ibb.co/WvDMQzZ6/Screenshot-2026-09-10-16-20-20-82-99c04817c0de5652397fc8b56c3b3817.jpg"
+  },
 
+   
 ];
 
 let selectedVideo = null;
