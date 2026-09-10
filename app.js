@@ -319,7 +319,7 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   MONETAG IN-APP INTERSTITIAL AD
+   MONETAG IN-APP INTERSTITIAL AD (EVERY 40 SECONDS)
 ========================================================= */
 
 function initInAppInterstitial() {
@@ -327,9 +327,9 @@ function initInAppInterstitial() {
     window.show_11762716({
       type: 'inApp',
       inAppSettings: {
-        frequency: 2,
-        capping: 0.1,
-        interval: 30,
+        frequency: 5,        // প্রতি সেশনে সর্বোচ্চ কতবার অ্যাড দেখাবে
+        capping: 0.011,      // সময় নিয়ন্ত্রণ (প্রায় ৪০ সেকেন্ড পর পর দেখানোর জন্য)
+        interval: 40,        // দুটি অ্যাডের মাঝখানে ন্যূনতম ৪০ সেকেন্ড বিরতি
         timeout: 5,
         everyPage: false
       }
