@@ -326,20 +326,24 @@ function escapeHTML(value) {
     .replace(/'/g, "&#039;");
 }
 
-
 /* =========================================================
-   MONETAG IN-APP INTERSTITIAL AD (EVERY 40 SECONDS)
+   MONETAG IN-APP INTERSTITIAL AD (EXACTLY EVERY 40 SECONDS)
 ========================================================= */
 
+let inAppAdInitialized = false;
+
 function initInAppInterstitial() {
+  if (inAppAdInitialized) return;
+
   if (typeof window.show_11762716 === "function") {
+    inAppAdInitialized = true;
     window.show_11762716({
       type: 'inApp',
       inAppSettings: {
-        frequency: 1,        // প্রতি সেশনে সর্বোচ্চ কতবার অ্যাড দেখাবে
-        capping: 0.011,      // সময় নিয়ন্ত্রণ (প্রায় ৪০ সেকেন্ড পর পর দেখানোর জন্য)
+        frequency: 10,       // সেশনে মোট কতবার দেখাবে তার লিমিট
+        capping: 0.1,        // সময় ক্যাপ ফ্রিকোয়েন্সি
         interval: 40,        // দুটি অ্যাডের মাঝখানে ন্যূনতম ৪০ সেকেন্ড বিরতি
-        timeout: 1,
+        timeout: 5,
         everyPage: false
       }
     });
