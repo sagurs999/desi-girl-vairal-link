@@ -67,7 +67,7 @@ const videos = [
 
   {
    id: "jp2p3pg0iqoj",
-   url:  "https://playmogo.com/d/jp2p3pg0iqoj",
+   url:  "https://playmogo.com/e/jp2p3pg0iqoj",
    title: "Things That Wont Happen In Your Fucking Life – Salome Gil - 2026 - English Short Film - SexMex",
    category: "Hot video",
    thumbnail: "https://i.ibb.co/qLN4JtvG/Things-That-Wont-Happen-In-You.jpg"
