@@ -100,6 +100,13 @@ const videos = [
    category: "Popular",
    thumbnail: "https://i.ibb.co/HD5ygqZS/A-Better-Day-2023-English-Uncut-Short-Film-Sex-Art.jpg"
   },
+  {
+   id: "milkdj7qq393",
+   url:  "https://playmogo.com/d/milkdj7qq393",
+   title:  "Click-MySistersHotFriend Blake Blossom - 2026 - English Short Film - Naughty America",
+   category: "Hot video",
+   thumbnail: "https://i.ibb.co/xtQ8GzR8/My-Sisters-Hot-Friend-Blake-Blossom-2023.jpg"
+  },
 ];
 
 let selectedVideo = null;
