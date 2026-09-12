@@ -93,7 +93,13 @@ const videos = [
    category: "Hot video",
    thumbnail: "https://i.ibb.co/S4Z2NdyN/Screenshot-2026-09-11-22-39-17-28-99c04817c0de5652397fc8b56c3b3817.jpg"
   },   
-   
+  {
+   id: "zz5jrsnzvhgr",
+   url:  "https://playmogo.com/d/zz5jrsnzvhgr",
+   title:  "A Better Day - 2026 - English Uncut Short Film - SexArt",
+   category: "Popular",
+   thumbnail: "https://i.ibb.co/HD5ygqZS/A-Better-Day-2023-English-Uncut-Short-Film-Sex-Art.jpg"
+  },
 ];
 
 let selectedVideo = null;
