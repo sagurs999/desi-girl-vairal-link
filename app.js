@@ -116,7 +116,7 @@ const videos = [
   },
   {
    id: "sxghsxnxuk4e",
-   url:  "https://playmogo.com/d/sxghsxnxuk4e",
+   url:  "https://playmogo.com/e/sxghsxnxuk4e",
    title:  "Mother-son sex video",
    category: "Hot video",
    thumbnail: "https://i.ibb.co/twt8TBpD/FB-IMG-1789301359708.jpg"
