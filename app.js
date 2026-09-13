@@ -88,21 +88,21 @@ const videos = [
   },
   {
    id: "1z565t0ax6f0",
-   url:  "https://playmogo.com/d/1z565t0ax6f0",
+   url:  "https://playmogo.com/e/1z565t0ax6f0",
    title:  "FUCKING MY DELICIOUS SISTER-IN-LAW IN THE SHOWER BEFORE THE CUCKOLD",
    category: "Hot video",
    thumbnail: "https://i.ibb.co/S4Z2NdyN/Screenshot-2026-09-11-22-39-17-28-99c04817c0de5652397fc8b56c3b3817.jpg"
   },   
   {
    id: "zz5jrsnzvhgr",
-   url:  "https://playmogo.com/d/zz5jrsnzvhgr",
+   url:  "https://playmogo.com/e/zz5jrsnzvhgr",
    title:  "A Better Day - 2026 - English Uncut Short Film - SexArt",
    category: "Popular",
    thumbnail: "https://i.ibb.co/HD5ygqZS/A-Better-Day-2023-English-Uncut-Short-Film-Sex-Art.jpg"
   },
   {
    id: "milkdj7qq393",
-   url:  "https://playmogo.com/d/milkdj7qq393",
+   url:  "https://playmogo.com/e/milkdj7qq393",
    title:  "Click-MySistersHotFriend Blake Blossom - 2026 - English Short Film - Naughty America",
    category: "Hot video",
    thumbnail: "https://i.ibb.co/xtQ8GzR8/My-Sisters-Hot-Friend-Blake-Blossom-2023.jpg"
