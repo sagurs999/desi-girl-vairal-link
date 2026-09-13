@@ -107,6 +107,14 @@ const videos = [
    category: "Hot video",
    thumbnail: "https://i.ibb.co/xtQ8GzR8/My-Sisters-Hot-Friend-Blake-Blossom-2023.jpg"
   },
+  {
+   id: "y23hwxxu2w5f",
+   url:  "https://playmogo.com/e/y23hwxxu2w5f",
+   title:  "AmericanDaydreams Lexi Stone - 2026 - English Short Film - Naughty America",
+   category: "Trending",
+   thumbnail: "https://i.ibb.co/SD5SFbTp/American-Daydreams-Lexi-Stone-2023.jpg"
+  },
+   
 ];
 
 let selectedVideo = null;
