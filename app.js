@@ -123,12 +123,18 @@ const videos = [
   },
   {
    id: "k9a1x1hqrhsi",
-   url:  "https://playmogo.com/d/k9a1x1hqrhsi",
+   url:  "https://playmogo.com/e/k9a1x1hqrhsi",
    title:  "Content Creator Secrets (2026) FamilyStrokes English Short Film 1080p",
    category: "Trending",
    thumbnail: "https://i.ibb.co/Z6Ms2vYj/Screenshot-2026-09-15-22-32-10-95-99c04817c0de5652397fc8b56c3b3817.jpg"
   },
-   
+  {
+   id: "x528qq6wqbnp",
+   url:  "https://playmogo.com/e/x528qq6wqbnp",
+   title:  "Powerful Wife (2026) HotwifeXXX Originals English Short Film 720p",
+   category: "Popular",
+   thumbnail: "https://i.ibb.co/J0zDpYH/Screenshot-2026-09-15-23-03-47-76-99c04817c0de5652397fc8b56c3b3817.jpg"
+  },
 ];
 
 let selectedVideo = null;
