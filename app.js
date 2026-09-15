@@ -121,7 +121,13 @@ const videos = [
    category: "Hot video",
    thumbnail: "https://i.ibb.co/twt8TBpD/FB-IMG-1789301359708.jpg"
   },
-   
+  {
+   id: "k9a1x1hqrhsi",
+   url:  "https://playmogo.com/d/k9a1x1hqrhsi",
+   title:  "Content Creator Secrets (2026) FamilyStrokes English Short Film 1080p",
+   category: "Trending",
+   thumbnail: "https://i.ibb.co/Z6Ms2vYj/Screenshot-2026-09-15-22-32-10-95-99c04817c0de5652397fc8b56c3b3817.jpg"
+  },
    
 ];
 
