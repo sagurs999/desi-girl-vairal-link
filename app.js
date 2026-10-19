@@ -152,6 +152,15 @@ const videos = [
   thumbnail: "https://i.ibb.co/99kz0GhY/Screenshot-2026-10-15-19-17-15-62-99c04817c0de5652397fc8b56c3b3817.jpg"
  },
 
+ {
+  id: "fpx4ytcjkahc",
+  url:  "https://playmogo.com/e/fpx4ytcjkahc",
+  title:  "Stripper Exchange Program (2026) Brazzers English Short Film 720p",
+  category: "Hot video",
+  thumbnail: "https://i.ibb.co/yBf2QX9s/Screenshot-2026-10-19-23-20-05-04-99c04817c0de5652397fc8b56c3b3817.jpg"
+ },
+
+
 ];
 
 let selectedVideo = null;
