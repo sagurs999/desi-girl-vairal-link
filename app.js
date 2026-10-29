@@ -168,6 +168,14 @@ const videos = [
   thumbnail: "https://i.ibb.co/bMcFdBgP/Screenshot-2026-10-24-15-53-55-57-99c04817c0de5652397fc8b56c3b3817.jpg"
  },
 
+ {
+  id: "0vmpgi7noxrd",
+  url:  "https://playmogo.com/e/0vmpgi7noxrd",
+  title:  "My Best Friends Mom - 2026 - English Short Film - SexMex",
+  category: "Hot video",
+  thumbnail: "https://i.ibb.co/B2Sh9k60/Screenshot-2026-10-29-23-03-46-42-99c04817c0de5652397fc8b56c3b3817.jpg"
+ },
+   
 ];
 
 let selectedVideo = null;
