@@ -203,11 +203,19 @@ const videos = [
  {
   id: "gi6rxvcrtzfr",
   url:  "https://playmogo.com/e/gi6rxvcrtzfr",
-  title:  "Stuck Analphoria (2026) Brazzers English Adult Video 720p ",
+  title:  "Stuck Analphoria (2026) Brazzers English Adult Video 720p",
   category: "Hot Video",
   thumbnail: "https://i.ibb.co/W42tY6tH/Screenshot-2026-11-12-14-32-39-92-99c04817c0de5652397fc8b56c3b3817.jpg"
  },
- 
+
+ {
+  id: "1ljyts6tcpbf",
+  url:  "https://playmogo.com/e/1ljyts6tcpbf",
+  title:  "Young Dosti (2026) Uncut Hindi Short Film 720p",
+  category: "Trending",
+  thumbnail: "https://i.ibb.co/pvjDH9Cv/Screenshot-2026-11-12-14-33-16-89-99c04817c0de5652397fc8b56c3b3817.jpg"
+ },
+   
 ];
 
 let selectedVideo = null;
