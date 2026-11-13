@@ -215,6 +215,14 @@ const videos = [
   category: "Trending",
   thumbnail: "https://i.ibb.co/pvjDH9Cv/Screenshot-2026-11-12-14-33-16-89-99c04817c0de5652397fc8b56c3b3817.jpg"
  },
+
+ {
+  id: "ugh4cd0lvql0",
+  url:  "https://playmogo.com/e/ugh4cd0lvql0",
+  title:  "Whitney Wright Frisk Reward - 2026 - English Short Film - AccidentalGangbang",
+  category: "Trending",
+  thumbnail: "https://i.ibb.co/W49GwdrS/Accidental-Gangbang-Whitney-Wright-Frisk-Reward-2023.jpg"
+ },
    
 ];
 
